@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Space PiouPiou</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" href="/assets/images/favicon.ico" type="image/x-icon">
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header id="header_game">
+    <div id="left_panel">
+      <button id="deconnexionBtn" class="icon-btn">
+        <img src="/shared/deconnexion.png" alt="Déconnexion">
+      </button>
+      <button id="pauseBtn" class="icon-btn">
+        <img src="/shared/pause.png" alt="Pause">
+      </button>
+    </div>
+
+    <div id="center_panel">
+      <img id="logo" src="/assets/images/spacepioupiou.png" alt="Space PiouPiou">
+    </div>
+
+    <div id="right_panel">
+      <div class="hud-row">
+        <span class="hud-label">LEVEL:</span>
+        <span id="levelBadge" class="hud-value">1</span>
+      </div>
+      <div id="xpBar"><div id="xpFill"></div></div>
+      <div class="hud-row">
+        <span class="hud-label">SCORE:</span>
+        <span id="score" class="hud-value">0</span>
+      </div>
+      <div id="lives_container"></div>
+      <span id="wave" style="display:none">1</span>
+    </div>
+  </header>
+
+  <!-- ZONE DE JEU -->
+  <main id="game_container">
+    <div id="my_grid" class="square_grid"></div>
+  </main>
+
+  <!-- FOOTER -->
+  <footer id="footer_panel">
+    <div id="powerups">
+      <div class="slot"></div>
+      <div class="slot"></div>
+      <div class="slot"></div>
+    </div>
+    <div id="wave_container">
+      <span class="hud-label">WAVE:</span>
+      <span id="waveText" class="hud-value">1</span>
+      <div id="waveBar" class="wave-bar"></div>
+    </div>
+  </footer>
+
+  <!-- Overlays & Canvas -->
+  <div id="comboOverlay" class="hidden">×<span id="comboCount">1</span></div>
+  <canvas id="explosionCanvas"></canvas>
+
+  <!-- Écran de démarrage -->
+  <div id="start-screen">
+    <h1>Space Piou Piou</h1>
+    <button id="start-button">Commencer le jeu</button>
+  </div>  
+  <!-- Écran GAME OVER -->
+  <div id="game-over-overlay" class="overlay hidden">
+    <h1>Game Over</h1>
+    <button id="retry-button">Rejouer</button>
+  </div>  
+  <!-- Écran PAUSE -->
+  <div id="pauseOverlay" class="overlay hidden">
+    <h1>Jeu en pause</h1>
+    <button id="resume-button">Reprendre</button>
+  </div>
+
+  <script src="invaders.js"></script>
+  <!-- Sons du jeu -->
+  <audio id="playerShoot" src="/assets/sounds/playerShoot.mp3"></audio>
+  <audio id="monsterShoot" src="/assets/sounds/monsterShoot.mp3"></audio>
+  <audio id="explosionMonstre" src="/assets/sounds/explosionMonstre.mp3"></audio>
+  <audio id="explosionBoss" src="/assets/sounds/explosion.wav"></audio>
+  <audio id="pickupPowerUp" src="/assets/sounds/pickupPowerUp.mp3"></audio>
+  <audio id="activatePowerUp" src="/assets/sounds/activatePowerUp.mp3"></audio>
+  <audio id="gameOver" src="/assets/sounds/gameOver.mp3"></audio>
+  <audio id="ambianceLoop" src="/assets/sounds/ambianceLoop.mp3" loop></audio>
+</body>
+</html>

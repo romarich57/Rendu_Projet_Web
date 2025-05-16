@@ -1,0 +1,109 @@
+/* securite.css */
+
+/* Variables globales */
+:root {
+  --dark-matter:   #020c1b;
+  --stardust:      #0a192f;
+  --quantum-blue:  #00f7ff;
+  --plasma-red:    #ff4655;
+  --neutron-white: #e0f7ff;
+  --warp-speed:    cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Reset simple */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Orbitron', sans-serif;
+  background: radial-gradient(ellipse at center,
+                var(--dark-matter) 0%,
+                var(--stardust)    100%);
+  color: var(--neutron-white);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Conteneur central */
+.cosmic-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  position: relative;
+}
+
+/* Bouton déconnexion */
+#logout-btn {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+  filter: drop-shadow(0 0 5px var(--quantum-blue));
+  transition: transform 0.2s var(--warp-speed);
+}
+#logout-btn:hover {
+  transform: scale(1.1);
+}
+
+/* En-tête */
+.hologram-header {
+  text-align: center;
+  margin-bottom: 4rem;
+  perspective: 1000px;
+}
+#cyber-username {
+  font-size: 2.8rem;
+  text-transform: uppercase;
+  background: linear-gradient(45deg,
+      var(--quantum-blue) 30%,
+      var(--plasma-red)   70%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  letter-spacing: 4px;
+  text-shadow: 0 0 30px rgba(0,247,255,0.4);
+}
+
+/* Carte « Réinitialiser mot de passe » */
+.security-card {
+  width: 100%;
+  max-width: 360px;
+  margin: 2rem auto;
+  background: rgba(10,25,47,0.3);
+  border: 2px solid var(--quantum-blue);
+  border-radius: 20px;
+  padding: 2.5rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.4s var(--warp-speed);
+  backdrop-filter: blur(10px);
+}
+.security-card:hover {
+  transform: translateY(-10px) scale(1.05);
+  box-shadow: 0 0 50px rgba(0,247,255,0.3);
+  background: rgba(10,25,47,0.6);
+}
+
+/* Icône */
+.nav-icon {
+  width: 100px;
+  height: 100px;
+  margin-bottom: 1.5rem;
+  filter: drop-shadow(0 0 15px var(--quantum-blue));
+  transition: all 0.3s var(--warp-speed);
+}
+.security-card:hover .nav-icon {
+  transform: rotate(15deg) scale(1.1);
+  filter: drop-shadow(0 0 25px var(--plasma-red));
+}
+
+/* Titre de la carte */
+.security-card h2 {
+  font-size: 1.4rem;
+  line-height: 1.3;
+}

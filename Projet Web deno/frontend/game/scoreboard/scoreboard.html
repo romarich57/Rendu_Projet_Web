@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Leaderboard Space PiouPiou</title>
+  <link rel="stylesheet" href="/game/scoreboard/stylescore.css" />
+</head>
+<body>
+  <div class="leaderboard-container">
+    <!-- HUD en haut -->
+    <img src="/assets/images/spacepioupiou1.png" alt="HUD Space PiouPiou" class="hud" />
+    <img src="/shared/deconnexion.png"
++        alt="Déconnexion"
+         id="logout-btn"
+         class="logout" />
+
+    <!-- Onglets -->
+    <div class="tabs">
+      <button id="top-scores-tab" class="tab active">Top Scores</button>
+      <button id="top-xp-tab"    class="tab">Top XP</button>
+    </div>
+
+    <hr class="divider" />
+
+    <!-- Tableau des données -->
+    <table id="leaderboard-table">
+      <thead>
+        <tr id="table-headers">
+          <!-- en-têtes injectés par JS -->
+        </tr>
+      </thead>
+      <tbody id="table-body">
+        <!-- lignes injectées par JS -->
+      </tbody>
+    </table>
+  </div>
+
+  <script src="/game/scoreboard/scoreboard.js"></script>
+</body>
+</html>

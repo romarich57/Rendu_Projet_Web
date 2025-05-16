@@ -1,0 +1,155 @@
+/* account.css */
+/* Thème spatial avancé */
+:root {
+    --stardust:      #0a192f;
+    --quantum-blue:  #00f7ff;
+    --plasma-red:    #ff4655;
+    --neutron-white: #e0f7ff;
+    --dark-matter:   #020c1b;
+    --warp-speed:    cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Reset général */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Orbitron', 'Electrolize', sans-serif;
+    background: radial-gradient(ellipse at center,
+                var(--dark-matter) 0%,
+                var(--stardust)    100%);
+    color: var(--neutron-white);
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+.cosmic-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+    position: relative;
+}
+
+.hologram-header {
+    text-align: center;
+    margin-bottom: 2rem;
+    perspective: 1000px;
+}
+
+/* Titre utilisateur */
+#cyber-username {
+    font-size: 2.8rem;
+    text-transform: uppercase;
+    background: linear-gradient(45deg,
+        var(--quantum-blue) 30%,
+        var(--plasma-red)   70%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    letter-spacing: 4px;
+    margin: 1rem 0 2rem;
+    text-shadow: 0 0 30px rgba(0, 247, 255, 0.4);
+}
+
+/* Bouton Déconnexion */
+#logout-btn {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+    filter: drop-shadow(0 0 5px var(--quantum-blue));
+    transition: transform 0.2s var(--warp-speed);
+}
+#logout-btn:hover {
+    transform: scale(1.1);
+}
+
+/* Grille 2 colonnes × 2 lignes */
+.nav-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-auto-rows: 1fr;
+    gap: 3rem;
+    margin-bottom: 5rem;
+}
+
+/* Carte générique */
+.nav-card {
+    background: rgba(10, 25, 47, 0.3);
+    border: 2px solid var(--quantum-blue);
+    border-radius: 20px;
+    padding: 2.5rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.4s var(--warp-speed);
+    position: relative;
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+}
+
+/* Effet hover carte */
+.nav-card:hover {
+    transform: translateY(-10px) scale(1.05);
+    box-shadow: 0 0 50px rgba(0, 247, 255, 0.3);
+    background: rgba(10, 25, 47, 0.6);
+}
+
+/* Icône */
+.nav-icon {
+    width: 100px;
+    height: 100px;
+    margin-bottom: 1.5rem;
+    filter: drop-shadow(0 0 15px var(--quantum-blue));
+    transition: all 0.3s var(--warp-speed);
+}
+.nav-card:hover .nav-icon {
+    transform: rotate(15deg) scale(1.1);
+    filter: drop-shadow(0 0 25px var(--plasma-red));
+}
+
+/* Bordure pulsante */
+.pulse-border {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    border-radius: 20px;
+    animation: borderPulse 2s infinite;
+}
+@keyframes borderPulse {
+    0% { box-shadow: 0 0 10px var(--quantum-blue); }
+   50% { box-shadow: 0 0 30px var(--plasma-red); }
+  100% { box-shadow: 0 0 10px var(--quantum-blue); }
+}
+
+/* Panneaux d'interface (si utilisés) */
+.interface-panel {
+    display: none;
+    background: rgba(10, 25, 47, 0.9);
+    border: 3px solid var(--quantum-blue);
+    border-radius: 25px;
+    padding: 3rem;
+    margin: 2rem 0;
+    backdrop-filter: blur(15px);
+    box-shadow: 0 0 40px rgba(0, 247, 255, 0.2);
+}
+.interface-panel.active {
+    display: block;
+    animation: quantumEntrance 0.6s var(--warp-speed);
+}
+
+/* Animation d'entrée */
+@keyframes quantumEntrance {
+    0% {
+        opacity: 0;
+        transform: translateY(30px) rotateX(60deg);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) rotateX(0);
+    }
+}

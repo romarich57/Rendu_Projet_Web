@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>TETRIS</title>
+  <!-- Feuille de style renommée et chargée depuis le même dossier -->
+  <link rel="stylesheet" href="styletetris.css">
+</head>
+
+<body>
+  <!-- Game Over Modal -->
+  <div id="overlay" style="display: none;">
+    <div id="gameover-container">
+      <div id="gameover-text">💀 GAME OVER</div>
+      <div id="gameover-buttons">
+        <!-- Chemins vers les images relatifs au dossier /jeu/ -->
+        <img id="btn-replay-modal" src="../assets/images/rejouer.png" alt="Rejouer">
+        <img id="btn-quit-modal"   src="../assets/images/quitter.png" alt="Quitter">
+      </div>
+    </div>
+  </div>
+
+  <!-- Overlay Pause -->
+  <div id="pause-overlay" style="display: none;"></div>
+
+  <main id="tetris-wrapper">
+    <!-- Colonne GAUCHE -->
+    <aside id="left-panel">
+      <img id="btn-power" src="../assets/images/deconnexion.png" alt="power">
+      <img class="label-img" src="../assets/images/next.png" alt="NEXT">
+      <div id="next-container"></div>
+    </aside>
+
+    <!-- GRILLE CENTRALE -->
+    <section id="center-panel">
+      <img id="btn-pause" src="../assets/images/pause.png" alt="PAUSE">
+      <img id="title-img" src="../assets/images/tetris.png" alt="TETRIS">
+      <div id="game-board"></div>
+      <!-- Bouton Rejouer -->
+      <img id="btn-restart" src="../assets/images/rejouer.png" alt="Rejouer">
+    </section>
+
+    <!-- Colonne DROITE -->
+    <aside id="right-panel">
+      <div class="stat-group">
+        <img class="label-img" src="../assets/images/time.png" alt="TIME">
+        <span id="time-value">00:00</span>
+      </div>
+      <div class="stat-group">
+        <img class="label-img" src="../assets/images/levels.png" alt="LEVELS">
+        <span id="level-value">0</span>
+      </div>
+      <div class="stat-group">
+        <img class="label-img" src="../assets/images/line.png" alt="LINE">
+        <span id="line-value">0</span>
+      </div>
+      <div class="stat-group">
+        <img class="label-img" src="../assets/images/score.png" alt="SCORE">
+        <span id="score-value">0</span>
+      </div>
+    </aside>
+  </main>
+
+  <!-- Sons du jeu (chargés avant le script) -->
+  <audio id="audio-move"     src="../assets/sounds/move.wav"       preload="auto"></audio>
+  <audio id="audio-rotate"   src="../assets/sounds/rotate.wav"     preload="auto"></audio>
+  <audio id="audio-line"     src="../assets/sounds/line_clear.wav" preload="auto"></audio>
+  <audio id="audio-gameover" src="../assets/sounds/game_over.wav"  preload="auto"></audio>
+  <audio id="bgm"            src="../assets/sounds/bgm.mp3"        preload="auto" loop></audio>
+
+  <!-- animations JS ultra-performantes -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <!-- Script renommé et chargé depuis le même dossier -->
+  <script src="tetris.js"></script>
+</body>
+</html>

@@ -1,0 +1,250 @@
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  /* ==== PALETTE ==== */
+  --primary:  #0d47a1;
+  --accent:   #ff6f00;
+  --dark:     #1a237e;
+  --light:    #eceff1;
+
+  /* ==== TYPO ==== */
+  --font-primary:   'Orbitron', sans-serif;
+  --font-secondary: 'Roboto', sans-serif;
+}
+
+/* Use vars partout */
+body {
+  font-family: var(--font-secondary);
+  color: var(--light);
+  background: none; /* on gère le fond via #background */
+}
+
+/* Titres en sci-fi */
+h1, #player1-name, #player2-name {
+  font-family: var(--font-primary);
+  color: var(--accent);
+}
+
+
+#game-container {
+  position: relative;
+  z-index: 1;             /* au-dessus du fond */
+  width: 100%;
+  height: 100%;
+}
+
+
+/* ==== VAISSEAUX ==== */
+.ship-left, .ship-right {
+  position: absolute;
+  width: 50px;
+  height: 50px;
+  background-size: contain;
+  background-repeat: no-repeat;
+  z-index: 2;             /* au-dessus du conteneur */
+}
+.ship-left {
+  position: absolute;
+  left: 50px;
+  width: 50px;
+  height: 50px;
+  bottom: 50%;
+  transform: translateY(50%);
+  background: url("../../assets/images/spaceship.png") no-repeat center center;
+  background-size: contain;
+}
+
+.ship-right {
+  position: absolute;
+  right: 50px;
+  width: 50px;
+  height: 50px;
+  bottom: 50%;
+  transform: translateY(50%);
+  background: url("../../assets/images/vaisseau.png") no-repeat center center;
+  background-size: contain;
+}
+
+/* ==== BALLES (éléments <img>) ==== */
+.bullet {
+  position: absolute;
+  width: 30px;
+  height: 50px;
+  z-index: 2;
+  /* le src de l'<img> va charger l’image, pas de background ici */
+}
+
+/* ==== OVERLAY & UI ==== */
+#waiting-overlay {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.8);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: #fff;
+  z-index: 10;
+}
+
+#player-names {
+  position: absolute;
+  top: 10px;
+  left: 0; right: 0;
+  display: flex;
+  justify-content: space-between;
+  padding: 0 50px;
+  color: #fff;
+  font-size: 18px;
+}
+/* ── Statut réseau (pastille) ── */
+.status-dot {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #f44336;    /* offline rouge */
+  z-index: 20;
+}
+.status-dot.online  { background: #4caf50; }  /* latence OK */
+.status-dot.warning { background: #ff9800; }  /* latence moyenne */
+.status-dot.offline { background: #f44336; }  /* latence haute ou déconnecté */
+
+/* ── Spinner animé ── */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+.spinner {
+  margin-bottom: 20px;
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(255,255,255,0.3);
+  border-top: 4px solid #fff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+/* ==== VIES (cœurs) ==== */
+.lives-container {
+  display: flex;
+  align-items: center;
+  margin-left: 8px;
+}
+.life-heart {
+  width: 20px;
+  height: 20px;
+  margin-right: 4px;
+}
+
+/* ==== INDICATEUR DE COOLDOWN ==== */
+#cooldown-indicator {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  /* background conique dépendra de --cd-angle et --cd-color */
+  background: conic-gradient(
+    var(--cd-color, #4caf50) var(--cd-angle, 0deg),
+    rgba(255,255,255,0.2) 0
+  );
+}
+
+/* ==== FLASH & SHAKE ==== */
+/* flash rouge */
+@keyframes flash-red {
+  0%   { background-color: rgba(255,0,0,0); }
+  50%  { background-color: rgba(255,0,0,0.5); }
+  100% { background-color: rgba(255,0,0,0); }
+}
+
+
+/* shake horizontal */
+@keyframes shake {
+  0%,100% { transform: translate(0,0); }
+  20%,60% { transform: translate(-5px,0); }
+  40%,80% { transform: translate(5px,0); }
+}
+#game-container.shake {
+  animation: shake 0.4s ease-in-out;
+}
+/* ==== FOND PARALLAXE ==== */
+#background {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  z-index: -1000;           /* derrières tous les autres éléments */
+  background-image:
+    url("../../assets/images/fond2.jpg"),
+    url("../../assets/images/fond3.jpg");
+  background-size: cover, cover;
+  background-repeat: repeat, repeat;
+  animation:
+    parallax-slow 240s linear infinite,
+    parallax-fast 120s linear infinite;
+}
+@keyframes parallax-slow {
+  from { background-position: 0 0, 0 0; }
+  to   { background-position: 0 -2000px, 0 2000px; }
+}
+@keyframes parallax-fast {
+  from { background-position: 0 0, 0 0; }
+  to   { background-position: 0 -4000px, 0 4000px; }
+}
+
+/* ==== OVERLAY GAME OVER ==== */
+.overlay {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: rgba(0,0,0,0.8);
+  z-index: 20;
+}
+.overlay.hidden { display: none; }
+
+.overlay-content {
+  text-align: center;
+  color: #fff;
+}
+
+.overlay-content h1 {
+  font-family: var(--font-primary);
+  margin-bottom: 20px;
+}
+
+.overlay-content .buttons {
+  display: flex;
+  gap: 20px;
+  justify-content: center; /* Ajouté pour centrer les boutons */
+}
+
+.btn {
+  font-family: var(--font-secondary);
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: transform 0.1s ease;
+}
+.btn:hover {
+  transform: scale(1.05);
+}
+.btn:active {
+  transform: scale(0.95);
+}

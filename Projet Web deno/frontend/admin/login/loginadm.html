@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Login</title>
+  <link rel="stylesheet" href="loginadm.css" />
+</head>
+<body>
+  <div class="cosmic-container">
+    <!-- Déconnexion vers compte utilisateur -->
+    <img src="/shared/deconnexion.png" id="logout-btn" alt="Retour" />
+
+    <header class="hologram-header">
+      <h1 class="cyber-title">ADMIN LOGIN</h1>
+    </header>
+
+    <form id="admin-login-form" class="cyber-form">
+      <div class="input-group">
+        <label for="admin-user" class="cyber-label">Identifiant</label>
+        <input id="admin-user" name="username" type="text" class="cyber-input" required />
+      </div>
+      <div class="input-group">
+        <label for="admin-pass" class="cyber-label">Mot de passe</label>
+        <input id="admin-pass" name="password" type="password" class="cyber-input" required />
+      </div>
+      <button type="submit" class="cyber-submit">
+        Se connecter
+        <span class="scanline"></span>
+      </button>
+    </form>
+  </div>
+
+  <script src="loginadm.js"></script>
+</body>
+</html>

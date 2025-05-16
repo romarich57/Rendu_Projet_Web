@@ -1,0 +1,245 @@
+/* stylechoosegame.css */
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  font-family: 'Arial Rounded MT Bold', sans-serif;
+  background: linear-gradient(rgba(26, 26, 46, 0.85), rgba(22, 33, 62, 0.85)),
+              url('/assets/images/fond2.jpg') no-repeat center center fixed;
+  background-size: cover;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* Boutons header */
+.icon-btn {
+  background: none;
+  border: 2px solid rgba(255,255,255,0.1);
+  border-radius: 50%;
+  padding: 6px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.icon-btn:hover {
+  border-color: #00fff9;
+  box-shadow: 0 0 12px #00fff9;
+}
+
+.icon-btn img {
+  width: 35px;
+  height: 35px;
+}
+
+.logout-button-container {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  z-index: 100;
+}
+
+.user-button-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 100;
+}
+
+/* Grille des jeux */
+.game-grid {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  padding: 80px 30px;
+  margin: auto;
+  box-sizing: border-box;
+  max-width: 1400px;
+  overflow-x: auto;
+}
+
+.game-card {
+  position: relative;
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 15px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.15);
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  width: 240px;
+  min-width: 240px;
+  height: 320px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+}
+
+.game-card:hover {
+  transform: translateY(-5px) scale(1.02);
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.game-image {
+  width: 50%;
+  height: auto;
+  margin-top: 15%;
+  object-fit: contain;
+  filter: drop-shadow(0 0 10px rgba(0,255,249,0.3));
+}
+
+.game-title {
+  margin: 12% 0 8%;
+  font-size: 1.3em;
+  text-align: center;
+  padding: 0 10px;
+  line-height: 1.2;
+}
+
+.play-btn {
+  width: 65%;
+  padding: 10px;
+  font-size: 1em;
+  background: linear-gradient(135deg, #00fff9 0%, #0081f9 100%);
+  border: none;
+  border-radius: 25px;
+  color: #16213e;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: auto;
+  margin-bottom: 15px;
+  font-weight: bold;
+}
+
+.play-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 20px rgba(0,255,249,0.3);
+}
+
+@media (max-width: 1200px) {
+  .game-grid {
+    justify-content: flex-start;
+    padding: 80px 20px;
+  }
+  
+  .game-card {
+    width: 220px;
+    height: 300px;
+  }
+}
+
+@media (max-width: 768px) {
+  .game-grid {
+    gap: 15px;
+    padding: 70px 15px;
+  }
+  
+  .game-card {
+    width: 200px;
+    height: 280px;
+    min-width: 200px;
+  }
+  
+  .game-image {
+    width: 45%;
+  }
+  
+  .game-title {
+    font-size: 1.2em;
+    margin: 10% 0 6%;
+  }
+  
+  .play-btn {
+    width: 70%;
+    font-size: 0.9em;
+  }
+}
+/* Ajoutez ces styles */
+.header-image {
+  text-align: center;
+  padding: 80px 20px 40px;
+  width: 100%;
+}
+
+.site-title-image {
+  max-width: 600px;
+  width: 80%;
+  height: auto;
+  filter: drop-shadow(0 0 15px rgba(0,255,249,0.4));
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+/* Ajustez le padding de la grille */
+.game-grid {
+  padding: 40px 30px 80px; /* Réduit le padding top */
+}
+
+/* Version mobile */
+@media (max-width: 768px) {
+  .header-image {
+    padding: 60px 15px 30px;
+  }
+  
+  .site-title-image {
+    max-width: 400px;
+  }
+  
+  .game-grid {
+    padding: 30px 15px 60px;
+  }
+}
+/* Ajoutez ces styles */
+.header-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(5px);
+  z-index: 1000;
+}
+
+.title-container {
+  flex-grow: 1;
+  text-align: center;
+  margin: 0 10px;
+}
+
+.site-title {
+  height: 150px; /* Même hauteur que les boutons */
+  width: auto;
+  opacity: 0.9;
+  transition: opacity 0.3s ease;
+}
+
+.site-title:hover {
+  opacity: 1;
+}
+
+/* Ajustez les boutons existants */
+.logout-button-container, 
+.user-button-container {
+  position: static;
+  top: auto;
+  left: auto;
+  right: auto;
+}
+
+/* Modifiez le padding de la grille */
+.game-grid {
+  padding: 100px 30px 80px; /* Ajusté pour l'espace header */
+}

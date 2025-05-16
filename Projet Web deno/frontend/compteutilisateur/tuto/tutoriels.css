@@ -1,0 +1,149 @@
+/* tutoriels.css */
+
+/* Variables */
+:root {
+  --dark-matter:    #020c1b;
+  --stardust:       #0a192f;
+  --quantum-blue:   #00f7ff;
+  --solar-orange:   #ff8c00;
+  --venus-green:    #8bc34a;
+  --photon-purple:  #d500ff;
+  --laser-magenta:  #ff00ff;
+  --neutron-white:  #e0f7ff;
+  --golden-sun:     #ffcc00;
+  --warp-speed:     cubic-bezier(0.4,0,0.2,1);
+}
+
+/* Reset & fond */
+* { box-sizing:border-box; margin:0; padding:0; }
+body {
+  background:radial-gradient(circle at center,
+    var(--dark-matter) 0%, var(--stardust) 100%);
+  color:var(--neutron-white);
+  font-family:'Orbitron',sans-serif;
+  min-height:100vh;
+  overflow-x:hidden;
+}
+
+/* Container */
+.cosmic-container {
+  max-width:1200px;
+  margin:0 auto;
+  padding:2rem;
+  position:relative;
+}
+
+/* Déconnexion */
+#logout-btn {
+  position:absolute; top:1rem; left:1rem;
+  width:40px; height:40px; cursor:pointer;
+  filter:drop-shadow(0 0 5px var(--quantum-blue));
+  transition:transform .2s var(--warp-speed);
+}
+#logout-btn:hover { transform:scale(1.1); }
+
+/* Header */
+.hologram-header {
+  text-align:center;
+  margin-bottom:3rem;
+}
+.cyber-title {
+  font-size:3rem; text-transform:uppercase;
+  background:linear-gradient(45deg,
+    var(--quantum-blue) 30%, var(--solar-orange) 70%);
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+  letter-spacing:4px;
+  text-shadow:0 0 30px rgba(0,247,255,0.4);
+}
+
+/* Grille fixe 2×2 et égalisation de hauteur */
+.tutorial-grid {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  grid-template-rows:1fr 1fr;
+  gap:2rem;
+  align-items:stretch;
+}
+
+/* Section tutoriel */
+.tutorial-section {
+  display:flex;
+  flex-direction:column;
+  background:rgba(10,25,47,0.3);
+  border:2px solid var(--quantum-blue);
+  border-radius:15px;
+  padding:1.5rem;
+  backdrop-filter:blur(8px);
+  transition:all .3s var(--warp-speed);
+}
+.tutorial-section:hover {
+  transform:translateY(-8px);
+  box-shadow:0 0 30px rgba(0,247,255,0.3);
+}
+
+/* Titres colorés */
+.title-tetris { color:var(--solar-orange); }
+.title-snake  { color:var(--venus-green); }
+.title-war    { color:var(--solar-orange); }
+.title-piou {
+  background:linear-gradient(45deg,
+    var(--quantum-blue), var(--solar-orange));
+  -webkit-background-clip:text;
+  background-clip:text;
+  color:transparent;
+}
+
+/* Liste de touches */
+.key-list {
+  list-style:none;
+  margin-top:1rem;
+  flex:1; /* pousse la liste à prendre tout l’espace restant */
+}
+.key-list li {
+  margin-bottom:0.8rem;
+  font-size:1rem;
+  display:flex; align-items:center;
+}
+
+/* Boîte touche générique */
+.key {
+  display:inline-block;
+  text-align:center;
+  border:2px solid var(--neutron-white);
+  border-radius:4px;
+  margin-right:0.8rem;
+  font-weight:bold;
+  white-space:nowrap;
+}
+
+/* Spécifique direction */
+.key-up    { width:2.4em; height:2.4em; line-height:2.4em;
+             border-color:var(--quantum-blue);
+             color:var(--quantum-blue); }
+.key-down  { width:2.4em; height:2.4em; line-height:2.4em;
+             border-color:var(--solar-orange);
+             color:var(--solar-orange); }
+.key-left  { width:2.4em; height:2.4em; line-height:2.4em;
+             border-color:var(--photon-purple);
+             color:var(--photon-purple); }
+.key-right { width:2.4em; height:2.4em; line-height:2.4em;
+             border-color:var(--laser-magenta);
+             color:var(--laser-magenta); }
+
+/* Espace mieux géré */
+.key-space {
+  padding:0 .6em;
+  border-color:var(--quantum-blue);
+  color:var(--quantum-blue);
+  font-size:0.9rem;
+  line-height:2.2em;
+}
+
+/* Touches lettres */
+.key-letter {
+  width:2.4em; height:2.4em; line-height:2.4em;
+  border-color:var(--golden-sun);
+  color:var(--golden-sun);
+}

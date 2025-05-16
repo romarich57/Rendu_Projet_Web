@@ -1,0 +1,132 @@
+/* ----- RESET ----- */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* ----- FOND & TYPO ----- */
+body {
+  background: url("../game_snake/assets/background2.png") no-repeat center/cover fixed;
+  font-family: Arial, Helvetica, sans-serif;
+  color: #fff;
+  text-align: center;
+  min-height: 100vh;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ===== CONTENEUR PRINCIPAL ===== */
+#main-menu {
+  margin-top: 60px;
+  width: 100%;
+  max-width: 500px;
+  padding: 0 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ----- LOGO ----- */
+#logo {
+  width: 100%;
+  max-width: 500px;
+  height: auto;
+  margin-bottom: 50px;
+}
+
+/* ===== BOUTONS VERTICAUX ===== */
+#buttons {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  gap: 30px;
+}
+
+.btn {
+  width: 100%;
+  max-width: 400px;
+  height: auto;
+  cursor: pointer;
+  transition: transform 0.1s ease-in-out;
+}
+.btn:hover {
+  transform: scale(1.05);
+}
+
+/* ===== OVERLAY SÉLECTION DE NIVEAUX ===== */
+#levelSelection {
+  position: fixed;          /* plein écran */
+  inset: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: none;            /* on gère via JS : class "hidden" */
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 20;
+}
+#levelSelection:not(.hidden) {
+  display: flex;
+}
+
+#levelSelection h2 {
+  font-size: 2.5rem;
+  margin-bottom: 30px;
+  color: #7CFC00;
+  text-shadow: 0 0 10px #000;
+}
+
+#levels {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 15px;
+  max-width: 600px;
+  margin-bottom: 30px;
+}
+
+.level-btn {
+  flex: 1 1 120px;
+  padding: 14px 0;
+  font-size: 1.1rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  background-color: #28a745;
+  color: #fff;
+  transition: background 0.2s, transform 0.1s;
+}
+.level-btn:hover:not(.locked) {
+  background-color: #218838;
+  transform: scale(1.05);
+}
+.level-btn.locked {
+  background-color: #6c757d;
+  color: #ccc;
+  cursor: not-allowed;
+}
+
+/* ----- BOUTON RETOUR (overlay) ----- */
+#backBtn {
+  padding: 12px 28px;
+  font-size: 1.1rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  background-color: #ffc107;
+  color: #000;
+  transition: background 0.2s, transform 0.1s;
+}
+#backBtn:hover {
+  background-color: #e0a800;
+  transform: scale(1.05);
+}
+
+/* ----- CACHÉ PAR DÉFAUT ----- */
+.hidden {
+  display: none !important;
+}

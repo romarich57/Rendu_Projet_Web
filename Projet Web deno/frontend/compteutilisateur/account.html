@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy"
+          content="default-src 'self';
+                   connect-src 'self' http://localhost:3000;
+                   img-src 'self' data:;
+                   style-src 'self' 'unsafe-inline';
+                   script-src 'self'">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portail Spatial - Mon Compte</title>
+    <link rel="stylesheet" href="account.css">
+</head>
+<body>
+    <div class="cosmic-container">
+        <!-- En-tête holographique -->
+        <div class="hologram-header">
+            <div class="particle-effect"></div>
+            <h1 id="cyber-username">[Chargement...]</h1>
+        </div>
+
+        <!-- Bouton Déconnexion -->
+        <img src="/shared/deconnexion.png"
+             id="logout-btn"
+             alt="Déconnexion" />
+
+        <!-- Interface de navigation spatiale : 2×2 -->
+        <div class="nav-grid">
+            <!-- Profil -->
+            <div class="nav-card profile-card" id="nav-profile">
+                <div class="card-overlay"></div>
+                <img src="/shared/profile.png" class="nav-icon" alt="Profil">
+                <h3>Profil</h3>
+                <div class="pulse-border"></div>
+            </div>
+
+            <!-- Sécurité -->
+            <div class="nav-card security-card" id="nav-security">
+                <div class="card-overlay"></div>
+                <img src="/shared/security.png" class="nav-icon" alt="Sécurité">
+                <h3>Sécurité</h3>
+                <div class="pulse-border"></div>
+            </div>
+
+            <!-- Tutoriels -->
+            <div class="nav-card tutorials-card" id="nav-tutorials">
+                <div class="card-overlay"></div>
+                <img src="/shared/tutoriel.png" class="nav-icon" alt="Tutoriels">
+                <h3>Tutoriels</h3>
+                <div class="pulse-border"></div>
+            </div>
+
+            <!-- Administrateur -->
+            <div class="nav-card admin-card" id="nav-admin">
+                <div class="card-overlay"></div>
+                <img src="/shared/administrateur.png" class="nav-icon" alt="Admin">
+                <h3>Administrateur</h3>
+                <div class="pulse-border"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="account.js"></script>
+</body>
+</html>

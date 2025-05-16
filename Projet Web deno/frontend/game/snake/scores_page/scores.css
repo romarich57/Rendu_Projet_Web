@@ -1,0 +1,82 @@
+/* scores.css */
+
+/* Reset & fond étoilé */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+body {
+  background: url("../game_snake/assets/background2.png") no-repeat center center
+    fixed;
+  background-size: cover;
+  font-family: Arial, sans-serif;
+  color: #fff;
+  text-align: center;
+  min-height: 100vh;
+}
+
+/* Logo */
+.logo-container {
+  margin-top: 30px;
+}
+.logo {
+  width: 300px;
+}
+
+/* Conteneur principal */
+#leaderboardContainer {
+  margin: 40px auto;
+  width: 90%;
+  max-width: 600px;
+}
+
+/* Titre */
+#leaderboardContainer h1 {
+  font-size: 2.5rem;
+  color: #39ff14;
+  margin-bottom: 20px;
+  text-shadow: 0 0 10px #39ff14;
+}
+
+/* Tableau */
+#leaderboard {
+  width: 100%;
+  border-collapse: collapse;
+  background: rgba(0, 0, 0, 0.5);
+  border: 2px solid #39ff14;
+  border-radius: 10px;
+  overflow: hidden;
+}
+#leaderboard th,
+#leaderboard td {
+  padding: 12px;
+}
+#leaderboard th {
+  font-size: 1.2rem;
+  color: #39ff14;
+  border-bottom: 1px solid #39ff14;
+}
+#leaderboard td {
+  font-size: 1rem;
+  border-bottom: 1px solid #555;
+}
+#leaderboard tbody tr:hover {
+  background: rgba(57, 255, 20, 0.1);
+}
+
+/* Bouton « Retour » */
+#backHomeBtn {
+  margin-top: 20px;
+  padding: 12px 24px;
+  font-size: 1rem;
+  border: none;
+  border-radius: 8px;
+  background: #39ff14;
+  color: #000;
+  cursor: pointer;
+  box-shadow: 0 0 10px #39ff14;
+}
+#backHomeBtn:hover {
+  box-shadow: 0 0 20px #39ff14;
+}

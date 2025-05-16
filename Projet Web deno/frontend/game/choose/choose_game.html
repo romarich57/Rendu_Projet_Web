@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Choix du Jeu</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="stylechoosegame.css">
+</head>
+<body>
+  <!-- Header Container -->
+  <div class="header-container">
+    <div class="logout-button-container">
+      <button id="logout-btn" class="icon-btn">
+        <img src="/shared/deconnexion.png" alt="Déconnexion">
+      </button>
+    </div>
+
+    <div class="title-container">
+      <img src="/shared/spacegame.png" alt="Titre du jeu" class="site-title">
+    </div>
+
+    <div class="user-button-container">
+      <button id="user-btn" class="icon-btn">
+        <img src="/shared/utilisateur.png" alt="Mon Compte">
+      </button>
+    </div>
+  </div>
+
+  <!-- Grille des jeux -->
+  <main class="game-grid">
+    <article class="game-card" data-game="invaders">
+      <img src="/assets/images/spacepioupiou.png" alt="SpacePiouPiou" class="game-image">
+      <h2 class="game-title">Space Invaders</h2>
+      <button class="play-btn">Jouer</button>
+    </article>
+
+    <article class="game-card" data-game="guerre">
+      <img src="/shared/pause.png" alt="Guerre des Vaisseaux" class="game-image">
+      <h2 class="game-title">Guerre des Vaisseaux</h2>
+      <button class="play-btn">Jouer</button>
+    </article>
+
+    <article class="game-card" data-game="tetris">
+      <img src="/shared/tetris.png" alt="Tetris" class="game-image">
+      <h2 class="game-title">Tetris</h2>
+      <button class="play-btn">Jouer</button>
+    </article>
+
+    <article class="game-card" data-game="snake">
+      <img src="/shared/snake.png" alt="Snake" class="game-image">
+      <h2 class="game-title">Snake</h2>
+      <button class="play-btn">Jouer</button>
+    </article>
+  </main>
+
+  <script src="choose_game.js"></script>
+</body>
+</html>

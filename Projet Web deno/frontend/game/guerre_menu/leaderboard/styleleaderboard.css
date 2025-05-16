@@ -1,0 +1,189 @@
+/* styleleaderboard.css */
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Orbitron', Arial, sans-serif;
+  background: radial-gradient(circle at center, 
+              rgba(0, 0, 50, 0.9), 
+              rgba(0, 0, 0, 0.9)),
+              url("/assets/images/backinvader.png") no-repeat center center fixed;
+  background-size: cover;
+  min-height: 100vh;
+  color: #fff;
+  overflow-x: hidden;
+}
+
+.game-header {
+  text-align: center;
+  padding: 2rem 0;
+  animation: titleGlow 2s ease-in-out infinite alternate;
+}
+
+@keyframes titleGlow {
+  from { filter: drop-shadow(0 0 5px #00f7ff); }
+  to { filter: drop-shadow(0 0 20px #00f7ff); }
+}
+
+.leaderboard-container {
+  background: rgba(0, 0, 30, 0.9);
+  width: 90%;
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 2rem;
+  border: 2px solid #00f7ff;
+  border-radius: 15px;
+  box-shadow: 0 0 30px rgba(0, 247, 255, 0.4);
+  backdrop-filter: blur(5px);
+}
+
+.leaderboard-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5rem 0;
+}
+
+.leaderboard-table th {
+  color: #00f7ff;
+  font-size: 1.4rem;
+  padding: 1.2rem;
+  letter-spacing: 2px;
+  background: linear-gradient(to bottom, 
+              rgba(0, 247, 255, 0.1), 
+              transparent);
+}
+
+.leaderboard-table td {
+  padding: 1rem;
+  font-size: 1.2rem;
+  transition: transform 0.3s ease;
+  position: relative;
+}
+
+.leaderboard-table tr:hover td {
+  transform: translateX(10px);
+}
+
+.rank-column {
+  text-align: center;
+  width: 15%;
+  color: #ff4655;
+  font-weight: bold;
+  text-shadow: 0 0 10px rgba(255, 70, 85, 0.5);
+}
+
+.elo-column {
+  text-align: right;
+  width: 25%;
+  font-family: 'Courier New', monospace;
+  color: #00f7ff;
+  text-shadow: 0 0 10px rgba(0, 247, 255, 0.5);
+}
+
+.username-column {
+  text-align: left;
+  padding-left: 3.5rem !important;
+  font-family: 'Orbitron', sans-serif;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  transition: all 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+  color: #00f7ff;
+  text-shadow: 0 0 15px rgba(0, 247, 255, 0.5);
+  position: relative;
+}
+
+.username-column::before {
+  content: "⮞";
+  position: absolute;
+  left: 0;
+  color: #ff4655;
+  filter: drop-shadow(0 0 3px #ff4655);
+  opacity: 0;
+  transform: translateX(-20px);
+  transition: all 0.4s ease;
+  animation: arrowFlicker 0.2s infinite;
+}
+
+@keyframes arrowFlicker {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+.username-column::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -4px;
+  width: 0;
+  height: 3px;
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    #ff4655 50%, 
+    transparent 100%);
+  transition: width 0.6s ease;
+}
+
+.leaderboard-table tr:hover .username-column {
+  transform: translateX(15px) skewX(-5deg);
+  color: #ff4655;
+  text-shadow: 0 0 20px rgba(255, 70, 85, 0.8);
+}
+
+.leaderboard-table tr:hover .username-column::before {
+  opacity: 1;
+  transform: translateX(0) rotate(90deg);
+}
+
+.leaderboard-table tr:hover .username-column::after {
+  width: 100%;
+}
+
+.logout-button-container {
+  position: fixed;
+  top: 1.5rem;
+  right: 1.5rem;
+  z-index: 1000;
+}
+
+.logout-btn {
+  background: rgba(255, 70, 85, 0.1);
+  border: 2px solid #ff4655;
+  border-radius: 50%;
+  padding: 0.8rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.logout-btn:hover {
+  background: rgba(255, 70, 85, 0.3);
+  transform: rotate(90deg);
+}
+
+.logout-btn img {
+  width: 28px;
+  height: 28px;
+  filter: drop-shadow(0 0 3px #ff4655);
+}
+
+/* Animations */
+@keyframes textGlow {
+  0% { text-shadow: 0 0 5px #00f7ff; }
+  100% { text-shadow: 0 0 20px #00f7ff, 
+                     0 0 10px #ff4655; }
+}
+
+@keyframes gradientFlow {
+  to { background-position: 200% center; }
+}
+
+@keyframes textGlowHover {
+  0% { 
+    text-shadow: 0 0 10px #00f7ff,
+                 0 0 20px #ff4655;
+  }
+  100% { 
+    text-shadow: 0 0 30px #00f7ff,
+                 0 0 40px #ff4655;
+  }
+}

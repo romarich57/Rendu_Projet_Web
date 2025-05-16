@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Snake Spatial</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <!-- Barre du haut : déconnexion • logo • pause -->
+    <div id="top-bar">
+      <img
+        id="btn-deconnexion"
+        src="assets/deconnexion.png"
+        alt="Déconnexion"
+        onclick="window.location.href='../home_page/home.html'"
+      />
+      <img
+        id="snake-logo"
+        src="assets/snake.png"
+        alt="Snake Game Logo"
+      />
+      <img
+        id="btn-pause"
+        src="assets/pause.png"
+        alt="Pause"
+        onclick="togglePause()"
+      />
+    </div>
+
+    <!-- Conteneur de la grille (on y stocke user-id & username via data-attr) -->
+    <div
+      id="game-container"
+      data-user-id="{{ user.id }}"
+      data-username="{{ user.username }}"
+    >
+      <div id="my_grid" class="square_grid"></div>
+    </div>
+
+    <!-- HUD scores + niveau -->
+    <div id="hud">
+      <div class="hud-item">
+        <img src="assets/score.png" alt="Score" />
+        <span id="scoreValue">0</span>
+      </div>
+      <div class="hud-item">
+        <img src="assets/niveau.png" alt="Niveau" />
+        <span id="levelValue">1</span>
+      </div>
+    </div>
+
+    <!-- Overlay de décompte -->
+    <div id="countdownOverlay" class="hidden">
+      <span id="countdownNumber">5</span>
+    </div>
+
+    <!-- Overlay GAME OVER -->
+    <div id="gameOverOverlay" class="hidden">
+      <div class="game-over-content">
+        <h1>Game Over</h1>
+        <div class="buttons">
+          <button id="replayBtn">Rejouer</button>
+          <button id="quitBtn">Quitter</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Overlay LEVEL UP -->
+    <div id="levelUpOverlay" class="hidden">
+      <div class="level-up-content">
+        <h1>🎉 Niveau <span id="levelUpNumber">2</span> débloqué !</h1>
+        <div class="buttons">
+          <button id="nextLevelBtn">Suivant</button>
+          <button id="quitLevelBtn">Quitter</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chargement du script principal -->
+    <script src="script.js"></script>
+  </body>
+</html>

@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Snake Spatial</title>
+  <link rel="icon" href="favicon.ico" />
+  <link rel="stylesheet" href="home.css" />
+</head>
+<body>
+  <!-- ÉCRAN PRINCIPAL -->
+  <div id="main-menu">
+    <!-- Logo en haut -->
+    <img
+      id="logo"
+      src="../game_snake/assets/snakespatial.png"
+      alt="Snake Spatial"
+    />
+
+    <!-- Boutons verticaux -->
+    <div id="buttons">
+      <img
+        id="playBtn"
+        class="btn"
+        src="../game_snake/assets/jouer.png"
+        alt="Jouer"
+      />
+      <img
+        id="scoresBtn"
+        class="btn"
+        src="../game_snake/assets/scores.png"
+        alt="Scores"
+      />
+      <img
+        id="quitBtn"
+        class="btn"
+        src="../game_snake/assets/quitter.png"
+        alt="Quitter"
+      />
+    </div>
+  </div>
+
+  <!-- Sélection de niveau (cachée par défaut) -->
+  <div id="levelSelection" class="hidden">
+    <h2>Sélectionnez un niveau</h2>
+    <div id="levels"></div>
+    <button id="backBtn">Retour</button>
+  </div>
+
+  <script src="home.js"></script>
+</body>
+</html>

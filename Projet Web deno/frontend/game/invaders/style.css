@@ -1,0 +1,376 @@
+/* === GLOBAL === */
+body {
+    margin: 0;
+    padding: 0;
+    background: url("/assets/images/fond.jpg") no-repeat center center fixed;
+    background-size: cover;
+    font-family: monospace, sans-serif;
+    color: #0f0;
+    overflow: hidden;
+  }
+  
+  /* === ICON BUTTONS (Déco / Pause) === */
+  .icon-btn {
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: background 0.3s ease-out;
+  }
+  
+  .icon-btn img {
+    width: 32px;
+    height: 32px;
+  }
+  
+  /* === HEADER === */
+  #header_game {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 16px;
+    background: rgba(0, 0, 0, 0.6);
+  }
+  #left_panel, #center_panel, #right_panel {
+    display: flex;
+    align-items: center;
+  }
+  #center_panel {
+    flex: 1;
+    justify-content: center;
+  }
+  #logo {
+    height: 48px;
+  }
+  
+  /* === HUD TEXTE === */
+  .hud-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 4px;
+  }
+  .hud-label {
+    font-size: 16px;
+    margin-right: 4px;
+  }
+  .hud-value {
+    font-size: 20px;
+  }
+  
+  /* === XP BAR === */
+  #xpBar {
+    width: 100px;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 8px;
+  }
+  #xpFill {
+    width: 0%;
+    height: 100%;
+    background: #0f0;
+    transition: width 0.3s ease-out;
+  }
+  
+  /* === ZONE DE JEU (GRID + TUILES) === */
+  #game_container {
+    position: absolute;
+    top: 64px;    /* en dessous du header */
+    bottom: 64px; /* au-dessus du footer */
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .square_grid {
+    display: grid;
+    grid-template-columns: repeat(40, 30px);
+    grid-template-rows: repeat(20, 30px);
+    gap: 1px;
+    background: transparent;
+  }
+  
+  .tile {
+    width: 30px;
+    height: 30px;
+    background: transparent;
+    background-size: contain;
+    background-position: center;
+  }
+  
+  /* === SPRITES === */
+  .tile.monster {
+    background-image: url("/assets/images/invaders.png");
+  }
+  .tile.boss {
+    background-image: url("/assets/images/invader_boss.png");
+  }
+  .tile.killer {
+    background-image: url("/assets/images/spaceship.png");
+    transform: scale(1.2);
+  }
+  .tile.bullet {
+    background-image: url("/assets/images/bullet.png");
+  }
+  .tile.monster_bullet {
+    background-image: url("/assets/images/bullet_vert.png");
+  }
+  
+  
+  /* === FOOTER (Power-ups + Wave) === */
+  #footer_panel {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 16px;
+    background: rgba(0,0,0,0.6);
+  }
+  
+  /* Power-ups slots */
+  #powerups {
+    display: flex;
+    gap: 8px;
+  }
+  .slot {
+    width: 40px; height: 40px;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid #0f0;
+    border-radius: 4px;
+    background-size: contain;
+    background-position: center;
+  }
+  .slot.active {
+    background-color: transparent;
+  }
+  .slot.boost-shake {
+    animation: combo-pulse 0.4s ease-out;
+  }
+  
+  /* Wave text + barre */
+  #wave_container {
+    display: flex;
+    align-items: center;
+  }
+  #wave_container .hud-label {
+    margin-right: 4px;
+  }
+  #wave_container .hud-value {
+    font-size: 20px;
+    margin-right: 8px;
+  }
+  .wave-bar {
+    display: flex;
+  }
+  .wave-bar .step {
+    width: 10px; height: 10px;
+    margin-right: 2px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 2px;
+  }
+  .wave-bar .step.filled {
+    background: #0f0;
+  }
+  
+  /* === COMBO OVERLAY === */
+  #comboOverlay {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 48px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s ease-out;
+  }
+  #comboOverlay.show {
+    opacity: 1;
+    animation: combo-pulse 0.4s ease-out;
+  }
+  @keyframes combo-pulse {
+    0%,100% { transform: translate(-50%,-50%) scale(1); }
+    50%     { transform: translate(-50%,-50%) scale(1.5); }
+  }
+  
+  /* === SHAKE & FLASH === */
+  .shake {
+    animation: screen-shake 0.3s ease-in-out both;
+  }
+  @keyframes screen-shake {
+    0%,100% { transform: translate(0,0); }
+    20%,60% { transform: translate(-8px,0); }
+    40%,80% { transform: translate(8px,0); }
+  }
+  .flash {
+    animation: flash-white 0.2s ease-out forwards;
+  }
+  @keyframes flash-white {
+    from { background-color: transparent; }
+    to   { background-color: rgba(255,255,255,0.8); }
+  }
+  
+  /* === EXPLOSION CANVAS === */
+  #explosionCanvas {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100vw; height: 100vh;
+    pointer-events: none;
+    z-index: 5;
+  }
+  
+  /* === START SCREEN === */
+  #start-screen {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.8);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+  }
+  #start-button {
+    margin-top: 16px;
+    padding: 12px 24px;
+    background: #0f0;
+    color: #000;
+    border: none;
+    cursor: pointer;
+  }
+  
+  /* === COEURS DE VIE === */
+  #lives_container {
+    display: flex;
+    gap: 4px;
+    margin-left: 16px;
+  }
+  #lives_container .heart {
+    width: 24px;
+    height: 24px;
+  }
+ /* Explosion stylisée pour monstres (vert fluorescent) */
+.explosion-flash {
+  position: relative;
+  /* dégradé radial vert centré */
+  background: radial-gradient(
+    circle at center,
+    rgba(0, 255, 0, 0.8) 0%,
+    rgba(0, 255, 0, 0.3) 40%,
+    transparent 70%
+  );
+  border-radius: 50%;
+  /* on part de 0 taille, puis on grandit et on s’efface */
+  animation: explosion-flash 0.4s ease-out forwards;
+}
+
+@keyframes explosion-flash {
+  0% {
+    transform: scale(0);
+    opacity: 1;
+    box-shadow: 0 0 10px 5px rgba(0, 255, 0, 0.7);
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.8;
+    box-shadow: 0 0 20px 10px rgba(0, 255, 0, 0.5);
+  }
+  100% {
+    transform: scale(2.5);
+    opacity: 0;
+    box-shadow: 0 0 40px 20px rgba(0, 255, 0, 0);
+  }
+}
+
+  /* === BARRE DE VIE DU BOSS === */
+.boss-hp-bar {
+    position: absolute;
+    width: 60px;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.2);
+    border: 1px solid #f00;
+    border-radius: 3px;
+    overflow: hidden;
+    z-index: 10;
+    pointer-events: none;
+  }
+  
+  .boss-hp-fill {
+    height: 100%;
+    background: linear-gradient(to right, #0f0, #ff0, #f00);
+    transition: width 0.2s ease-out;
+  }
+  .boss-hp-bar.critical {
+    animation: pulse-critical 0.6s infinite alternate;
+  }
+  
+  @keyframes pulse-critical {
+    0% { box-shadow: 0 0 4px 2px #f00; transform: scale(1); }
+    100% { box-shadow: 0 0 8px 4px #f00; transform: scale(1.05); }
+  }
+/* Overlay générique */
+.overlay {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.8);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+  }
+  .overlay.hidden { display: none; }
+  
+  .overlay h1 {
+    color: #f00;
+    font-size: 48px;
+    margin-bottom: 16px;
+  }
+  .overlay button {
+    padding: 12px 24px;
+    font-size: 18px;
+    background: #0f0;
+    border: none;
+    cursor: pointer;
+  }
+  .boss {
+    background-image: url('/assets/images/invader_boss.png');
+    background-size: cover;
+    transform: scale(1.8);
+    z-index: 10;
+  }
+/* === BARRE DE BOULIER (SHIELD) === */
+.shield-bar {
+  position: absolute;
+  width: 60px;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid #00f;
+  border-radius: 3px;
+  overflow: hidden;
+  z-index: 10;
+  pointer-events: none;
+}
+
+.shield-bar-fill {
+  height: 100%;
+  background: linear-gradient(to right, #00f, #0ff);
+  transition: width 0.2s ease-out;
+}
+
+@keyframes pulse-blue {
+  0% { box-shadow: 0 0 4px 2px #0ff; transform: scale(1); }
+  100% { box-shadow: 0 0 8px 4px #0ff; transform: scale(1.05); }
+}
+
+.shield-bar.active {
+  animation: pulse-blue 0.6s infinite alternate;
+}

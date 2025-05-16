@@ -1,0 +1,252 @@
+/* ===== RESET ===== */
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%}
+
+/* ===== FOND & TYPO ===== */
+body{
+  background:url("assets/background.png") center/cover fixed no-repeat;
+  font-family:Arial,Helvetica,sans-serif;
+  color:#7CFC00;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+}
+
+/* ===== BARRE SUPÉRIEURE ===== */
+#top-bar{
+  position:fixed;
+  top:18px;          /* même marge pour tous */
+  left:24px;
+  right:24px;
+  height:60px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  z-index:10;
+  pointer-events:none;      /* on lève plus bas */
+}
+#btn-deconnexion,
+#btn-pause{
+  width:60px;height:60px;
+  cursor:pointer;
+  pointer-events:auto;
+}
+#snake-logo{
+  height: 220px;
+  width: 220px;;
+  
+  pointer-events:none;
+}
+
+/* ===== ZONE DE JEU ===== */
+#game-container{
+  margin-top:120px;          /* espace sous la barre */
+  width:82vmin;
+  height:82vmin;
+  max-width:90vmin;
+  max-height:90vmin;
+  position:relative;
+}
+.square_grid{
+  display:grid;
+  width:100%;height:100%;
+  gap:1px;
+}
+
+/* ----- TUILES ----- */
+.tile{aspect-ratio:1/1;background:transparent;border:1px solid rgba(255,255,255,.18);background-position:center;background-size:contain;background-repeat:no-repeat}
+.tile.fruit{background-image:url("assets/apple.png")}
+.tile.bomb{background-image:url("assets/bomb.png")}
+.tile.snake-head{background-image:url("assets/snake_images/snake-head.png");filter:brightness(1.2)}
+.tile.snake-body{background-image:url("assets/snake_images/snake-body.png");filter:brightness(1.1)}
+.tile.snake-tail{background-image:url("assets/snake_images/snake-tail.png");filter:brightness(1.0)}
+.tile.snake-body-corner {
+  background-image: url("assets/snake_images/snake_body_corner.png"); /* chemin mis à jour */
+  filter: brightness(1.1);
+}
+
+/* ===== HUD DROIT ===== */
+#hud{
+  position:fixed;
+  top:50%;
+  right:40px;
+  transform:translateY(-50%);
+  display:flex;
+  flex-direction:column;
+  gap:40px;
+  align-items:flex-end;
+}
+.hud-item{display:flex;align-items:center;gap:15px}
+.hud-item img{width:200px;height:200px;filter:brightness(1.2)}
+.hud-item span{font-size:80px;font-weight:bold;color:#00fcb0}
+
+/* ===== POPUP ===== */
+#gameOverPopup{
+  position:fixed;inset:0;
+  background:rgba(0,0,0,.6);
+  display:flex;justify-content:center;align-items:center
+}
+#popupContent{
+  background:#222;padding:26px 36px;border-radius:10px;text-align:center
+}
+#popupContent p{margin-bottom:16px;font-size:20px}
+#popupContent button{padding:10px 24px;cursor:pointer;font-size:16px}
+.hidden{display:none}
+
+/* ===== OVERLAY DE DÉCOMPTE ===== */
+#countdownOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 20;
+}
+#countdownOverlay.hidden {
+  display: none;
+}
+#countdownOverlay span {
+  font-size: 12vw;           /* très grand */
+  color: #7CFC00;
+  font-weight: bold;
+  text-shadow: 0 0 10px #000;
+}
+
+/* ===== OVERLAY GAME OVER ===== */
+#gameOverOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 30;
+  opacity: 0;
+  animation: fadeInOverlay 0.5s forwards;
+}
+
+#gameOverOverlay.hidden {
+  display: none;
+  opacity: 0;
+}
+
+@keyframes fadeInOverlay {
+  to { opacity: 1; }
+}
+
+.game-over-content {
+  background: #111;
+  padding: 40px 60px;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.7);
+  transform: scale(0.9);
+  animation: popIn 0.3s forwards 0.2s;
+}
+
+@keyframes popIn {
+  to { transform: scale(1); }
+}
+
+.game-over-content h1 {
+  color: #ff3b3f;
+  font-size: 4rem;
+  margin-bottom: 20px;
+  text-shadow: 0 0 10px #ff3b3f;
+}
+
+.game-over-content .buttons {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+}
+
+.game-over-content button {
+  padding: 12px 32px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+}
+
+#replayBtn {
+  background: #28a745;
+  color: #fff;
+}
+#quitBtn {
+  background: #dc3545;
+  color: #fff;
+}
+
+.game-over-content button:hover {
+  transform: scale(1.05);
+}
+/* ===== OVERLAY LEVEL UP ===== */
+#levelUpOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 35;
+  opacity: 0;
+  animation: fadeInOverlay 0.4s forwards;
+}
+#levelUpOverlay.hidden {
+  display: none;
+  opacity: 0;
+}
+
+.level-up-content {
+  background: #222;
+  padding: 30px 50px;
+  border-radius: 10px;
+  text-align: center;
+  box-shadow: 0 0 20px rgba(0,0,0,0.7);
+  transform: scale(0.9);
+  animation: popIn 0.3s forwards 0.1s;
+}
+
+.level-up-content h1 {
+  font-size: 3rem;
+  color: #FFD700;
+  margin-bottom: 20px;
+  text-shadow: 0 0 8px #FFD700;
+}
+
+.level-up-content .buttons {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+.level-up-content button {
+  padding: 12px 28px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: transform 0.2s, background 0.2s;
+}
+#nextLevelBtn {
+  background: #28a745;
+  color: #fff;
+}
+#quitLevelBtn {
+  background: #dc3545;
+  color: #fff;
+}
+.level-up-content button:hover {
+  transform: scale(1.05);
+}
+
+@keyframes fadeInOverlay {
+  to { opacity: 1; }
+}
+/* tu as déjà popIn pour l’autre overlay, il fonctionne aussi ici */

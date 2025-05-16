@@ -1,0 +1,63 @@
+<!-- frontend/game/guerre_vaisseaux/guerre_vaisseaux.html -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Guerre des Vaisseaux</title>
+  <!-- Polices : Orbitron pour titres, Roboto pour le reste -->
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <!-- CSS dans le même dossier -->
+  <link rel="stylesheet" href="./stylevaisseaux.css" />
+</head>
+<body>
+  <!-- Calques de fond pour effet parallaxe -->
+  <div id="background"></div>
+
+  <!-- Pastille de statut réseau : offline ⏺, passera online ou warning -->
+  <div id="net-status" class="status-dot offline"></div>
+
+  <div id="game-container">
+    <!-- HUD joueurs avec vignettes de vies -->
+    <div id="player-names">
+      <div id="player1-info">
+        <span id="player1-name">Joueur 1</span>
+        <div id="lives-left" class="lives-container"></div>
+      </div>
+      <div id="player2-info">
+        <span id="player2-name">Joueur 2</span>
+        <div id="lives-right" class="lives-container"></div>
+      </div>
+    </div>
+
+    <!-- Vaisseaux (z-index élevé défini en CSS) -->
+    <div class="ship-left"  id="shipLeft"></div>
+    <div class="ship-right" id="shipRight"></div>
+
+    <!-- Indicateur de cooldown -->
+    <div id="cooldown-indicator"></div>
+
+    <!-- Overlay matchmaking -->
+    <div id="waiting-overlay">
+      <div class="spinner"></div>
+      <h1>Recherche d'un adversaire...</h1>
+      <p>Temps écoulé : <span id="search-timer">0</span>s</p>
+    </div>
+
+    <!-- Overlay Game Over -->
+    <div id="gameover-overlay" class="overlay hidden">
+      <div class="overlay-content">
+        <h1 id="gameover-message">Le joueur X a gagné !</h1>
+        <div class="buttons">
+          <button id="replay-btn" class="btn">Rejouer</button>
+          <button id="quit-btn"   class="btn">Quitter</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- JS dans le même dossier -->
+  <script src="./guerre_vaisseaux.js"></script>
+</body>
+</html>

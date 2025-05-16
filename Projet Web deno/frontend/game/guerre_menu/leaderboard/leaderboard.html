@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="Content-Security-Policy" 
+          content="default-src 'self';
+                  connect-src 'self' http://localhost:3000;
+                  img-src 'self' data:;
+                  style-src 'self' 'unsafe-inline';
+                  script-src 'self'">
+    <title>Top 10 — Guerre des Vaisseaux</title>
+    <link rel="stylesheet" href="/game/guerre_menu/leaderboard/styleleaderboard.css" />
+</head>
+<body>
+    <!-- Le reste du code HTML reste identique -->
+    <div class="logout-button-container">
+        <button id="logout-btn" class="logout-btn">
+            <img src="/shared/deconnexion.png" alt="Quitter" class="icon"/>
+        </button>
+    </div>
+
+    <div class="game-header">
+        <img src="/assets/images/guerredesvaisseaux.png" alt="Guerre des Vaisseaux">
+    </div>
+
+    <div class="leaderboard-container">
+        <table class="leaderboard-table">
+            <thead>
+                <tr>
+                    <th class="rank-column">Rang</th>
+                    <th class="username-column">Username</th>
+                    <th class="elo-column">ELO</th>
+                </tr>
+            </thead>
+            <tbody id="leaderboard-list"></tbody>
+        </table>
+    </div>
+
+    <script src="/game/guerre_menu/leaderboard/leaderboard.js"></script>
+</body>
+</html>

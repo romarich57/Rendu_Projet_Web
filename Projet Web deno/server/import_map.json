@@ -1,0 +1,8 @@
+{
+  "imports": {
+    "pg": "npm:pg",
+    "bcrypt": "npm:bcrypt",
+    "jsonwebtoken": "npm:jsonwebtoken",
+    "ws": "npm:ws"
+  }
+}

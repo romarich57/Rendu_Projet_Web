@@ -1,0 +1,59 @@
+:root {
+    --font-stack: "Press Start 2P", Arial, sans-serif;
+    --orange: #f7941d;
+  }
+  
+  html, body {
+    margin: 0;
+    padding: 0;
+    font-family: var(--font-stack);
+    background: url("../assets/images/background.png") center/cover no-repeat;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  /* Conteneur principal */
+  #menu-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 40px;
+  }
+  
+  /* Icône power */
+  #btn-power {
+    width: 48px;
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    cursor: pointer;
+    transition: transform .2s ease;
+  }
+  #btn-power:hover { transform: scale(1.1); }
+  
+  /* Titre */
+  #menu-title {
+    font-size: 2.2rem;
+    color: var(--orange);
+    text-shadow: 2px 2px 4px #000;
+    margin: 0;
+  }
+  
+  /* Zone boutons */
+  .menu-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    align-items: center;
+  }
+  
+  /* Bouton générique */
+  .menu-btn {
+    width: 220px;
+    cursor: pointer;
+    transition: transform .2s ease;
+  }
+  .menu-btn:hover { transform: scale(1.05); }
+  

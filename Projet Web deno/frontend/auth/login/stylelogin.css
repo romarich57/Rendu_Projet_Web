@@ -1,0 +1,128 @@
+/* stylelogin.css */
+
+/* Global box-sizing to include padding/border in element width calculations */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
+  background: url("/assets/images/fond1.jpg") no-repeat center center fixed;
+  background-size: cover;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.glass-container {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  width: 360px;
+  padding: 30px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  text-align: center; /* centre les titres et boutons */
+  color: #fff;
+}
+
+h2 {
+  margin: 0 0 20px;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group {
+  text-align: left;
+  margin-bottom: 15px;
+}
+
+label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+input {
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-radius: 4px;
+}
+
+.password-container {
+  position: relative;
+  width: 100%;
+}
+
+.password-container input {
+  width: 100%;
+  padding: 10px;
+  padding-right: 40px;
+  border: none;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+.password-toggle-icon {
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  width: 24px;
+  height: 24px;
+  transform: translateY(-50%);
+  cursor: pointer;
+}
+
+.btn {
+  margin-top: 10px;
+  padding: 12px;
+  background-color: #4d68ff;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.btn:hover {
+  background-color: #3f58d6;
+}
+
+.forgot-link,
+.switch {
+  margin-top: 12px;
+}
+
+.forgot-link a,
+.switch {
+  color: #eee;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.error {
+  margin-bottom: 15px;
+  padding: 10px;
+  border-radius: 4px;
+  background-color: #ff4d4d;
+  display: none;
+  color: #fff;
+  text-align: center;
+}
+
+.hidden {
+  display: none;
+}
+
+.visible {
+  display: block;
+}

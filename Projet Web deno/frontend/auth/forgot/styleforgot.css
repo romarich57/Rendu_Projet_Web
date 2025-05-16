@@ -1,0 +1,81 @@
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    /* Mise à jour du fond pour pointer vers assets/images dans la nouvelle structure */
+    background: url("/shared/design.png") no-repeat center center fixed;
+    background-size: cover;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  /* Conteneur central */
+  .forgot-container {
+    background-color: rgba(0,0,0,0.7); /* semi-transparence sombre */
+    border-radius: 8px;
+    width: 350px;
+    padding: 30px;
+    color: #fff;
+    text-align: center;
+    box-shadow: 0 0 15px rgba(0,0,0,0.5);
+  }
+  
+  .forgot-container h2 {
+    margin-bottom: 20px;
+  }
+  
+  .forgot-container label {
+    display: block;
+    margin-top: 15px;
+    margin-bottom: 5px;
+    text-align: left;
+    font-weight: bold;
+  }
+  
+  .forgot-container input {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 4px;
+    border: none;
+  }
+  
+  .forgot-container button {
+    width: 100%;
+    padding: 12px;
+    background-color: #7a4cff; /* violet */
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    cursor: pointer;
+  }
+  
+  /* Message d'erreur ou confirmation */
+  .error {
+    display: none;
+    background-color: #ff4d4d;
+    color: #fff;
+    margin-bottom: 15px;
+    border-radius: 4px;
+    padding: 10px;
+  }
+  
+  .info-text {
+    margin-top: 15px;
+    font-size: 0.9em;
+    opacity: 0.8;
+  }
+
+  /* déjà présent */
+.error {
+  display: none;
+  /* … */
+}
+
+/* nouvelle classe, 100% externe */
+.error.visible {
+  display: block;
+}

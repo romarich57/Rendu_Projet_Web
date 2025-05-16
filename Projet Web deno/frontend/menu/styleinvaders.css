@@ -1,0 +1,89 @@
+/* 1) On garde le même body pour le background */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
+  background: url("../assets/images/backinvader.png") no-repeat center center fixed;
+  background-size: cover;
+  height: 100vh;
+  position: relative; /* pour le bouton déconnexion */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* 2) Conteneur du menu centré */
+.menu-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* On supprime la marge négative, le menu reste centré */
+  margin-top: 0;
+}
+
+/* 3) Logo / titre */
+.logo-img {
+  position: absolute;
+  top: 40px;               /* distance depuis le haut de l’écran */
+  left: 50%;
+  transform: translateX(-50%);
+  width: 400px;            /* largeur souhaitée */
+  height: auto;
+  z-index: 4;              /* pour être au-dessus */
+  
+  /* +++ MARGE AJOUTÉE : espace sous le logo avant les boutons +++ */
+  margin-bottom: 120px;
+}
+
+/* 4) Conteneur des boutons en images */
+.buttons-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 60px;               /* espace entre chaque bouton */
+  /* facultatif : si besoin de décaler encore plus */
+  /* margin-top: 20px; */
+    /* === Cadre vert fluo autour des boutons === */
+    border: 3px solid #39FF14;       /* vert fluo */
+    padding: 20px;                   /* espace intérieur entre bord et boutons */
+    border-radius: 8px;              /* arrondir les angles */
+    
+    /* optionnel : néon / effet glow */
+    box-shadow: 0 0 10px #39FF14, 
+                0 0 20px #39FF14;
+  }
+
+
+/* 5) Style commun aux images-boutons */
+.menu-image-btn {
+  cursor: pointer;
+  user-select: none;
+  max-width: 250px;        /* garde le ratio sur petits écrans */
+  width: 100%;
+  height: auto;
+  transition: transform 0.1s;
+}
+.menu-image-btn:hover {
+  transform: scale(1.05);
+}
+
+/* 6) Bouton déconnexion inchangé */
+.logout-button-container {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+}
+.logout-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+.logout-btn img.deconnexion-img {
+  width: 40px;
+  height: 40px;
+}
+
+#score-btn {
+  height: 100px;   /* hauteur souhaitée */
+  width: 100 px;    /* adapte la largeur */
+}

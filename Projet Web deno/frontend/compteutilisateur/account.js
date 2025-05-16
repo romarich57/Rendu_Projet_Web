@@ -1,0 +1,56 @@
+// account.js
+document.addEventListener('DOMContentLoaded', () => {
+  // --- Chargement du nom utilisateur ---
+  async function loadUserData() {
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch('http://localhost:3000/api/user/profile', {
+        credentials: 'include',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+      if (!res.ok) throw new Error(`Status ${res.status}`);
+      const userData = await res.json();
+      const nameEl = document.getElementById('cyber-username');
+      if (nameEl) {
+        nameEl.textContent = userData.username.toUpperCase();
+      }
+    } catch (err) {
+      console.error('loadUserData error:', err);
+      const nameEl = document.getElementById('cyber-username');
+      if (nameEl) {
+        nameEl.textContent = 'VISITEUR SPATIAL';
+      }
+    }
+  }
+
+  // --- Navigation entre pages ---
+  const navMap = [
+    { id: 'nav-profile',    url: 'profil/profile.html' },
+    { id: 'nav-security',   url: 'sécurité/securite.html' },
+    { id: 'nav-tutorials',  url: 'tuto/tutoriels.html' },
+    { id: 'nav-admin',      url: '../admin/login/loginadm.html' }
+  ];
+
+  navMap.forEach(({ id, url }) => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.addEventListener('click', () => {
+        window.location.href = url;
+      });
+    }
+  });
+
+  // --- Déconnexion ---
+  const logoutBtn = document.getElementById('logout-btn');
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', () => {
+      window.location.href = 'choose_game.html';
+    });
+  }
+
+  // --- Initialisation ---
+  loadUserData();
+});

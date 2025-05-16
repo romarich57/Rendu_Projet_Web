@@ -1,0 +1,98 @@
+/* Base */
+body {
+  margin: 0;
+  padding: 0;
+  background: url("/assets/images/backscore.png") no-repeat center center fixed;
+  background-size: cover;
+  font-family: "Arial", sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  color: #0ff;
+}
+
+/* Conteneur principal avec néon violet */
+.leaderboard-container {
+  background: #0a0a1f;
+  border: 2px solid #b356ff;
+  border-radius: 12px;
+  box-shadow: 0 0 20px rgba(179, 86, 255, 0.7);
+  padding: 20px;
+  width: 800px;
+  max-width: 90%;
+}
+
+/* HUD */
+.hud {
+  display: block;
+  margin: 0 auto 10px;
+  width: 100%;
+  height: auto;
+}
+
+/* Onglets */
+.tabs {
+  display: flex;
+  margin-bottom: 8px;
+}
+.tab {
+  flex: 1;
+  padding: 10px 0;
+  text-align: center;
+  font-weight: 300;
+  font-size: 1.1em;
+  text-transform: uppercase;
+  color: #0ff;
+  border: 2px solid #b356ff;
+  cursor: pointer;
+}
+.tab:first-child  { border-right: none; border-radius: 8px 0 0 0; }
+.tab:last-child   { border-radius: 0 8px 0 0; }
+.tab.active {
+  background: #0055ff;
+  border-color: #0055ff;
+}
+
+/* Séparateur */
+.divider {
+  border: none;
+  border-top: 2px solid #0ff;
+  margin: 0 0 12px;
+}
+
+/* Tableau */
+#leaderboard-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+#leaderboard-table th,
+#leaderboard-table td {
+  padding: 8px;
+  text-align: center;
+  font-weight: 300;
+  font-size: 1em;
+}
+#leaderboard-table th {
+  text-transform: uppercase;
+  font-weight: 200;
+  color: #0ff;
+  border-bottom: 1px solid #0ff;
+}
+
+/* Alternance de teinte sur les lignes */
+#leaderboard-table tbody tr:nth-child(odd)  { background: rgba(255,255,255,0.05); }
+#leaderboard-table tbody tr:nth-child(even) { background: transparent; }
+
+/* Bouton déconnexion (coin haut‑gauche) */
+.leaderboard-container { position: relative; }  /* pour positionner le bouton */
+.logout {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  width: 40px;          /* ajustez si besoin */
+  height: auto;
+  cursor: pointer;
+  transition: transform .2s;
+}
+.logout:hover { transform: scale(1.1); }

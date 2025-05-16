@@ -1,0 +1,140 @@
+<!-- profile.html -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Profil Utilisateur</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="profile.css" />
+</head>
+<body>
+  <div class="cyber-container">
+    <header class="holographic-header">
+      <h1 class="cyber-title">Profil</h1>
+    </header>
+
+    <form id="profile-form" class="cyber-form">
+      <div class="cyber-grid">
+        <div class="input-group">
+          <label for="username" class="cyber-label">Nom d’utilisateur</label>
+          <input
+            id="username"
+            name="username"
+            type="text"
+            class="cyber-input"
+            required
+            minlength="3"
+            maxlength="50"
+            readonly
+          />
+          <button
+            type="button"
+            class="cyber-edit-btn"
+            data-field="username"
+          >Modifier</button>
+        </div>
+
+        <div class="input-group">
+          <label for="email" class="cyber-label">Email</label>
+          <input
+            id="email"
+            name="email"
+            type="email"
+            class="cyber-input"
+            required
+            readonly
+          />
+          <button
+            type="button"
+            class="cyber-edit-btn"
+            data-field="email"
+          >Modifier</button>
+        </div>
+
+        <div class="input-group">
+          <label for="country" class="cyber-label">Pays</label>
+          <input
+            id="country"
+            name="country"
+            type="text"
+            class="cyber-input"
+            maxlength="100"
+            readonly
+          />
+          <button
+            type="button"
+            class="cyber-edit-btn"
+            data-field="country"
+          >Modifier</button>
+        </div>
+
+        <div class="input-group">
+          <label for="city" class="cyber-label">Ville</label>
+          <input
+            id="city"
+            name="city"
+            type="text"
+            class="cyber-input"
+            maxlength="100"
+            readonly
+          />
+          <button
+            type="button"
+            class="cyber-edit-btn"
+            data-field="city"
+          >Modifier</button>
+        </div>
+
+        <div class="input-group">
+          <label for="languages" class="cyber-label"
+            >Langues (virgule séparées)</label
+          >
+          <input
+            id="languages"
+            name="languages"
+            type="text"
+            class="cyber-input"
+            maxlength="100"
+            readonly
+          />
+          <button
+            type="button"
+            class="cyber-edit-btn"
+            data-field="languages"
+          >Modifier</button>
+        </div>
+
+        <div class="input-group">
+          <label for="birthdate" class="cyber-label"
+            >Date de naissance</label
+          >
+          <input
+            id="birthdate"
+            name="birthdate"
+            type="date"
+            class="cyber-input"
+            readonly
+          />
+          <button
+            type="button"
+            class="cyber-edit-btn"
+            data-field="birthdate"
+          >Modifier</button>
+        </div>
+      </div>
+
+      <button type="submit" class="cyber-submit">
+        Enregistrer
+        <span class="scanline"></span>
+      </button>
+    </form>
+  </div>
+
+  <script src="profile.js"></script>
+</body>
+</html>

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <title>Menu Jeu</title>
+  <!-- CSS -->
+  <link rel="stylesheet" href="/menu/styleinvaders.css" />
+</head>
+<body>
+
+  <!-- Bouton de déconnexion inchangé -->
+  <div class="logout-button-container">
+    <button id="logout-btn" class="logout-btn">
+      <img src="/shared/deconnexion.png" alt="Déconnexion" class="deconnexion-img"/>
+    </button>
+  </div>
+
+  <!-- Nouveau conteneur menu centré -->
+  <div class="menu-container">
+
+    <!-- Logo / titre en image -->
+    <img
+      src="../assets/images/spacepioupiou.png"
+      alt="Space PiouPiou"
+      class="logo-img"
+    />
+
+    <!-- Boutons en images, empilés verticalement -->
+    <div class="buttons-container">
+      <img
+        src="../assets/images/jouer1.png"
+        id="play-btn"
+        class="menu-image-btn"
+        alt="Jouer"
+      />
+      <img
+        src="../assets/images/scoreboard1.png"
+        id="score-btn"
+        class="menu-image-btn"
+        alt="ScoreBoard"
+      />
+      <img
+        src="../assets/images/quitter1.png"
+        id="quit-btn"
+        class="menu-image-btn"
+        alt="Quitter"
+      />
+    </div>
+  </div>
+
+  <!-- JS -->
+  <script src="/menu/menu.js"></script>
+</body>
+</html>

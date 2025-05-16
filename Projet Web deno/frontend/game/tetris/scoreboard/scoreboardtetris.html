@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>TOP 10 – Tetris</title>
+  <!-- feuille de style dans le même dossier -->
+  <link rel="stylesheet" href="stylescoreboardtetris.css">
+</head>
+
+<body>
+  <!-- bouton déconnexion (chemin vers ../assets/…) -->
+  <button id="btn-logout">
+    <img src="../assets/images/deconnexion.png" alt="Déconnexion">
+  </button>
+
+  <!-- en-tête TOP10 -->
+  <img id="header-img" src="../assets/images/top10.png" alt="TOP 10">
+
+  <!-- liste des scores -->
+  <div id="scoreboard-list">
+    <div class="row header">
+      <span class="rank">#</span>
+      <span class="username">Utilisateur</span>
+      <span class="score">Score</span>
+    </div>
+    <!-- lignes ajoutées par JS -->
+  </div>
+
+  <!-- bouton quitter (retour au menu Tetris) -->
+  <button id="btn-quit">
+    <img src="../assets/images/quitter.png" alt="Quitter">
+  </button>
+
+  <!-- script dans le même dossier -->
+  <script src="scoreboardtetris.js"></script>
+</body>
+</html>
