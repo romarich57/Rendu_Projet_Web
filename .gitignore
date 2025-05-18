@@ -1,0 +1,10 @@
+.idea
+Projet Web deno/.idea
+
+.vscode
+Projet Web deno/.vscode
+
+node_modules
+Projet Web deno/node_modules
+Projet Web deno/front_logs.txt
+Projet Web deno/server_logs.txt
