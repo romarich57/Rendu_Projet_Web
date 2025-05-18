@@ -25,10 +25,17 @@ import {
   getUserScores,
   getUserBestScores,
   loginAdmin,
+  getAllUsers,
+  getUserScoresHandler,
+  getAllUsersHandler,
+  activateUserHandler,
+  deleteUserHandler
 } from "./handlers.ts";
+
 
 // Middleware
 import { authMiddleware } from "./middlewares.ts";
+import { authAdmin } from "./middlewares.ts";
 
 const router = new Router();
 
@@ -252,10 +259,9 @@ async function applyResponse(ctx: Context, resp: globalThis.Response) {
   });
 }
 
-// Vérifie si ctx.request.body est une fonction (ancienne API)
-// Sinon, assume que ctx.request.body est déjà un objet PromiseBody
+
 function getRequestJson(ctx: Context): Promise<any> {
-  // Vérifie si ctx.request.body est une fonction (ancienne API)
+  
   if (typeof ctx.request.body === "function") {
     return ctx.request.body({ type: "json" }).value;
   }
@@ -264,6 +270,12 @@ function getRequestJson(ctx: Context): Promise<any> {
 }
 
 router.post("/api/admin/login", loginAdmin);
+
+router
+  .get("/api/admin/users",            authAdmin, getAllUsersHandler)
+  .put("/api/admin/users/:id/activate", authAdmin, activateUserHandler)
+  .delete("/api/admin/users/:id",       authAdmin, deleteUserHandler)
+  .get("/api/admin/users/:id/scores",   authAdmin, getUserScoresHandler);
 
 
 export default router;

@@ -2,6 +2,7 @@
 
 import { Context, Middleware } from "https://deno.land/x/oak@v12.5.0/mod.ts";
 import jwt from "npm:jsonwebtoken";
+import pool from "./db.ts";
 
 // 🌐 CORS
 const ORIGIN = Deno.env.get("APP_URL") || "http://localhost:8080";
@@ -120,14 +121,48 @@ export const adminRateLimiter: Middleware = async (ctx, next) => {
   await next();
 };
 
+// 🛡 Protection des routes admin (actuellement ouverte)
+export const authAdmin: Middleware = async (ctx: Context, next) => {
+  // TODO: ajouter vérification d'admin ici
+  await next();
+};
+
 // 🛡 Middleware d’authentification Oak
 export const authMiddleware: Middleware = async (ctx: Context, next) => {
   try {
-    const payload = verifyJWT(ctx.request);
-    ctx.state.userId = (payload as any).userId;
+    // Try JWT from Authorization header
+    const authHeader = ctx.request.headers.get("Authorization") ?? "";
+    const token = authHeader.replace(/^Bearer\s+/, "");
+    if (token) {
+      const payload = jwt.verify(token, JWT_SECRET);
+      ctx.state.userId = (payload as any).userId;
+    } else {
+      // Fallback to session cookie
+      const sessionId = await ctx.cookies.get("sessionId");
+      if (!sessionId) {
+        const err = new Error("Unauthorized");
+        (err as any).status = 401;
+        throw err;
+      }
+      const client = await pool.connect();
+      try {
+        const res = await client.queryObject<{ user_id: number }>(
+          "SELECT user_id FROM sessions WHERE id=$1",
+          [sessionId]
+        );
+        if (res.rows.length === 0) {
+          const err = new Error("Invalid session");
+          (err as any).status = 401;
+          throw err;
+        }
+        ctx.state.userId = res.rows[0].user_id;
+      } finally {
+        client.release();
+      }
+    }
     await next();
   } catch (err) {
     ctx.response.status = (err as any).status || 401;
-    ctx.response.body   = { error: err.message };
+    ctx.response.body = { error: err.message };
   }
 };

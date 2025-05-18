@@ -166,7 +166,7 @@ updateExplosions();
 function spawnPowerup() {
   if (powerupsOnGrid.length >= 1) return;
   // 0.3% de chance à chaque appel
-  if (Math.random() < 1) {
+  if (Math.random() < 0.5) {
     const type = powerupTypes[Math.floor(Math.random()*powerupTypes.length)];
     const col  = Math.floor(Math.random()*GRID_WIDTH);
     const row  = Math.floor(Math.random()*(GRID_HEIGHT-5))+1; // éviter le bas UI

@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (res.ok) {
         // Connecté, on redirige vers le portail admin
-        window.location.href = '/admin/portal.html';
+        window.location.href = '/admin/interface/admin.html';
         return;
       }
 

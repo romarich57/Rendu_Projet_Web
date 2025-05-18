@@ -87,6 +87,16 @@ export async function initDatabase() {
       );
     `);
 
+    // Tetris – scores
+    await client.queryObject(`
+      CREATE TABLE IF NOT EXISTS tetris_scores (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        score INTEGER NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
     // Snake – scores
     await client.queryObject(`
       CREATE TABLE IF NOT EXISTS score_snake (
@@ -102,6 +112,15 @@ export async function initDatabase() {
     await client.queryObject(`
       CREATE UNIQUE INDEX IF NOT EXISTS ux_score_snake_user_niveau
         ON score_snake(user_id, niveau);
+    `);
+
+    // Sessions table for HTTP-only session management
+    await client.queryObject(`
+      CREATE TABLE IF NOT EXISTS sessions (
+        id VARCHAR(36) PRIMARY KEY,
+        user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
     `);
 
     // Admin users & logs
@@ -177,6 +196,77 @@ export async function logAdminAttempt(
     client.release();
   }
 }
+// === Helpers CRUD Utilisateurs & Scores (Admin) ===
+
+/** Récupère tous les utilisateurs */
+export async function getAllUsers() {
+  const client = await pool.connect();
+  try {
+    const result = await client.queryObject<{
+      id: number;
+      username: string;
+      email: string;
+      is_active: boolean;
+    }>(`
+      SELECT id, username, email, is_active
+        FROM users
+      ORDER BY id
+    `);
+    return result.rows;
+  } finally {
+    client.release();
+  }
+}
+
+/** Active un compte par son id */
+export async function activateUserById(id: number) {
+  const client = await pool.connect();
+  try {
+    await client.queryObject(
+      `UPDATE users SET is_active = true WHERE id = $1`,
+      [id],
+    );
+  } finally {
+    client.release();
+  }
+}
+
+/** Supprime un compte par son id */
+export async function deleteUserById(id: number) {
+  const client = await pool.connect();
+  try {
+    await client.queryObject(
+      `DELETE FROM users WHERE id = $1`,
+      [id],
+    );
+  } finally {
+    client.release();
+  }
+}
+
+/** Récupère tous les scores d’un utilisateur (snake, tetris, space, generic) */
+export async function getUserScores(userId: number) {
+  const client = await pool.connect();
+  try {
+    const result = await client.queryObject<{
+      game: string;
+      score: number;
+    }>(`
+      SELECT 'snake'   AS game, score      AS score FROM score_snake   WHERE user_id = $1
+      UNION ALL
+      SELECT 'tetris'  AS game, score      AS score FROM tetris_scores WHERE user_id = $1
+      UNION ALL
+      SELECT 'space'   AS game, score      AS score FROM space_scores  WHERE user_id = $1
+      UNION ALL
+      SELECT 'generic' AS game, value      AS score FROM scores        WHERE user_id = $1
+    `, [userId]);
+    return result.rows;
+  } finally {
+    client.release();
+  }
+}
+
+
 
 // 5) Export du pool pour d’autres usages
 export default pool;

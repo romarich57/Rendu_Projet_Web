@@ -13,7 +13,12 @@ import {
   registerFailedAttempt,
   resetAttempts,
 } from "./middlewares.ts";
-import { getAdminUser, logAdminAttempt } from "./db.ts";
+import {
+  getAllUsers,
+  activateUserById,
+  deleteUserById,
+  getUserScores as getUserScoresFromDb
+} from './db.ts';
 
 
 // Regex email RFC5322
@@ -227,7 +232,9 @@ export async function loginUser(body: any, ip: string): Promise<Response> {
     return new Response(JSON.stringify({ success: true, token, userId: userRecord.id }), {
     status: 200,
       headers: {
-        "Set-Cookie": `sessionId=${sessionId}; HttpOnly; Path=/; SameSite=Strict`,
+        // Allow cross-site cookie for frontend on different port
+        // Send cookie without Secure flag for HTTP local dev
+        "Set-Cookie": `sessionId=${sessionId}; HttpOnly; Path=/; SameSite=None`,
         "Content-Type": "application/json",
       },
     });
@@ -269,26 +276,46 @@ export async function activateAccount(token: string): Promise<Response> {
 
 // --- UPDATE ELO ---
 export async function updateElo(winner: string, loser: string): Promise<Response> {
+  console.log(`[ELO] Updating ratings: Winner=${winner}, Loser=${loser}`);
+  
   try {
     const client = await pool.connect();
     try {
-      await client.queryObject(
-        "UPDATE users SET elo = elo + 30 WHERE username = $1",
+      // Log ELO pre-update
+      const preUpdate = await client.queryObject(
+        "SELECT username, elo FROM users WHERE username IN ($1, $2)",
+        [winner, loser],
+      );
+      console.log("[ELO] Pre-update:", preUpdate.rows);
+      
+      // Update winner +30
+      const winnerResult = await client.queryObject(
+        "UPDATE users SET elo = elo + 30 WHERE username = $1 RETURNING username, elo",
         [winner],
       );
-      await client.queryObject(
-        "UPDATE users SET elo = GREATEST(0, elo - 30) WHERE username = $1",
+      
+      // Update loser -30 (with floor of 0)
+      const loserResult = await client.queryObject(
+        "UPDATE users SET elo = GREATEST(0, elo - 30) WHERE username = $1 RETURNING username, elo",
         [loser],
       );
+      
+      console.log("[ELO] Post-update winner:", winnerResult.rows);
+      console.log("[ELO] Post-update loser:", loserResult.rows);
+      
+      return json({ 
+        success: true, 
+        message: "ELO updated successfully",
+        winner: winnerResult.rows[0],
+        loser: loserResult.rows[0]
+      }, 200);
     } finally {
       client.release();
     }
-    return json({ success: true }, 200);
   } catch (err: any) {
+    console.error("[ELO] Update error:", err);
     return json({ success: false, error: err.message }, 500);
   }
-
-
 }
 
 // --- GET LEADERBOARD TOP 10 ---
@@ -930,32 +957,59 @@ export async function getUserBestScores(
 export async function loginAdmin(ctx: Context) {
   const { username, password } = await ctx.request.body({ type: "json" }).value;
   const ip = ctx.request.ip;
-  
-  // 1) Récupérer le user et son hash
-  const user = await getAdminUser(username);
-  if (!user) {
-    registerFailedAttempt(ip, username);
-    await logAdminAttempt(username, false, ip);
-    ctx.response.status = 401;
-    ctx.response.body = { error: "Identifiant ou mot de passe invalide" };
-    return;
-  }
-
-  // 2) Vérifier le mot de passe avec bcrypt
-  const ok = await compare(password, user.password_hash);
-  await logAdminAttempt(username, ok, ip);
-
-  if (!ok) {
-    // 3a) Mauvais mot de passe -> incrémenter compteur
+  const ADMIN_USER = Deno.env.get("ADMIN_USER");
+  const ADMIN_PASS = Deno.env.get("ADMIN_PASS");
+  // échec
+  if (username !== ADMIN_USER || password !== ADMIN_PASS) {
+    // log éventuel, incrément bruteforce
     registerFailedAttempt(ip, username);
     ctx.response.status = 401;
-    ctx.response.body = { error: "Identifiant ou mot de passe invalide" };
+    ctx.response.body   = { error: "Identifiant ou mot de passe invalide" };
     return;
   }
-
-  // 3b) Succès -> réinitialiser compteur
+  // succès
   resetAttempts(ip, username);
   ctx.response.status = 200;
-  ctx.response.body = { message: "Connecté en tant qu'admin" };
+  ctx.response.body   = { message: "Connecté en tant qu'admin" };
 }
 
+/** GET /api/admin/users */
+export async function getAllUsersHandler(ctx: Context) {
+  // Utiliser la fonction importée depuis db.ts au lieu d'appeler getAllUsers directement
+  const client = await pool.connect();
+  try {
+    const result = await client.queryObject(`
+      SELECT id, username, email, is_active as verified
+      FROM users
+      ORDER BY id
+    `);
+    ctx.response.body = result.rows;
+  } catch (error) {
+    console.error("Error fetching users:", error);
+    ctx.response.status = 500;
+    ctx.response.body = { error: "Failed to retrieve users" };
+  } finally {
+    client.release();
+  }
+}
+
+/** PUT /api/admin/users/:id/activate */
+export async function activateUserHandler(ctx: Context) {
+  const id = Number(ctx.params.id);
+  await activateUserById(id);
+  ctx.response.status = 204;
+}
+
+/** DELETE /api/admin/users/:id */
+export async function deleteUserHandler(ctx: Context) {
+  const id = Number(ctx.params.id);
+  await deleteUserById(id);
+  ctx.response.status = 204;
+}
+
+/** GET /api/admin/users/:id/scores */
+export async function getUserScoresHandler(ctx: Context) {
+  const id = Number(ctx.params.id);
+  const scores = await getUserScoresFromDb(id);
+  ctx.response.body = scores;
+}

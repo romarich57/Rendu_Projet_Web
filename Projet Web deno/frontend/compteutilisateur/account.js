@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const logoutBtn = document.getElementById('logout-btn');
   if (logoutBtn) {
     logoutBtn.addEventListener('click', () => {
-      window.location.href = 'choose_game.html';
+      window.location.href = '/game/choose/choose_game.html';
     });
   }
 

@@ -17,7 +17,6 @@ import { handleGuerreWebSocket } from "./websocket.ts";
 import { hash }                  from "https://deno.land/x/bcrypt@v0.4.0/mod.ts";
 import { adminRateLimiter }      from "./middlewares.ts";
 import { Session }               from "https://deno.land/x/oak_sessions@v4.0.0/mod.ts";
-
 // -------------------------------------------------------------------
 // 2) Initialisation BDD + seed admin
 // -------------------------------------------------------------------
@@ -99,11 +98,14 @@ app.use(async (ctx: Context, next) => {
   const path = ctx.request.url.pathname;
   if (
     ctx.request.method === "GET" &&
-    (path.startsWith("/auth/") ||
-     path.startsWith("/compteutilisateur/") ||
-     path.startsWith("/shared/") ||
-     path.startsWith("/assets/") ||
-     path === "/favicon.ico")
+    (
+      path.startsWith("/auth/") ||
+      path.startsWith("/compteutilisateur/") ||
+      path.startsWith("/shared/") ||
+      path.startsWith("/assets/")  ||
+      path.startsWith("/admin/")   ||
+      path === "/favicon.ico"
+    )
   ) {
     await send(ctx, path, {
       root:  `${Deno.cwd()}/frontend`,

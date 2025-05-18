@@ -3,30 +3,29 @@
 <head>
   <meta charset="UTF-8" />
   <title>Guerre des Vaisseaux - Menu</title>
-  <!-- CSS du menu -->
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="/game/guerre_menu/styleguerremenu.css" />
 </head>
 <body>
+  <!-- Bouton Déconnexion -->
   <div class="logout-button-container">
     <button id="logout-btn" class="logout-btn">
       <img src="/shared/deconnexion.png" alt="Déconnexion" class="deconnexion-img"/>
     </button>
   </div>
 
+  <!-- Logo animé tout en haut, hors du cadre -->
+  <img src="/assets/images/guerredesvaisseaux.png"
+       alt="Guerre des Vaisseaux Logo"
+       class="top-logo"/>
+
+  <!-- Conteneur principal -->
   <div class="menu-container">
-    <h1>Guerre des Vaisseaux</h1>
-
-    <!-- Bouton pour démarrer la partie -->
     <button id="play-btn" class="menu-btn start-btn">Commencer le jeu</button>
-
-    <!-- NOUVEAU : Bouton Leaderboard -->
     <button id="leaderboard-btn" class="menu-btn leaderboard-btn">Leaderboard</button>
-
-    <!-- Bouton pour se déconnecter / quitter -->
     <button id="quit-btn" class="menu-btn quit-btn">Quitter</button>
   </div>
 
-  <!-- JS du menu -->
   <script src="/game/guerre_menu/guerre_menu.js"></script>
 </body>
 </html>

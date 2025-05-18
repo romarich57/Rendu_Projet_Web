@@ -151,5 +151,13 @@ form.addEventListener('submit', async e => {
   }
 });
 
-// Démarrage
-window.addEventListener('DOMContentLoaded', loadProfile);
+window.addEventListener('DOMContentLoaded', () => {
+  loadProfile();
+
+  const logoutBtn = document.getElementById('logout-btn');
+  logoutBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    window.location.href = '/compteutilisateur/account.html';
+  });
+});
+

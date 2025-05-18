@@ -29,11 +29,17 @@ body {
 }
 
 #logout-btn {
-  position: absolute; top:1rem; left:1rem;
-  width:32px; height:32px; cursor:pointer;
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  width: 32px;
+  height: 32px;
+  cursor: pointer;
   filter: drop-shadow(0 0 5px var(--quantum-blue));
   transition: transform .2s var(--warp-speed);
++ z-index: 100;
 }
+
 #logout-btn:hover { transform: scale(1.1); }
 
 .hologram-header {

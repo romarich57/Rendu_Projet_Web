@@ -12,7 +12,7 @@ window.addEventListener("DOMContentLoaded", async () => {
     });
     if (!resp.ok) throw new Error(`Erreur ${resp.status}`);
     const topScores = await resp.json();
-z
+
     // 2) Affichage des lignes
     topScores.forEach((entry, index) => {
       const row = document.createElement("div");
