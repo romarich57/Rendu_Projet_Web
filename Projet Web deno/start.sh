@@ -8,20 +8,21 @@
 echo "Démarrage du backend..."
 deno run --allow-sys --allow-read --allow-write --allow-net --allow-env server/server.ts > server_logs.txt 2>&1 &
 
-# Enregistre le PID du backend
 BACKEND_PID=$!
 
 # Démarrage du frontend
 echo "Démarrage du frontend..."
 deno run --allow-read --allow-net https://deno.land/std@0.223.0/http/file_server.ts frontend --port 8080 > front_logs.txt 2>&1 &
 
-# Enregistre le PID du frontend
 FRONTEND_PID=$!
 
-# Affiche les PID pour référence
+# Sauvegarde des PID dans un fichier
+echo "$BACKEND_PID" > .pids
+echo "$FRONTEND_PID" >> .pids
+
 echo "Backend PID: $BACKEND_PID"
 echo "Frontend PID: $FRONTEND_PID"
 
-# Attendre que les deux processus se terminent
-wait $BACKEND_PID
-wait $FRONTEND_PID
+# Optionnel : attend les deux processus
+# wait $BACKEND_PID
+# wait $FRONTEND_PID
