@@ -25,6 +25,8 @@ export async function initDatabase() {
     await client.queryObject(`
       CREATE TABLE IF NOT EXISTS users (
         id SERIAL PRIMARY KEY,
+        nom character varying NOT NULL,
+        prenom character varying NOT NULL,
         email VARCHAR(150) UNIQUE NOT NULL,
         username VARCHAR(50) UNIQUE NOT NULL,
         password TEXT NOT NULL,
