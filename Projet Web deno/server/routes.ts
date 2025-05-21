@@ -43,7 +43,7 @@ const router = new Router();
 // routes.ts
 router.options("/(.*)", (ctx) => {
   ctx.response.status = 204;
-  ctx.response.headers.set("Access-Control-Allow-Origin",  ctx.request.headers.get("origin") ?? "*");
+  ctx.response.headers.set("Access-Control-Allow-Origin", Deno.env.get("CORS_URL") ?? "*");
   ctx.response.headers.set("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
   ctx.response.headers.set("Access-Control-Allow-Headers","Content-Type, Authorization");
   ctx.response.headers.set("Access-Control-Allow-Credentials","true");
@@ -240,7 +240,7 @@ router
       ctx.response.body = await resp.json();
     },
   )
-  
+
   // Meilleur score
   router.get(
     "/api/user/best-scores",
@@ -262,7 +262,7 @@ async function applyResponse(ctx: Context, resp: globalThis.Response) {
 
 
 function getRequestJson(ctx: Context): Promise<any> {
-  
+
   if (typeof ctx.request.body === "function") {
     return ctx.request.body({ type: "json" }).value;
   }
