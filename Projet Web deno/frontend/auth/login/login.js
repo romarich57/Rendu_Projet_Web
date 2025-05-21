@@ -6,7 +6,6 @@ const registerForm = document.getElementById('register-form');
 const showRegister = document.getElementById('show-register');
 const showLogin = document.getElementById('show-login');
 const loginBtn = document.getElementById('login-btn');
-const registerBtn = document.getElementById('register-btn');
 const togglePassword = document.getElementById('toggle-password');
 togglePassword.addEventListener('click', () => {
 const pwd = document.getElementById('login-password');
@@ -65,7 +64,7 @@ loginBtn.addEventListener('click', async () => {
       localStorage.setItem("userId", data.userId);  // ✅ ajout ici
       window.location.href = "/game/choose/choose_game.html";
     }
-    
+
   } catch {
     showError("Impossible de se connecter (erreur réseau).");
   }

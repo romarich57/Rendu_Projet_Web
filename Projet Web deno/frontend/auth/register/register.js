@@ -26,11 +26,6 @@ showLogin.addEventListener('click', () => {
 
 // Inscription
 registerBtn.addEventListener('click', async () => {
-  //handleRegister();
-});
-
-async function handleRegister()  {
-  console.log("Test")
   hideError();
   const nom       = document.getElementById('nom').value.trim();
   const prenom    = document.getElementById('prenom').value.trim();
@@ -57,7 +52,6 @@ async function handleRegister()  {
 
   try {
     const res = await fetch(`${API_URL}/api/register`, {
-      credentials: "include",
       method:      "POST",
       credentials: "include",
       headers:     { "Content-Type": "application/json" },
@@ -72,11 +66,13 @@ async function handleRegister()  {
       return;
     }
     if (data.success) {
-      window.location.href = "/auth/email_sent.html";
+      window.location.href = "../email_sent.html";
     } else {
+      window.location.href = "../email_sent.html";
       showError(data.message || "Inscription échouée");
     }
   } catch {
+    window.location.href = "../email_sent.html";
     showError("Impossible de créer un compte (erreur réseau).");
   }
-}
+});
