@@ -51,7 +51,7 @@ registerBtn.addEventListener('click', async () => {
   }
 
   try {
-    const res = await fetch(`${API_URL}/api/register`, {
+    const res = await fetch(`/api/register`, {
       method:      "POST",
       credentials: "include",
       headers:     { "Content-Type": "application/json" },
