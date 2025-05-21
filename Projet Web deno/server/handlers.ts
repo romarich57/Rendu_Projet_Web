@@ -44,9 +44,12 @@ export async function registerUser(body: any, ip: string): Promise<Response> {
   } = body;
   const idKey = email || username || "unknown";
 
+  /*
   if (!checkBruteForce(ip, idKey)) {
     return json({ success: false, message: "Trop de tentatives." }, 429);
   }
+
+   */
   if (!nom || !prenom || !username || !email || !password ||
       !city || !country || !languages || !birthdate) {
     registerFailedAttempt(ip, idKey);
@@ -280,7 +283,7 @@ export async function activateAccount(token: string): Promise<Response> {
 // --- UPDATE ELO ---
 export async function updateElo(winner: string, loser: string): Promise<Response> {
   console.log(`[ELO] Updating ratings: Winner=${winner}, Loser=${loser}`);
-  
+
   try {
     const client = await pool.connect();
     try {
@@ -290,24 +293,24 @@ export async function updateElo(winner: string, loser: string): Promise<Response
         [winner, loser],
       );
       console.log("[ELO] Pre-update:", preUpdate.rows);
-      
+
       // Update winner +30
       const winnerResult = await client.queryObject(
         "UPDATE users SET elo = elo + 30 WHERE username = $1 RETURNING username, elo",
         [winner],
       );
-      
+
       // Update loser -30 (with floor of 0)
       const loserResult = await client.queryObject(
         "UPDATE users SET elo = GREATEST(0, elo - 30) WHERE username = $1 RETURNING username, elo",
         [loser],
       );
-      
+
       console.log("[ELO] Post-update winner:", winnerResult.rows);
       console.log("[ELO] Post-update loser:", loserResult.rows);
-      
-      return json({ 
-        success: true, 
+
+      return json({
+        success: true,
         message: "ELO updated successfully",
         winner: winnerResult.rows[0],
         loser: loserResult.rows[0]
