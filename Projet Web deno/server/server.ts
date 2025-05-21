@@ -70,7 +70,7 @@ app.use(async (ctx: Context, next) => {
     console.error("Unhandled error:", err);
     ctx.response.status = err.status || 500;
     ctx.response.body   = { error: err.message };
-    ctx.response.headers.set("Access-Control-Allow-Origin", "http://localhost:8080");
+    ctx.response.headers.set("Access-Control-Allow-Origin", Deno.env.get("CORS_URL"));
   }
 });
 
