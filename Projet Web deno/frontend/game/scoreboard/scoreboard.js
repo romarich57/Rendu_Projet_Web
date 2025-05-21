@@ -3,7 +3,7 @@ const API_URL = "http://localhost:3000";
 function checkToken() {
   const token = localStorage.getItem("token");
   if (!token) {
-    window.location.href = "/auth/login/login.html";
+    window.location.href = "/auth/login/register.html";
   }
 }
 

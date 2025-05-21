@@ -85,10 +85,10 @@ resetBtn.addEventListener('click', async () => {
       showError(data.message || "Erreur lors de la réinitialisation.");
       return;
     }
-    // Succès => rediriger vers login.html (ou un message)
+    // Succès => rediriger vers register.html (ou un message)
     showError(data.message); // ou ...
     setTimeout(() => {
-      window.location.href = "/auth/login/login.html";
+      window.location.href = "/auth/login/register.html";
     }, 1500);
   } catch (err) {
     showError("Impossible de réinitialiser (erreur réseau).");

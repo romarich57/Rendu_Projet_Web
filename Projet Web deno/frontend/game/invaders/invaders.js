@@ -267,12 +267,12 @@ function updateShieldBarPosition() {
 
 /**
  * Vérification d'authentification : 
- * Si pas de token => redirection vers login.html
+ * Si pas de token => redirection vers register.html
  */
 function checkAuth() {
   const token = localStorage.getItem("token");
   if (!token) {
-    window.location.href = "login.html";
+    window.location.href = "register.html";
   }
 }
 /**

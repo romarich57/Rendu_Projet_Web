@@ -22,7 +22,7 @@ async function loadProfile() {
   const token = localStorage.getItem("token");
   if (!token) {
     console.warn("Token absent → redirection login");
-    return window.location.href = "../login.html";
+    return window.location.href = "../register.html";
   }
 
   let res;
@@ -42,7 +42,7 @@ async function loadProfile() {
 
   if (res.status === 401) {
     alert("Session expirée. Veuillez vous reconnecter.");
-    return window.location.href = "../login.html";
+    return window.location.href = "../register.html";
   }
 
   if (!res.ok) {
@@ -99,7 +99,7 @@ form.addEventListener('submit', async e => {
   const token = localStorage.getItem("token");
   if (!token) {
     alert("Session expirée. Veuillez vous reconnecter.");
-    return window.location.href = "../login.html";
+    return window.location.href = "../register.html";
   }
 
   // Préparation du payload
@@ -131,7 +131,7 @@ form.addEventListener('submit', async e => {
 
   if (res.status === 401) {
     alert("Session expirée. Veuillez vous reconnecter.");
-    return window.location.href = "../login.html";
+    return window.location.href = "../register.html";
   }
 
   // Lecture flexible de la réponse

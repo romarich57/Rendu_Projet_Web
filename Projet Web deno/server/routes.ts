@@ -54,6 +54,7 @@ router.options("/(.*)", (ctx) => {
 // POST /api/register
 router.post("/api/register", async (ctx: Context) => {
   const body = await ctx.request.body({ type: "json" }).value;
+  console.log(body);
   const ip   = ctx.request.ip;
   const resp = await registerUser(body, ip);
   await applyResponse(ctx, resp);

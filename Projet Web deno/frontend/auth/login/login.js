@@ -1,4 +1,4 @@
-// login.js
+// register.js
 const API_URL = "http://localhost:3000";
 const errorDiv = document.getElementById('error-message');
 const loginForm = document.getElementById('login-form');
@@ -33,17 +33,10 @@ function hideError() {
 
 // Basculer vers le formulaire d'inscription
 showRegister.addEventListener('click', () => {
-  loginForm.classList.add('hidden');
-  registerForm.classList.remove('hidden');
   hideError();
+  window.location.href = "../register/register.html";
 });
 
-// Basculer vers le formulaire de connexion
-showLogin.addEventListener('click', () => {
-  registerForm.classList.add('hidden');
-  loginForm.classList.remove('hidden');
-  hideError();
-});
 
 // Connexion
 loginBtn.addEventListener('click', async () => {
@@ -75,57 +68,5 @@ loginBtn.addEventListener('click', async () => {
     
   } catch {
     showError("Impossible de se connecter (erreur réseau).");
-  }
-});
-
-// Inscription
-registerBtn.addEventListener('click', async () => {
-  hideError();
-  const nom       = document.getElementById('nom').value.trim();
-  const prenom    = document.getElementById('prenom').value.trim();
-  const username  = document.getElementById('reg-username').value.trim();
-  const email     = document.getElementById('reg-email').value.trim();
-  const password  = document.getElementById('reg-password').value.trim();
-  const city      = document.getElementById('reg-city').value.trim();
-  const country   = document.getElementById('reg-country').value.trim();
-  const languages = document.getElementById('reg-languages').value.trim();
-  const birthdate = document.getElementById('reg-birthdate').value; // "YYYY-MM-DD"
-
-  if (!nom || !prenom || !username || !email || !password) {
-    showError("Veuillez remplir tous les champs de base.");
-    return;
-  }
-  if (!city || !country || !languages || !birthdate) {
-    showError("Veuillez remplir tous les champs (ville, pays, langues, date).");
-    return;
-  }
-  if (!emailRegex.test(email)) {
-    showError("Adresse email invalide.");
-    return;
-  }
-
-  try {
-    const res = await fetch(`${API_URL}/api/register`, {
-      credentials: "include",
-      method:      "POST",
-      credentials: "include",
-      headers:     { "Content-Type": "application/json" },
-      body:        JSON.stringify({
-        nom, prenom, username, email, password,
-        city, country, languages, birthdate
-      })
-    });
-    const data = await res.json();
-    if (!res.ok) {
-      showError(data.message || "Erreur d'inscription");
-      return;
-    }
-    if (data.success) {
-      window.location.href = "/auth/email_sent.html";
-    } else {
-      showError(data.message || "Inscription échouée");
-    }
-  } catch {
-    showError("Impossible de créer un compte (erreur réseau).");
   }
 });

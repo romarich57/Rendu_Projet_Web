@@ -3,7 +3,7 @@ function checkToken() {
   const token = localStorage.getItem("token");
   if (!token) {
     // Pas connecté, on force la page login
-    window.location.href = "login.html";
+    window.location.href = "register.html";
   }
 }
 
@@ -20,7 +20,7 @@ window.addEventListener("DOMContentLoaded", () => {
   const logoutBtn = document.getElementById("logout-btn");
   logoutBtn.addEventListener("click", () => {
     localStorage.removeItem("token");
-    window.location.href = "/auth/login/login.html"; // mise à jour du chemin vers le login
+    window.location.href = "/auth/login/register.html"; // mise à jour du chemin vers le login
   });
   // --------------------------------------------------------------
 

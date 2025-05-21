@@ -37,7 +37,7 @@ window.addEventListener("DOMContentLoaded", async () => {
   if (logoutBtn) {
     logoutBtn.onclick = () => {
       localStorage.removeItem("token");
-      window.location.href = "/auth/login/login.html";
+      window.location.href = "/auth/login/register.html";
     };
   }
 

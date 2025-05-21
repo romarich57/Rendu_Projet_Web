@@ -34,7 +34,7 @@ forgotBtn.addEventListener('click', async () => {
       return;
     }
     // Succès => on affiche un message
-    showError(data.message); // ou rediriger vers login.html
+    showError(data.message); // ou rediriger vers register.html
   } catch (err) {
     showError("Impossible d'envoyer le lien (erreur réseau).");
   }

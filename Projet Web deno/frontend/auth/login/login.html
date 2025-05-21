@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <title>Connexion / Inscription</title>
-  <link rel="stylesheet" href="/auth/login/stylelogin.css">
-  <script src="/auth/login/login.js" defer></script>
+  <link rel="stylesheet" href="./stylelogin.css">
+  <script src="./login.js" defer></script>
 </head>
 <body>
   <div class="glass-container">
@@ -41,62 +41,6 @@
         <a href="/auth/forgot/forgot_password.html">Mot de passe oublié ?</a>
       </div>
       <div class="switch" id="show-register">Créer un compte</div>
-    </form>
-
-    <!-- FORMULAIRE D'INSCRIPTION -->
-    <form id="register-form" class="form hidden">
-      <div class="form-group">
-        <label for="nom">Nom</label>
-        <input type="text" id="nom" placeholder="Dupont" />
-      </div>
-      <div class="form-group">
-        <label for="prenom">Prénom</label>
-        <input type="text" id="prenom" placeholder="Jean" />
-      </div>
-      <div class="form-group">
-        <label for="reg-username">Nom d'utilisateur</label>
-        <input type="text" id="reg-username" placeholder="jeandupont" />
-      </div>
-      <div class="form-group">
-        <label for="reg-email">Adresse email</label>
-        <input type="email" id="reg-email" placeholder="jean@exemple.com" />
-      </div>
-      <div class="form-group">
-        <label for="reg-password">Mot de passe</label>
-        <div class="password-container">
-          <input
-            type="password"
-            id="reg-password"
-            placeholder="*******"
-          />
-          <img
-            src="/shared/nonvisible.png"
-            id="toggle-reg-password"
-            class="password-toggle-icon"
-            alt="Afficher mot de passe"
-          />
-        </div>
-      </div>
-
-      <div class="form-group">
-        <label for="reg-city">Ville</label>
-        <input type="text" id="reg-city" placeholder="ex: Paris" />
-      </div>
-      <div class="form-group">
-        <label for="reg-country">Pays</label>
-        <input type="text" id="reg-country" placeholder="ex: France" />
-      </div>
-      <div class="form-group">
-        <label for="reg-languages">Langues parlées</label>
-        <input type="text" id="reg-languages" placeholder="ex: français, anglais" />
-      </div>
-      <div class="form-group">
-        <label for="reg-birthdate">Date de naissance</label>
-        <input type="date" id="reg-birthdate" />
-      </div>
-
-      <button id="register-btn" class="btn">Créer un compte</button>
-      <div class="switch" id="show-login">Déjà un compte ? Se connecter</div>
     </form>
   </div>
 </body>

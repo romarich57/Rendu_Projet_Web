@@ -1,7 +1,7 @@
 // choose_game.js
 function checkToken() {
   if (!localStorage.getItem("token")) {
-    window.location.href = "login.html";
+    window.location.href = "register.html";
   }
 }
 
@@ -11,7 +11,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Gestion des boutons
   document.getElementById("logout-btn").addEventListener("click", () => {
     localStorage.removeItem("token");
-    window.location.href = "/auth/login/login.html";
+    window.location.href = "/auth/login/register.html";
   });
 
   document.getElementById("user-btn").addEventListener("click", () => {

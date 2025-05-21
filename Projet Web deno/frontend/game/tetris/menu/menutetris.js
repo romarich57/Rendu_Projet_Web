@@ -23,7 +23,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Déconnexion totale
     btnPower?.addEventListener("click", () => {
       localStorage.removeItem("token");
-      window.location.href = "/auth/login/login.html";
+      window.location.href = "/auth/login/register.html";
     });
   });
   

@@ -104,7 +104,7 @@ function initGuerreVaisseaux() {
   // — 2) Récupérer le token & le username à chaque session —
   userToken  = localStorage.getItem("token");
   if (!userToken) {
-    window.location.href = "/auth/login/login.html";
+    window.location.href = "/auth/login/register.html";
     return;
   }
   // always pull fresh

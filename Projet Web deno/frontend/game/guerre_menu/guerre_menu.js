@@ -3,7 +3,7 @@
 function checkToken() {
   const token = localStorage.getItem("token");
   if (!token) {
-    window.location.href = "/auth/login/login.html";
+    window.location.href = "/auth/login/register.html";
   }
 }
 
@@ -18,7 +18,7 @@ window.addEventListener("DOMContentLoaded", () => {
   logoutBtn.addEventListener("click", () => {
     localStorage.removeItem("token");
     localStorage.removeItem("username");
-    window.location.href = "/auth/login/login.html";
+    window.location.href = "/auth/login/register.html";
   });
 
   playBtn.addEventListener("click", () => {

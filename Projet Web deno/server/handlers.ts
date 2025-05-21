@@ -57,11 +57,13 @@ export async function registerUser(body: any, ip: string): Promise<Response> {
     return json({ success: false, message: "Email invalide." }, 400);
   }
 
+  console.log("AZERTYUIOP")
   try {
     const client = await pool.connect();
     try {
       // Génération du hash (10 rondes par défaut)
       const hashed = await hash(password);
+      console.log("Hashed password:", hashed);
       const res = await client.queryObject<{ id: number }>(`
         INSERT INTO users (
           nom, prenom, username, email, password, is_active,
@@ -74,6 +76,7 @@ export async function registerUser(body: any, ip: string): Promise<Response> {
         city, country, languages, birthdate, ip
       ]);
       const userId = res.rows[0].id;
+      console.log("User ID:", userId);
       const token = jwt.sign({ userId, for: "activation" }, JWT_SECRET, {
         expiresIn: "24h",
       });
