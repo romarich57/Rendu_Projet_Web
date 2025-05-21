@@ -1,6 +1,6 @@
 // admin.js
 
-const API_BASE = 'http://localhost:3000/api';
+const API_BASE = '/api';
 
 async function fetchUsers() {
   const res = await fetch(`${API_BASE}/admin/users`, { credentials: 'include' });

@@ -1,6 +1,6 @@
 // forgot_password.js
 
-const API_URL = "http://localhost:3000";
+const API_URL = "";
 
 const errorDiv = document.getElementById('error-message');
 const forgotBtn = document.getElementById('forgot-btn');
@@ -25,6 +25,7 @@ forgotBtn.addEventListener('click', async () => {
   try {
     const response = await fetch(`${API_URL}/api/forgot-password`, {
       method: "POST",
+      credentials: "include",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email })
     });

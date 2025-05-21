@@ -6,7 +6,7 @@ const editButtons  = form.querySelectorAll('.cyber-edit-btn');
 const inputs       = form.querySelectorAll('.cyber-input');
 
 // Base de l’API
-const API_BASE = "http://localhost:3000/api";
+const API_BASE = "/api";
 
 // Verrouille tous les champs et réinitialise les boutons
 function lockAll() {

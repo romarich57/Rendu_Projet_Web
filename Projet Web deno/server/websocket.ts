@@ -3,7 +3,6 @@ import jwt from "npm:jsonwebtoken";
 import pool from "./db.ts";
 
 // Constants
-const API_URL = Deno.env.get("API_URL") ?? "http://localhost:3000";
 const JWT_SECRET = Deno.env.get("JWT_SECRET")!;
 const windowWidth = 1500;
 const SHIP_HEIGHT = 50;
@@ -100,7 +99,7 @@ function removePlayerFromRoom(connectionId: string, roomId: string) {
   const roomPlayers = rooms.get(roomId);
   if (roomPlayers) {
     roomPlayers.delete(connectionId);
-    
+
     // Si la room est vide, on la supprime
     if (roomPlayers.size === 0) {
       rooms.delete(roomId);
@@ -123,9 +122,9 @@ function findPlayerRoom(connectionId: string): string | null {
 function broadcastToRoom(roomId: string, message: any) {
   const roomPlayers = rooms.get(roomId);
   if (!roomPlayers) return;
-  
+
   const messageStr = JSON.stringify(message);
-  
+
   roomPlayers.forEach(playerId => {
     const player = connections.get(playerId);
     if (player && player.ws.readyState === WebSocket.OPEN) {
@@ -142,7 +141,7 @@ function broadcastToRoom(roomId: string, message: any) {
 function notifyRoomState(roomId: string) {
   const roomPlayers = rooms.get(roomId);
   if (!roomPlayers) return;
-  
+
   const playerDetails = Array.from(roomPlayers).map(id => {
     const player = connections.get(id);
     return {
@@ -152,7 +151,7 @@ function notifyRoomState(roomId: string) {
       lives: player?.lives || 3
     };
   });
-  
+
   broadcastToRoom(roomId, {
     type: 'roomUpdate',
     players: playerDetails,
@@ -167,7 +166,7 @@ function startHeartbeatTimer() {
     heartbeatTimerId = setInterval(() => {
       const now = Date.now();
       const timeoutThreshold = 30000; // 30 secondes
-      
+
       connections.forEach((player, id) => {
         if (now - player.lastActivity > timeoutThreshold) {
           console.log(`[WebSocket] Timeout pour ${id}`);
@@ -187,7 +186,7 @@ function startHeartbeatTimer() {
 function handleJoin(connectionId: string, name: string) {
   const player = connections.get(connectionId);
   if (!player) return;
-  
+
   player.name = name;
   console.log(`[WebSocket] Joueur ${name} (${connectionId}) a rejoint`);
 
@@ -216,21 +215,21 @@ function handleJoinRelaxed(connectionId: string, name: string) {
   const player = connections.get(connectionId);
   if (!player) return;
   player.name = name;
-  
+
   // First try with name uniqueness (better experience)
   let roomId = findRoomWithSpaceFor(name);
-  
+
   // If we couldn't find a room respecting name uniqueness,
   // only then fall back to any available room
   if (!roomId) {
     roomId = findRoomWithSpace();
   }
-  
+
   // If still no room, create a new one
   if (!roomId) {
     roomId = createRoom();
   }
-  
+
   addPlayerToRoom(connectionId, roomId);
   checkRoomAndStartGame(roomId);
 }
@@ -239,50 +238,50 @@ function handleJoinRelaxed(connectionId: string, name: string) {
 function checkRoomAndStartGame(roomId: string) {
   const roomPlayers = rooms.get(roomId);
   if (!roomPlayers || roomPlayers.size < MAX_PLAYERS_PER_ROOM) return;
-  
+
   console.log(`[WebSocket] La room ${roomId} est pleine, démarrage du jeu`);
-  
+
   // Convertir l'ensemble en tableau pour pouvoir indexer les joueurs
   const playerIds = Array.from(roomPlayers);
-  
+
   // S'assurer que nous avons bien 2 joueurs distincts
   if (playerIds.length !== 2) {
     console.error("[WebSocket] Nombre incorrect de joueurs pour démarrer la partie");
     return;
   }
-  
+
   const [idLeft, idRight] = playerIds;
-  
+
   // Récupérer les objets Player pour chaque ID avec validation
   const playerLeft = connections.get(idLeft);
   const playerRight = connections.get(idRight);
-  
+
   // Vérifier que les deux objets existent
   if (!playerLeft || !playerRight) {
     console.error("[WebSocket] Un ou plusieurs joueurs manquants");
-    
+
     // Si un des joueurs n'existe pas, nettoyons la room
     rooms.delete(roomId);
     return;
   }
-  
+
   // S'assurer que les noms existent
   const leftName = playerLeft.name || `Joueur ${idLeft.substring(0, 4)}`;
   const rightName = playerRight.name || `Joueur ${idRight.substring(0, 4)}`;
-  
+
   // Change from const to let for variables that need to be reassigned
   let finalLeftName = leftName;
   let finalRightName = rightName;
-  
+
   // Si par une malheureuse coïncidence les noms sont identiques, uniquement dans ce cas ajouter suffixe
   if (leftName === rightName) {
     console.log(`[WebSocket] Noms identiques détectés: ${leftName}, ajout de suffixes`);
     finalLeftName = `${leftName} (1)`;
     finalRightName = `${rightName} (2)`;
   }
-  
+
   console.log(`[WebSocket] Démarrage du jeu entre ${finalLeftName} (gauche) et ${finalRightName} (droite)`);
-  
+
   // Créer l'état initial du jeu
   const gameState: GameState = {
     leftY: 250,
@@ -295,7 +294,7 @@ function checkRoomAndStartGame(roomId: string) {
       right: finalRightName
     }
   };
-  
+
   gameStates.set(roomId, gameState);
   safeSend(connections.get(idLeft)!.ws,  { type:"matchFound", side:"left",  names: gameState.names });
   safeSend(connections.get(idRight)!.ws, { type:"matchFound", side:"right", names: gameState.names });
@@ -306,7 +305,7 @@ function checkRoomAndStartGame(roomId: string) {
 function startGameLoop(roomId: string) {
   const gameState = gameStates.get(roomId);
   if (!gameState) return;
-  
+
   const intervalId = setInterval(() => {
     const roomPlayers = rooms.get(roomId);
     // Si la room n'existe plus, arrêter la boucle de jeu
@@ -314,19 +313,19 @@ function startGameLoop(roomId: string) {
       clearInterval(intervalId);
       return;
     }
-    
+
     // Mise à jour des positions des balles, collisions, etc.
     updateGameState(roomId);
-    
+
     // Envoi de l'état du jeu mis à jour aux joueurs
     broadcastGameState(roomId);
-    
+
     // Vérifier si le jeu est terminé
     if (gameState.livesLeft <= 0 || gameState.livesRight <= 0) {
       // Déterminer le gagnant
       const winner = gameState.livesLeft <= 0 ? "right" : "left";
       const winnerName = winner === "left" ? gameState.names.left : gameState.names.right;
-      
+
       // Informer les joueurs de la fin du jeu avec le vrai nom du joueur
       roomPlayers.forEach(playerId => {
         const player = connections.get(playerId);
@@ -337,10 +336,10 @@ function startGameLoop(roomId: string) {
           });
         }
       });
-      
+
       // Arrêter la boucle de jeu
       clearInterval(intervalId);
-      
+
       // Nettoyer l'état de la partie pour permettre une nouvelle partie
       gameStates.delete(roomId);
     }
@@ -351,32 +350,32 @@ function startGameLoop(roomId: string) {
 function updateGameState(roomId: string) {
   const gameState = gameStates.get(roomId);
   if (!gameState) return;
-  
+
   // Mise à jour de la position des balles
   for (let i = gameState.bullets.length - 1; i >= 0; i--) {
     const bullet = gameState.bullets[i];
-    
+
     // Déplacement de la balle
     if (bullet.side === "left") {
       bullet.x += BULLET_SPEED;
     } else {
       bullet.x -= BULLET_SPEED;
     }
-    
+
     // Vérifier si la balle sort de l'écran
     if (bullet.x < 0 || bullet.x > windowWidth) {
       gameState.bullets.splice(i, 1);
       continue;
     }
-    
+
     // Vérifier les collisions avec les vaisseaux
-    if (bullet.side === "left" && 
+    if (bullet.side === "left" &&
         bullet.x > windowWidth - SHIP_OFFSET - SHIP_HEIGHT &&
         Math.abs(bullet.y - gameState.rightY) < SHIP_HEIGHT) {
       // Collision avec le vaisseau de droite
       gameState.livesRight--;
       gameState.bullets.splice(i, 1);
-    } else if (bullet.side === "right" && 
+    } else if (bullet.side === "right" &&
                bullet.x < SHIP_OFFSET + SHIP_HEIGHT &&
                Math.abs(bullet.y - gameState.leftY) < SHIP_HEIGHT) {
       // Collision avec le vaisseau de gauche
@@ -391,7 +390,7 @@ function broadcastGameState(roomId: string) {
   const roomPlayers = rooms.get(roomId);
   const gameState = gameStates.get(roomId);
   if (!roomPlayers || !gameState) return;
-  
+
   roomPlayers.forEach(playerId => {
     const player = connections.get(playerId);
     if (player) {
@@ -407,20 +406,20 @@ function broadcastGameState(roomId: string) {
 function handleMove(connectionId: string, position: number) {
   const player = connections.get(connectionId);
   if (!player) return;
-  
+
   player.position = position;
-  
+
   // Trouver la room du joueur
   const roomId = findPlayerRoom(connectionId);
   if (!roomId) return;
-  
+
   // Mettre à jour l'état du jeu
   const gameState = gameStates.get(roomId);
   if (!gameState) return;
-  
+
   // Déterminer si le joueur est à gauche ou à droite
   const isLeft = Array.from(rooms.get(roomId) || []).indexOf(connectionId) === 0;
-  
+
   if (isLeft) {
     gameState.leftY = position;
   } else {
@@ -432,23 +431,23 @@ function handleMove(connectionId: string, position: number) {
 function handleShoot(connectionId: string) {
   const player = connections.get(connectionId);
   if (!player) return;
-  
+
   // Trouver la room du joueur
   const roomId = findPlayerRoom(connectionId);
   if (!roomId) return;
-  
+
   // Mettre à jour l'état du jeu
   const gameState = gameStates.get(roomId);
   if (!gameState) return;
-  
+
   // Déterminer si le joueur est à gauche ou à droite
   const isLeft = Array.from(rooms.get(roomId) || []).indexOf(connectionId) === 0;
   const side = isLeft ? "left" : "right";
-  
+
   // Ajouter une balle
   const bulletX = isLeft ? SHIP_OFFSET + SHIP_HEIGHT : windowWidth - SHIP_OFFSET - SHIP_HEIGHT;
   const bulletY = isLeft ? gameState.leftY : gameState.rightY;
-  
+
   gameState.bullets.push({
     x: bulletX,
     y: bulletY,
@@ -464,7 +463,7 @@ function handlePlayerDisconnect(connectionId: string) {
     // Avant de nettoyer la salle, enregistrons le nom du joueur qui se déconnecte pour debug
     const player = connections.get(connectionId);
     console.log(`[WebSocket] Déconnexion du joueur: ${player?.name || 'inconnu'} (${connectionId})`);
-    
+
     // remove from room
     removePlayerFromRoom(connectionId, roomId);
     // inform remaining
@@ -478,7 +477,7 @@ function handlePlayerDisconnect(connectionId: string) {
     // always delete any gameState for this room
     gameStates.delete(roomId);
   }
-  
+
   // Suppression complète de la connexion
   connections.delete(connectionId);
   console.log(`[WebSocket] Connexion supprimée: ${connectionId}`);
@@ -487,7 +486,7 @@ function handlePlayerDisconnect(connectionId: string) {
 // Gestionnaire principal des WebSockets pour le jeu de guerre spatiale
 export function handleGuerreWebSocket(ws: WebSocket) {
   const connectionId = generateId();
-  
+
   // Initialiser le joueur avec ses valeurs par défaut
   const player: Player = {
     ws,
@@ -496,11 +495,11 @@ export function handleGuerreWebSocket(ws: WebSocket) {
     lives: 3,
     lastActivity: Date.now()
   };
-  
+
   connections.set(connectionId, player);
-  
+
   console.log(`[WebSocket] Nouvelle connexion: ${connectionId}`);
-  
+
   // Envoyer au client son identifiant (seulement une fois que la connexion est établie)
   if (ws.readyState === WebSocket.OPEN) {
     safeSend(ws, {
@@ -515,7 +514,7 @@ export function handleGuerreWebSocket(ws: WebSocket) {
     player.lastActivity = Date.now();
     switch (msg.type) {
       case 'join':
-       
+
         player.name = msg.name || "Joueur " + connectionId.substring(0, 4);
         console.log(`[WebSocket] Joueur rejoint avec le nom: ${player.name}`);
         handleJoin(connectionId, player.name);
@@ -529,20 +528,20 @@ export function handleGuerreWebSocket(ws: WebSocket) {
       case 'move':
         handleMove(connectionId, msg.position);
         break;
-        
+
       case 'shoot':
         handleShoot(connectionId);
         break;
-        
+
       case 'quit':
         handlePlayerDisconnect(connectionId);
         return ws.close();
-        
+
       // Handle ping messages with a pong response
       case 'ping':
         safeSend(ws, { type:'pong', time:Date.now() });
         break;
-        
+
       default:
         console.log(`[WebSocket] Message inconnu de ${connectionId}:`, msg);
     }
@@ -553,7 +552,7 @@ export function handleGuerreWebSocket(ws: WebSocket) {
     console.log(`[WebSocket] Déconnexion: ${connectionId}`);
     handlePlayerDisconnect(connectionId);
   };
-  
+
   // Gestionnaire d'erreurs
   ws.onerror = (error) => {
     console.error(`[WebSocket] Erreur sur la connexion ${connectionId}:`, error);
@@ -563,7 +562,7 @@ export function handleGuerreWebSocket(ws: WebSocket) {
       console.error("Erreur lors de la fermeture du WebSocket:", e);
     }
   };
-  
+
   // Mettre en place un heartbeat pour détecter les connexions zombies
   startHeartbeatTimer();
 }

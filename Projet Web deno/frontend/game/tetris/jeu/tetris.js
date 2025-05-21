@@ -3,7 +3,7 @@
 // ——————————————————————————————
 // 🔧 Paramètres et variables globales
 // ——————————————————————————————
-const API_BASE = "http://localhost:3000";   // ← URL de votre API Deno
+const API_BASE = "";   // ← URL de votre API Deno
 const ROWS = 20;
 const COLS = 10;
 const gameBoard = document.getElementById("game-board");
@@ -186,7 +186,7 @@ function createPieceDOM(piece) {
 
   piece.shape.forEach((row, y) => {
     row.forEach((v, x) => {
-      if (v) { 
+      if (v) {
         const b = document.createElement('div');
         b.classList.add('block');
         b.style.backgroundImage = imgUrl();
@@ -580,7 +580,7 @@ function afficherGameOver() {
   }
   // 🚀 ENVOI DU SCORE AU SERVEUR
   (async () => {
-    // Récupère l’ID utilisateur  
+    // Récupère l’ID utilisateur
     const userIdStr = localStorage.getItem("userId");
     const userId = userIdStr ? parseInt(userIdStr) : null;
     if (!userId) {
@@ -591,7 +591,7 @@ function afficherGameOver() {
         const res = await fetch(`${API_BASE}/api/score/tetris`, {
           method: "POST",
           credentials: "include",
-          headers: { 
+          headers: {
             "Content-Type": "application/json",
             "Authorization": `Bearer ${token}`  // En-tête d'authentification ajouté
           },

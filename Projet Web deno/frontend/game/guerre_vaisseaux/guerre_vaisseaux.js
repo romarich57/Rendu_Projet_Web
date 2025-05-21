@@ -2,7 +2,7 @@
 // guerre_vaisseaux.js
 // =====================
 
-const API_URL = "http://localhost:3000";
+const API_URL = "";
 let socket = null;
 let userToken;
 let username;

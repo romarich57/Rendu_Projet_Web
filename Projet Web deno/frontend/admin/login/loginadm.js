@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     try {
       // On pointe explicitement vers le back (port 3000)
-      const res = await fetch('http://localhost:3000/api/admin/login', {
+      const res = await fetch('/api/admin/login', {
         method:      'POST',
         credentials: 'include',
         headers:     { 'Content-Type': 'application/json' },

@@ -1,7 +1,7 @@
 // scores.js
 
 // 1) Base de l’API : pointer directement vers "http://localhost:3000/api/snake"
-const API_BASE = "http://localhost:3000/api/snake";
+const API_BASE = "/api/snake";
 
 // 2) Charger le top 10 depuis le serveur
 async function loadLeaderboard() {
@@ -10,7 +10,7 @@ async function loadLeaderboard() {
     // appel à /api/snake/leaderboard
     const res = await fetch(`${API_BASE}/leaderboard`, {
       method: "GET",
-      headers: { 
+      headers: {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${token}`
       },

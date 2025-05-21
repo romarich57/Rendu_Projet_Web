@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
   async function loadUserData() {
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch('http://localhost:3000/api/user/profile', {
+      const res = await fetch('/api/user/profile', {
         credentials: 'include',
         headers: {
           'Authorization': `Bearer ${token}`,

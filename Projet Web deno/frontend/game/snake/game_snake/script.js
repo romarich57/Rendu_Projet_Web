@@ -34,7 +34,7 @@ let startTime = null;
 // /mnt/data/script.js
 
 // 1) Base URL de l’API (à ajuster au port réel de votre back-end)
-const API_BASE = "http://localhost:3000/api/snake";
+const API_BASE = "/api/snake";
 
 // 2) Récupérer le niveau max depuis l’API
 async function chargerNiveauMax() {
@@ -42,7 +42,7 @@ async function chargerNiveauMax() {
     const token = localStorage.getItem("token"); // récupérer le token
     const res = await fetch(`${API_BASE}/getMaxNiveau`, {
       credentials: "include",
-      headers: { 
+      headers: {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${token}` // ajout de l'en-tête d'autorisation
       }
@@ -100,7 +100,7 @@ async function saveScore(score, temps) {
     const token = localStorage.getItem("token");
     const res = await fetch(`${API_BASE}/saveScore`, {
       method: "POST",
-      headers: { 
+      headers: {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${token}`
       },
@@ -398,7 +398,7 @@ function endGame(message) {
     : 0;
   // mise à jour de l'appel de saveScore pour inclure le temps
   saveScore(score, tempsEcoule);
-  
+
   // affiche overlay Game Over
   const overlay = document.getElementById("gameOverOverlay");
   if (overlay) {
