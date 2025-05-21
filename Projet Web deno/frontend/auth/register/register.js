@@ -68,11 +68,9 @@ registerBtn.addEventListener('click', async () => {
     if (data.success) {
       window.location.href = "../email_sent.html";
     } else {
-      window.location.href = "../email_sent.html";
       showError(data.message || "Inscription échouée");
     }
   } catch {
-    window.location.href = "../email_sent.html";
     showError("Impossible de créer un compte (erreur réseau).");
   }
 });
