@@ -127,6 +127,7 @@ app.use(Session.initMiddleware());
 // 9) WebSocket upgrade (/ws/guerre)
 // -------------------------------------------------------------------
 app.use(async (ctx: Context, next) => {
+  console.log("Request received : " + ctx.request.url.pathname);
   if (ctx.request.url.pathname === "/ws/guerre") {
     if (!ctx.isUpgradable) {
       ctx.response.status = 400;
