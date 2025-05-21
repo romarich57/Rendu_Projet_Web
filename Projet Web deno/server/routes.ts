@@ -42,11 +42,13 @@ const router = new Router();
 // ─── 1) RÉPONSE AUX PRÉ-VOLS CORS (OPTIONS) ───────────────────────
 // routes.ts
 router.options("/(.*)", (ctx) => {
-  ctx.response.status = 204;
+console.log("Request origin : " +  ctx.request.headers.get("origin"))
+console.log("Authorized origin : " +  Deno.env.get("CORS_URL"))
   ctx.response.headers.set("Access-Control-Allow-Origin", Deno.env.get("CORS_URL") ?? "*");
   ctx.response.headers.set("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
   ctx.response.headers.set("Access-Control-Allow-Headers","Content-Type, Authorization");
   ctx.response.headers.set("Access-Control-Allow-Credentials","true");
+  ctx.response.status = 204;
 });
 
 
