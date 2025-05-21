@@ -3,7 +3,7 @@ const API_URL = "";
 function checkToken() {
   const token = localStorage.getItem("token");
   if (!token) {
-    window.location.href = "/auth/login/register.html";
+    window.location.href = "/auth/login/login.html";
   }
 }
 
@@ -97,10 +97,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Affichage initial
   loadTopScores();
-  
+
     /* ─── Déconnexion ────────────────────────────────────────────── */
   const logoutBtn = document.getElementById("logout-btn");
   logoutBtn.addEventListener("click", () => {
-  window.location.href = "/menu/menu.html"; 
+  window.location.href = "/menu/menu.html";
   });
 });

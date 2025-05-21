@@ -11,7 +11,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Gestion des boutons
   document.getElementById("logout-btn").addEventListener("click", () => {
     localStorage.removeItem("token");
-    window.location.href = "/auth/login/register.html";
+    window.location.href = "/auth/login/login.html";
   });
 
   document.getElementById("user-btn").addEventListener("click", () => {
@@ -32,7 +32,7 @@ document.addEventListener("DOMContentLoaded", () => {
       e.stopPropagation();
       window.location.href = gameRoutes[game];
     });
-    
+
     // Clic sur toute la carte
     card.addEventListener("click", () => {
       window.location.href = gameRoutes[game];

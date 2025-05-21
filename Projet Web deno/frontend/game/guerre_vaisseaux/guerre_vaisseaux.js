@@ -59,8 +59,8 @@ const PONG_TIMEOUT  = 20000; // was 10000, increased to 20s to allow for lag
 let gameLoopId;
 let spacePressed = false;
 
-// ← ICI : chemin relatif depuis 
-//    frontend/game/guerre_vaisseaux/guerre_vaisseaux.js 
+// ← ICI : chemin relatif depuis
+//    frontend/game/guerre_vaisseaux/guerre_vaisseaux.js
 //    vers frontend/assets/images/
 const IMG_PATH = "../../assets/images/";
 // ── Pour le chronomètre de recherche ──
@@ -104,7 +104,7 @@ function initGuerreVaisseaux() {
   // — 2) Récupérer le token & le username à chaque session —
   userToken  = localStorage.getItem("token");
   if (!userToken) {
-    window.location.href = "/auth/login/register.html";
+    window.location.href = "/auth/login/login.html";
     return;
   }
   // always pull fresh
@@ -162,7 +162,7 @@ function connectWebSocket() {
   const RECONNECT_DELAY = 3000;
 
   if (isConnecting) return;
-  
+
   if (socket && socket.readyState !== WebSocket.CLOSED) {
     try {
       socket.onclose = null;
@@ -171,17 +171,17 @@ function connectWebSocket() {
       console.log("Erreur lors de la fermeture du WebSocket:", err);
     }
   }
-  
+
   isConnecting = true;
-  
+
   try {
     socket = new WebSocket('ws://localhost:3000/ws/guerre');
-    
+
     socket.onopen = function() {
       console.log('Connexion WebSocket établie');
       reconnectAttempts = 0;
       updateConnectionStatus('online');
-      
+
       // send join with current username
       socket.send(JSON.stringify({ type: 'join',        name: myUsername }));
       // schedule relaxed matchmaking after 5s
@@ -189,10 +189,10 @@ function connectWebSocket() {
       relaxTimer = setTimeout(() => {
         socket.send(JSON.stringify({ type: 'joinRelaxed', name: myUsername }));
       }, 5000);
-      
+
       isConnecting = false;
     };
-    
+
     socket.onmessage = function(event) {
       let msg;
       try {
@@ -207,20 +207,20 @@ function connectWebSocket() {
         lastPongTime = Date.now();
         return;
       }
-      
+
       switch (msg.type) {
         // Dans le case "matchFound":
         case "matchFound":
           mySide = msg.side;
-          
+
           // Stocker les noms pour ELO à la fin de la partie
           myName = mySide === "left" ? msg.names.left : msg.names.right;
           opponentName = mySide === "left" ? msg.names.right : msg.names.left;
-          
+
           // Afficher les pseudos du serveur avec les vies initiales
           player1Name.textContent = `${msg.names.left} (3 vies)`;
           player2Name.textContent = `${msg.names.right} (3 vies)`;
-          
+
           shipLeft.style.display = "block";
           shipRight.style.display = "block";
           waitingOverlay.style.display = "none";
@@ -228,27 +228,27 @@ function connectWebSocket() {
           clearTimeout(relaxTimer);
           // Remove reference to the replay button that no longer exists
           break;
-        
-        
+
+
         case "updateState":
           updateFromServer(msg.state);
           break;
-          
+
         case "gameOver":
           cleanup();
           showGameOver(msg.winner);
           break;
-          
+
         default:
           console.warn("Message WS inconnu :", msg.type);
       }
     };
-    
+
     socket.onclose = function(event) {
       console.log('Connexion WebSocket fermée:', event);
       updateConnectionStatus('offline');
       isConnecting = false;
-      
+
       // Limiter les tentatives de reconnexion
       if (reconnectAttempts < MAX_RECONNECT_ATTEMPTS) {
         reconnectAttempts++;
@@ -260,14 +260,14 @@ function connectWebSocket() {
         showErrorMessage("La connexion au serveur a été perdue. Rafraîchissez la page pour réessayer.");
       }
     };
-    
+
     socket.onerror = function(error) {
       console.log('WebSocket error :', error);
       updateConnectionStatus('offline');
       isConnecting = false;
       // Ne pas reconnecte ici - laissez onclose s'en occuper
     };
-    
+
   } catch (error) {
     console.error('Erreur lors de la création du WebSocket:', error);
     updateConnectionStatus('offline');
@@ -531,10 +531,10 @@ function showGameOver(winner) {
   // afficher l'overlay de fin
   const overlay = document.getElementById("gameover-overlay");
   const msg = document.getElementById("gameover-message");
-  
+
   // Afficher le message avec le nom du gagnant
   msg.textContent = `${winner} a gagné !`;
-  
+
   // déterminer la mise à jour de l'ELO avec myUsername
   const playerOnLeft   = mySide === "left";
   const leftPlayerWon  = winner === (playerOnLeft ? myUsername : opponentName);
@@ -575,12 +575,12 @@ async function updateEloRatings(winner, loser) {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${userToken}`
       },
-      body: JSON.stringify({ 
-        winner, 
-        loser 
+      body: JSON.stringify({
+        winner,
+        loser
       })
     });
-    
+
     if (resp.ok) {
       const data = await resp.json();
       console.log('ELO mis à jour avec succès:', data);
