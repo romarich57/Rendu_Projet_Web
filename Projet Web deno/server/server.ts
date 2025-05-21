@@ -54,7 +54,7 @@ const PORT = parseInt(Deno.env.get("PORT") ?? "3000", 10);
 // 4) CORS (premier middleware)
 // -------------------------------------------------------------------
 app.use(oakCors({
-  origin:        "http://localhost:8080",
+  origin:        Deno.env.get("CORS_URL"),
   credentials:   true,
   allowedHeaders:["Content-Type","Authorization"],
   methods:       ["GET","POST","PUT","DELETE","OPTIONS"]

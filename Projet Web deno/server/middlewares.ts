@@ -5,7 +5,7 @@ import jwt from "npm:jsonwebtoken";
 import pool from "./db.ts";
 
 // 🌐 CORS
-const ORIGIN = Deno.env.get("APP_URL") || "http://localhost:8080";
+const ORIGIN = Deno.env.get("APP_URL") || "http://localhost:8080" || Deno.env.get("CORS_URL");
 const CORS_HEADERS: Record<string,string> = {
   "Access-Control-Allow-Origin":      ORIGIN,
   "Access-Control-Allow-Credentials": "true",
