@@ -50,6 +50,8 @@ if (ADMIN_USER && ADMIN_PASS) {
 const app = new Application();
 const PORT = parseInt(Deno.env.get("PORT") ?? "3000", 10);
 
+const CORS_URL = Deno.env.get("CORS_URL") ?? "https://rom-space-game.realdev.cloud";
+console.log("Cors URL : " + CORS_URL);
 // -------------------------------------------------------------------
 // 4) CORS (premier middleware)
 // -------------------------------------------------------------------
