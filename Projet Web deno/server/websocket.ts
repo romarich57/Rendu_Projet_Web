@@ -487,6 +487,7 @@ function handlePlayerDisconnect(connectionId: string) {
 export function handleGuerreWebSocket(ws: WebSocket) {
   const connectionId = generateId();
 
+  console.log(`[WebSocket] Nouvelle connexion: ${connectionId}`);
   // Initialiser le joueur avec ses valeurs par défaut
   const player: Player = {
     ws,

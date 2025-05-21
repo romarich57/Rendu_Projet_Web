@@ -130,11 +130,14 @@ app.use(async (ctx: Context, next) => {
   console.log("Request received : " + ctx.request.url.pathname);
   if (ctx.request.url.pathname === "/ws/guerre") {
     if (!ctx.isUpgradable) {
+      console.log("WebSocket upgrade required.");
       ctx.response.status = 400;
       ctx.response.body   = "WebSocket upgrade required.";
       return;
     }
+    console.log("WebSocket upgrade required.");
     const ws = await ctx.upgrade();
+    console.log("WebSocket upgrade successful.");
     handleGuerreWebSocket(ws);
   } else {
     await next();
