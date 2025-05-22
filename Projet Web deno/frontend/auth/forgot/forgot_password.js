@@ -1,5 +1,5 @@
 // forgot_password.js
-const API_URL = "http://localhost:3000"
+const API_URL = "http://51.75.253.45:3000"
 
 const errorDiv = document.getElementById('error-message');
 const forgotBtn = document.getElementById('forgot-btn');

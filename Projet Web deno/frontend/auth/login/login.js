@@ -1,5 +1,5 @@
 // register.js
-const API_URL = "http://localhost:3000"
+const API_URL = "http://51.75.253.45:3000"
 const errorDiv = document.getElementById('error-message');
 const loginForm = document.getElementById('login-form');
 const registerForm = document.getElementById('register-form');
