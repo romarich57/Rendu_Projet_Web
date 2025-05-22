@@ -1,6 +1,5 @@
 // reset_password.js
-
-const API_URL = "";
+const API_URL = "http://localhost:3000"
 
 const errorDiv = document.getElementById('error-message');
 const resetBtn = document.getElementById('reset-btn');

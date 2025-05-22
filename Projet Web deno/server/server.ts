@@ -87,7 +87,7 @@ app.use((ctx: Context, next) => {
       "script-src  'self'",
       "style-src   'self'",
       "img-src     'self' data:",
-      "connect-src 'self' wss://rom-space-game.realdev.cloud",
+      "connect-src 'self' " + Deno.env.get("WS_URL"),
     ].join("; ")
   );
   return next();

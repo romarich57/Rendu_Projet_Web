@@ -26,7 +26,7 @@ const emailRegex =
   /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}$/;
 
 const JWT_SECRET = Deno.env.get("JWT_SECRET")!;
-const APP_URL = Deno.env.get("APP_URL") ?? "http://localhost:8080";
+const APP_URL = Deno.env.get("SERVER_URL") ?? "http://localhost:8080";
 
 
 // --- REGISTER ---
