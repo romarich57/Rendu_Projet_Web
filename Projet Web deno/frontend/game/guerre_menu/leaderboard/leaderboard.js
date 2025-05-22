@@ -1,4 +1,4 @@
-const API_URL = "http://51.75.253.45:3000"
+const API_URL = "http://rom-space-game.realdev.cloud:3000"
 
 window.addEventListener("DOMContentLoaded", async () => {
     try {
