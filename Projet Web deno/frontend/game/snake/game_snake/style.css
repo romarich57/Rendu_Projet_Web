@@ -48,11 +48,38 @@ body{
   max-height:90vmin;
   position:relative;
 }
-.square_grid{
-  display:grid;
-  width:100%;height:100%;
-  gap:1px;
+/* ===== ZONE DE JEU ===== */
+.square_grid {
+  display: grid;
+  width: 100%;
+  height: 100%;
+  gap: 0;              /* plus d’espace entre les tuiles */
 }
+
+.tile {
+  aspect-ratio: 1/1;
+  background: transparent center/130% no-repeat;
+  border: none;        /* on supprime la bordure blanche */
+}       /* on supprime la bordure blanche */
+
+/* 2) LES SNAKE-SPRITES DÉBOR­DENT LÉGÈREMENT */
+.tile.snake-head,
+.tile.snake-body,
+.tile.snake-tail,
+/* Correction dédiée au coin CW du serpent */
+.tile.snake-body-corner-cw {
+  background-image: url("assets/snake_images/snake_body_corner_cw.png");
+  background-size: 135% 135% !important;          /* zoom précis adapté */
+  background-position: center center !important;  /* bien centré */
+  background-repeat: no-repeat !important;
+  image-rendering: pixelated;                     /* évite flou sur sprites nets */
+}
+
+.tile.snake-body-corner-ccw {
+  /* 120% permet de chevaucher un peu la case voisine */
+  background-size: 120% 120%;
+}
+
 
 /* ----- TUILES ----- */
 .tile{aspect-ratio:1/1;background:transparent;border:1px solid rgba(255,255,255,.18);background-position:center;background-size:contain;background-repeat:no-repeat}
@@ -61,10 +88,13 @@ body{
 .tile.snake-head{background-image:url("assets/snake_images/snake-head.png");filter:brightness(1.2)}
 .tile.snake-body{background-image:url("assets/snake_images/snake-body.png");filter:brightness(1.1)}
 .tile.snake-tail{background-image:url("assets/snake_images/snake-tail.png");filter:brightness(1.0)}
-.tile.snake-body-corner {
-  background-image: url("assets/snake_images/snake_body_corner.png"); /* chemin mis à jour */
-  filter: brightness(1.1);
+.snake-body-corner-cw {
+  background-image: url("assets/snake_images/snake_body_corner_cw.png");
 }
+.snake-body-corner-ccw {
+  background-image: url("assets/snake_images/snake_body_corner_ccw.png");
+}
+
 
 /* ===== HUD DROIT ===== */
 #hud{
@@ -249,4 +279,4 @@ body{
 @keyframes fadeInOverlay {
   to { opacity: 1; }
 }
-/* tu as déjà popIn pour l’autre overlay, il fonctionne aussi ici */
+
