@@ -1,7 +1,7 @@
 // =====================
 // guerre_vaisseaux.js
 // =====================
-const API_URL = "https://rom-space-game.realdev.cloud:3000"
+const API_URL = "https://rom-space-game.realdev.cloud"
 let socket = null;
 let userToken;
 let username;

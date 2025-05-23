@@ -1,5 +1,5 @@
 // register.js
-const API_URL = "https://rom-space-game.realdev.cloud:3000"
+const API_URL = "https://rom-space-game.realdev.cloud"
 const errorDiv = document.getElementById('error-message');
 const loginForm = document.getElementById('login-form');
 const registerForm = document.getElementById('register-form');
