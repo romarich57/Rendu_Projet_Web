@@ -1,7 +1,7 @@
 // =====================
 // guerre_vaisseaux.js
 // =====================
-const API_URL = "http://rom-space-game.realdev.cloud:3000"
+const API_URL = "https://rom-space-game.realdev.cloud:3000"
 let socket = null;
 let userToken;
 let username;
@@ -174,7 +174,7 @@ function connectWebSocket() {
   isConnecting = true;
 
   try {
-    socket = new WebSocket('ws://rom-space-game.realdev.cloud:3000/ws/guerre');
+    socket = new WebSocket('wss://rom-space-game.realdev.cloud:3000/ws/guerre');
 
     socket.onopen = function() {
       console.log('Connexion WebSocket établie');
