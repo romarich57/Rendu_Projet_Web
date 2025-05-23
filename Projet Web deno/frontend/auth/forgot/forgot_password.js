@@ -1,6 +1,5 @@
 // forgot_password.js
-
-const API_URL = "";
+const API_URL = "https://api.rom-space-game.realdev.cloud"
 
 const errorDiv = document.getElementById('error-message');
 const forgotBtn = document.getElementById('forgot-btn');

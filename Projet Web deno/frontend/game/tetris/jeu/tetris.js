@@ -3,7 +3,7 @@
 // ——————————————————————————————
 // 🔧 Paramètres et variables globales
 // ——————————————————————————————
-const API_BASE = "";   // ← URL de votre API Deno
+const API_URL = "https://api.rom-space-game.realdev.cloud"
 const ROWS = 20;
 const COLS = 10;
 const gameBoard = document.getElementById("game-board");
@@ -588,7 +588,7 @@ function afficherGameOver() {
     } else {
       try {
         const token = localStorage.getItem("token"); // Ajoutez le token
-        const res = await fetch(`${API_BASE}/api/score/tetris`, {
+        const res = await fetch(`${API_URL}/api/score/tetris`, {
           method: "POST",
           credentials: "include",
           headers: {

@@ -1,4 +1,4 @@
-const API_URL = "";
+const API_URL = "https://api.rom-space-game.realdev.cloud"
 
 function checkToken() {
   const token = localStorage.getItem("token");

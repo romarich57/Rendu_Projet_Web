@@ -34,7 +34,7 @@ let startTime = null;
 // /mnt/data/script.js
 
 // 1) Base URL de l’API (à ajuster au port réel de votre back-end)
-const API_BASE = "/api/snake";
+const API_BASE = "https://api.rom-space-game.realdev.cloud/api/snake";
 
 // 2) Récupérer le niveau max depuis l’API
 async function chargerNiveauMax() {

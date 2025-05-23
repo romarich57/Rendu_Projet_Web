@@ -1,5 +1,5 @@
 // register.js
-const API_URL = "";
+const API_URL = "https://api.rom-space-game.realdev.cloud"
 const errorDiv = document.getElementById('error-message');
 const registerForm = document.getElementById('register-form');
 const showLogin = document.getElementById('show-login');
@@ -51,7 +51,7 @@ registerBtn.addEventListener('click', async () => {
   }
 
   try {
-    const res = await fetch(`/api/register`, {
+    const res = await fetch(`${API_URL}/api/register`, {
       method:      "POST",
       credentials: "include",
       headers:     { "Content-Type": "application/json" },

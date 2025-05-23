@@ -1,7 +1,7 @@
 // home.js
 
 // URL de l’API Snake (ajuste le port si nécessaire pour pointer vers ton backend)
-const API_BASE = "/api/snake";
+const API_BASE = "https://api.rom-space-game.realdev.cloud/api/snake";
 
 // 1) Boutons de navigation
 document.getElementById("playBtn").addEventListener("click", async () => {

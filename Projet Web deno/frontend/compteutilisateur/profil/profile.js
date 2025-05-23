@@ -6,7 +6,7 @@ const editButtons  = form.querySelectorAll('.cyber-edit-btn');
 const inputs       = form.querySelectorAll('.cyber-input');
 
 // Base de l’API
-const API_BASE = "/api";
+const API_URL = "https://api.rom-space-game.realdev.cloud"
 
 // Verrouille tous les champs et réinitialise les boutons
 function lockAll() {
@@ -27,7 +27,7 @@ async function loadProfile() {
 
   let res;
   try {
-    res = await fetch(`${API_BASE}/user/profile`, {
+    res = await fetch(`${API_URL}/api/user/profile`, {
       credentials: 'include',
       headers: {
         'Content-Type':  'application/json',
@@ -114,7 +114,7 @@ form.addEventListener('submit', async e => {
 
   let res;
   try {
-    res = await fetch(`${API_BASE}/user/profile`, {
+    res = await fetch(`${API_URL}/user/profile`, {
       method:      'PUT',
       credentials: 'include',
       headers: {

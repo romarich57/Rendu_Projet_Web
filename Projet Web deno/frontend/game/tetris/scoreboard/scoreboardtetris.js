@@ -1,13 +1,13 @@
 // scoreboardtetris.js
 
-const API_BASE = "";
+const API_URL = "https://api.rom-space-game.realdev.cloud"
 
 window.addEventListener("DOMContentLoaded", async () => {
   const container = document.getElementById("scoreboard-list");
 
   try {
     // 1) Appel de l'API Top 10 Tetris
-    const resp = await fetch(`${API_BASE}/api/leaderboard/tetris`, {
+    const resp = await fetch(`${API_URL}/api/leaderboard/tetris`, {
       credentials: "include"
     });
     if (!resp.ok) throw new Error(`Erreur ${resp.status}`);
