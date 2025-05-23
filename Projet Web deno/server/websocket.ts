@@ -503,10 +503,12 @@ export function handleGuerreWebSocket(ws: WebSocket) {
 
   // Envoyer au client son identifiant (seulement une fois que la connexion est établie)
   if (ws.readyState === WebSocket.OPEN) {
-    safeSend(ws, {
-      type: 'connected',
-      id: connectionId
-    });
+    setTimeout(() => {
+      safeSend(ws, {
+        type: 'connected',
+        id: connectionId
+      });
+    }, 0);
   }
 
   // Gestionnaire de messages
