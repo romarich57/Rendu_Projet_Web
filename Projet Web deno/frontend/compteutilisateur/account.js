@@ -1,10 +1,12 @@
+const API_URL = "https://api.rom-space-game.realdev.cloud"
+
 // account.js
 document.addEventListener('DOMContentLoaded', () => {
   // --- Chargement du nom utilisateur ---
   async function loadUserData() {
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch('/api/user/profile', {
+      const res = await fetch(API_URL + '/api/user/profile', {
         credentials: 'include',
         headers: {
           'Authorization': `Bearer ${token}`,

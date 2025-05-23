@@ -1,4 +1,6 @@
 // loginadm.js
+const API_URL = "https://api.rom-space-game.realdev.cloud"
+
 document.addEventListener('DOMContentLoaded', () => {
   const form      = document.getElementById('admin-login-form');
   const logoutBtn = document.getElementById('logout-btn');
@@ -15,7 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     try {
       // On pointe explicitement vers le back (port 3000)
-      const res = await fetch('/api/admin/login', {
+      const res = await fetch(API_URL + '/api/admin/login', {
         method:      'POST',
         credentials: 'include',
         headers:     { 'Content-Type': 'application/json' },
