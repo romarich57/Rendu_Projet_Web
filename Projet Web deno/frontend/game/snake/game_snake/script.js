@@ -29,20 +29,26 @@ const levelSettings = [
 const BOMB = 3;
 // ─── Sauvegarde & suivi du temps ─────────────────────────────────────────
 let startTime = null;
-// /path/to/script.js
 
-// /mnt/data/script.js
 
 // 1) Base URL de l’API (à ajuster au port réel de votre back-end)
 const API_BASE = "https://api.rom-space-game.realdev.cloud/api/snake";
 
+
 // 2) Récupérer le niveau max depuis l’API
+/**
+ * Rôle : Récupère le niveau maximum débloqué depuis le serveur via l’API.
+ * Préconditions : Un token d’authentification valide doit être présent dans localStorage sous la clé "token".
+ * Postconditions : Retourne une Promise résolue avec la valeur maxNiveau récupérée, ou lève une erreur si la requête échoue.
+ */
+
+
 async function chargerNiveauMax() {
   try {
     const token = localStorage.getItem("token"); // récupérer le token
     const res = await fetch(`${API_BASE}/getMaxNiveau`, {
       credentials: "include",
-      headers: {
+      headers: { 
         "Content-Type": "application/json",
         "Authorization": `Bearer ${token}` // ajout de l'en-tête d'autorisation
       }
@@ -68,39 +74,24 @@ async function chargerNiveauMax() {
 
 
 
-// Modification de chargerNiveauMax() pour centraliser l’URL et tester res.ok
-async function saveScore(score) {
-  try {
-    const res = await fetch(`${API_BASE}/saveScore`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${localStorage.getItem("token")}`,
-      },
-      body: JSON.stringify({ score }),
-    });
-    if (!res.ok) {
-      const errText = await res.text();
-      console.error("POST /saveScore ▶", res.status, errText);
-      throw new Error(`Échec enregistrement (${res.status})`);
-    }
-    const data = await res.json();
-    console.log("Score enregistré avec succès :", data);
-  } catch (err) {
-    console.error("Erreur lors de l'enregistrement du score :", err);
-    // Afficher un message utilisateur si besoin
-  }
-}
+/**
+ * Rôle : Envoie le score, le niveau courant et le temps de jeu écoulé au serveur pour sauvegarde.
+ * Préconditions : 
+ *   - Un token d'authentification valide doit être présent dans localStorage sous la clé "token".
+ *   - Les variables `score`, `currentLevel` et `temps` doivent être initialisées et valides.
+ * Postconditions : 
+ *   - Si la requête réussit, le serveur enregistre les données et un message de confirmation est loggé.
+ *   - En cas d’échec, une erreur est loggée et levée.
+ */
 
 
 
-// Remplacer toutes les définitions de saveScore() par la suivante :
 async function saveScore(score, temps) {
   try {
     const token = localStorage.getItem("token");
     const res = await fetch(`${API_BASE}/saveScore`, {
       method: "POST",
-      headers: {
+      headers: { 
         "Content-Type": "application/json",
         "Authorization": `Bearer ${token}`
       },
@@ -127,6 +118,14 @@ if (currentLevel < 1 || currentLevel > levelSettings.length) {
 
 // Variables dynamiques de niveau
 let GRID_SQUARE_ROOT, bombChance, gameSpeed;
+
+
+/**
+ * Rôle : Met à jour les paramètres de niveau (taille de la grille, chance de bombe et vitesse) selon currentLevel.
+ * Préconditions : currentLevel défini et compris entre 1 et levelSettings.length ; levelSettings initialisé.
+ * Postconditions : GRID_SQUARE_ROOT, bombChance et gameSpeed sont définis selon les réglages du niveau courant.
+ */
+
 function updateLevelSettings() {
   const s = levelSettings[currentLevel - 1];
   GRID_SQUARE_ROOT = s.grid;
@@ -175,7 +174,11 @@ class Snake {
   }
 }
 
-// Rotation & affichage du serpent
+/**
+ * Rôle : Calcule l'angle de rotation en degrés pour orienter le serpent selon le vecteur de déplacement.
+ * Préconditions : dx et dy forment un vecteur unitaire sur les axes (dx,dy ∈ {1,0,-1} et |dx|+|dy|=1).
+ * Postconditions : Retourne 0, 90, 180 ou -90 selon la direction ; 0 par défaut si le vecteur n’est pas reconnu.
+ */
 function getRotationFromVector(dx, dy) {
   if (dx===1&&dy===0)   return 0;
   if (dx===-1&&dy===0)  return 180;
@@ -183,6 +186,14 @@ function getRotationFromVector(dx, dy) {
   if (dx===0&&dy===-1)  return -90;
   return 0;
 }
+
+/**
+ * Rôle : Détermine l’angle de rotation pour orienter le segment du serpent entre deux nœuds.
+ * Préconditions : 
+ *   - n1 et n2 sont des instances de Node avec une propriété `value` valide (0 ≤ value < GRID_SQUARE_ROOT²).
+ *   - GRID_SQUARE_ROOT est initialisé.
+ * Postconditions : Retourne l’angle (0, 90, 180 ou 270) obtenu via getRotationFromVector(c2-c1, r2-r1).
+ */
 function getRotationFromNodes(n1,n2) {
   const r1=Math.floor(n1.value/GRID_SQUARE_ROOT),
         c1=n1.value%GRID_SQUARE_ROOT;
@@ -190,6 +201,8 @@ function getRotationFromNodes(n1,n2) {
         c2=n2.value%GRID_SQUARE_ROOT;
   return getRotationFromVector(c2-c1,r2-r1);
 }
+
+
 function getRotationForDirection(d) {
   if (d===RIGHT) return   0;
   if (d===DOWN)  return  90;
@@ -197,40 +210,95 @@ function getRotationForDirection(d) {
   if (d===UP)    return -90;
   return 0;
 }
+
+
+
+/**
+ * Rôle : Met à jour l’affichage des tuiles du serpent : classes CSS et rotations pour la tête, le corps (droit ou coin) et la queue.
+ * Préconditions : 
+ *   - `snake` initialisé avec `head`, `tail`, `direction` et `length`.
+ *   - `tiles` est un tableau de tuiles (div) de la grille, chacune avec `nature`, `classList` et `style`.
+ *   - Fonctions utilitaires `getRotationForDirection` et `getRotationFromNodes` disponibles.
+ * Postconditions : 
+ *   - Chaque tuile occupée par le serpent reçoit la classe appropriée (`snake-head`, `snake-body`, `snake-tail`, coin CW/CCW) et sa rotation CSS.
+ */
+
 function updateSnakeDisplay(){
-  let node=snake.tail, prev=null;
+  let node = snake.tail,
+      prev = null;
+
   while(node){
+    // 1) on reset tous les états
     tiles[node.value].classList.remove(
-      "snake-head","snake-body","snake-tail","snake-body-corner"
+      "snake-head",
+      "snake-body",
+      "snake-tail",
+      "snake-body-corner-cw",
+      "snake-body-corner-ccw"
     );
-    let angle=0;
-    if(node===snake.head){
+
+    let angle = 0;
+
+    // 2) la tête
+    if(node === snake.head){
       tiles[node.value].classList.add("snake-head");
-      angle=getRotationForDirection(snake.direction);
+      angle = getRotationForDirection(snake.direction);
     }
-    else if(node===snake.tail){
+    // 3) la queue
+    else if(node === snake.tail){
       tiles[node.value].classList.add("snake-tail");
-      if(node.next) angle=getRotationFromNodes(node,node.next);
+      if(node.next){
+        angle = getRotationFromNodes(node, node.next);
+      }
     }
-    else{
-      const nextN = node.next;
-      const aPrev = getRotationFromNodes(prev,node);
-      const aNext = getRotationFromNodes(node,nextN);
-      if(aPrev!==aNext){
-        tiles[node.value].classList.add("snake-body-corner");
-        angle = aPrev + 90;
-      } else {
+    // 4) le corps (droit ou coin)
+    else {
+      const nextN = node.next,
+            aPrev = getRotationFromNodes(prev, node),   // 0,90,180,270
+            aNext = getRotationFromNodes(node, nextN);
+
+      if(aPrev !== aNext){
+        // ── coin ──
+        const delta = (aNext - aPrev + 360) % 360;    // 90 ou 270
+
+        if(delta === 90){
+          // virage horaire
+          tiles[node.value].classList.add("snake-body-corner-cw");
+          angle = (aPrev + 90) % 360;
+        } else {
+          // virage anti-horaire
+          tiles[node.value].classList.add("snake-body-corner-ccw");
+          angle = (aPrev - 270) % 360;
+        }
+      }
+      else {
+        // ── segment droit ──
         tiles[node.value].classList.add("snake-body");
         angle = aNext;
       }
     }
+
+    // 5) applique la rotation
     tiles[node.value].style.transform = `rotate(${angle}deg)`;
-    prev=node;
-    node=node.next;
+
+    prev = node;
+    node = node.next;
   }
 }
 
-// Utilitaires
+
+
+
+
+/**
+ * Rôle : Sélectionne aléatoirement un index de tuile vide dans la grille.
+ * Préconditions : 
+ *   - `GRID_SQUARE_ROOT` initialisé pour définir la taille de la grille.
+ *   - `tiles` est un tableau de tuiles avec leur propriété `nature` définie.
+ *   - La constante `EMPTY` correspond à l’état vide d’une tuile.
+ * Postconditions : 
+ *   - Retourne un entier `idx` tel que `tiles[idx].nature === EMPTY`.
+ */
 function get_random_index(){
   const max = GRID_SQUARE_ROOT*GRID_SQUARE_ROOT;
   let idx = Math.floor(Math.random()*max);
@@ -239,9 +307,30 @@ function get_random_index(){
   }
   return idx;
 }
+
+/**
+ * Rôle : Retourne la tuile se trouvant devant la tête du serpent selon sa direction actuelle.
+ * Préconditions : 
+ *   - `snake.head.value` contient l’index de la case où se trouve la tête.
+ *   - `snake.direction` est défini comme l’un des décalages UP, DOWN, LEFT ou RIGHT.
+ *   - `tiles` est un tableau de tuiles couvrant intégralement la grille.
+ * Postconditions : 
+ *   - Renvoie l’élément du tableau `tiles` correspondant à la prochaine position de la tête.
+ */
+
 function get_next_tile_for_head(){
   return tiles[snake.head.value + snake.direction];
 }
+
+/**
+ * Rôle : Détermine si la tête du serpent va heurter un mur à la prochaine case selon sa direction.
+ * Préconditions : 
+ *   - `snake.head.value` contient l’index de la tuile de la tête.
+ *   - `snake.direction` défini comme UP, DOWN, LEFT ou RIGHT.
+ *   - `GRID_SQUARE_ROOT` initialise la largeur/hauteur de la grille.
+ * Postconditions : 
+ *   - Retourne `true` si la tête se trouve au bord et avance vers l’extérieur de la grille, `false` sinon.
+ */
 function will_hit_wall(){
   const idx = snake.head.value,
         mod = idx % GRID_SQUARE_ROOT;
@@ -251,18 +340,57 @@ function will_hit_wall(){
   if(mod===GRID_SQUARE_ROOT-1 && snake.direction===RIGHT) return true;
   return false;
 }
+
+
+/**
+ * Rôle : Place un fruit sur une tuile vide sélectionnée aléatoirement.
+ * Préconditions : 
+ *   - `GRID_SQUARE_ROOT` et `tiles` initialisés.
+ *   - Au moins une tuile a `nature === EMPTY`.
+ *   - La constante `FRUIT` définie.
+ * Postconditions : 
+ *   - Une tuile vide voit sa propriété `nature` passée à `FRUIT`.
+ *   - La classe CSS `"fruit"` est ajoutée à cette tuile.
+ */
 function spawnFruit(){
   const f = get_random_index();
   tiles[f].nature = FRUIT;
   tiles[f].classList.add("fruit");
 }
+
+/**
+ * Rôle : Place une bombe sur une tuile vide sélectionnée aléatoirement.
+ * Préconditions : 
+ *   - `GRID_SQUARE_ROOT` et `tiles` initialisés.
+ *   - Au moins une tuile a `nature === EMPTY`.
+ *   - La constante `BOMB` définie.
+ * Postconditions : 
+ *   - Une tuile vide voit sa propriété `nature` passée à `BOMB`.
+ *   - La classe CSS `"bomb"` est ajoutée à cette tuile.
+ */
+
 function spawnBomb(){
   const b = get_random_index();
   tiles[b].nature = BOMB;
   tiles[b].classList.add("bomb");
 }
 
-// Passage de niveau
+
+
+/**
+ * Rôle : Vérifie si le score atteint le seuil pour passer au niveau suivant et, le cas échéant, incrémente le niveau, met à jour ses paramètres, stoppe le jeu et affiche l’overlay de montée de niveau.
+ * Préconditions : 
+ *   - `currentLevel` défini et `levelSettings` initialisé.
+ *   - `score` mis à jour.
+ *   - Fonctions `updateLevelSettings()` et `stopGame()` disponibles.
+ * Postconditions : 
+ *   - Si `score ≥ unlockScore` du niveau courant et qu’un niveau supérieur existe :
+ *       • `currentLevel` incrémenté  
+ *       • Appel à `updateLevelSettings()`  
+ *       • Jeu stoppé (`stopGame()` + `playing = false`)  
+ *       • Overlay de niveau supérieur affiché avec le nouveau numéro de niveau  
+ */
+
 function checkLevelUp() {
   const settings = levelSettings[currentLevel - 1];
   if (currentLevel < levelSettings.length && score >= settings.unlockScore) {
@@ -286,7 +414,22 @@ localStorage.setItem("snakeUnlockedLevel", currentLevel);
 
 
 
-// (Re)initialisation
+/**
+ * Rôle : (Re)initialise complètement l’état du jeu : paramètres de niveau, directions, grille, serpent, score et placement du fruit.
+ * Préconditions : 
+ *   - `currentLevel` défini et `updateLevelSettings()` déjà appelé au moins une fois.
+ *   - Élément `grid` existant dans le DOM avec un style CSS grid.
+ *   - Les constantes `UP`, `DOWN`, `LEFT`, `RIGHT`, `EMPTY` et la classe `Snake` sont disponibles.
+ * Postconditions : 
+ *   - Paramètres de direction et de niveau à jour.
+ *   - Pop-up « game over » masqué.
+ *   - Jeu stoppé (`playing = false`, aucune intervalle en cours).
+ *   - `score` remis à zéro et affichage mis à jour.
+ *   - Grille vidée, recreusée avec exactement `GRID_SQUARE_ROOT²` tuiles vides.
+ *   - Serpent créé au centre de la grille avec deux premiers segments.
+ *   - Un fruit spawné aléatoirement sur une tuile vide.
+ */
+
 function init(){
   updateLevelSettings();
   UP    = -GRID_SQUARE_ROOT;
@@ -327,7 +470,19 @@ function init(){
   spawnFruit();
 }
 
-// Boucle de jeu
+/**
+ * Rôle : Avance le serpent d’un pas : libère l’ancienne queue, ajoute une nouvelle tête et met à jour l’affichage.
+ * Préconditions : 
+ *   - `snake` initialisé avec des `head` et `tail` valides et `tiles` défini.
+ *   - La constante `SNAKE` et la classe `Node` disponibles.
+ * Postconditions : 
+ *   - L’ancienne tuile de queue voit sa nature repassée à `EMPTY` et ses classes CSS de serpent retirées.
+ *   - Un nouveau nœud tête est créé à l’index `oldHead + direction` et lié à la liste.
+ *   - `snake.head` et `snake.tail` mis à jour.
+ *   - La nouvelle tuile de tête voit sa nature passée à `SNAKE`.
+ *   - Appel à `updateSnakeDisplay()` pour refléter ces changements visuels.
+ */
+
 function moveSnake(){
   const oldTail = snake.tail,
         newTail = oldTail.next;
@@ -343,6 +498,19 @@ function moveSnake(){
   tiles[newHeadIndex].nature = SNAKE;
   updateSnakeDisplay();
 }
+
+/**
+ * Rôle : Gère un cycle de jeu en déplaçant le serpent ou en traitant les collisions et consommations.
+ * Préconditions :
+ *   - `playing === true`
+ *   - `snake.head`, `snake.direction`, `tiles` et constantes `UP`, `DOWN`, `LEFT`, `RIGHT`, `FRUIT`, `BOMB`, `SNAKE` sont initialisés.
+ *   - Fonctions utilitaires `will_hit_wall()`, `endGame()`, `get_next_tile_for_head()`, `moveSnake()`, `spawnFruit()`, `spawnBomb()`, `updateScore()`, `checkLevelUp()` disponibles.
+ * Postconditions :
+ *   - Si collision mur, bombe ou corps : `endGame()` appelé avec le message approprié et le jeu s’arrête.
+ *   - Si fruit : tuile fruit retirée, appel à `snake.eat()`, `score` incrémenté, `updateScore()`, `spawnFruit()`, `checkLevelUp()`.
+ *   - Sinon : `moveSnake()` pour avancer normalement.
+ *   - Après tout mouvement, possibilité de `spawnBomb()` selon `bombChance`.
+ */
 
 function move(){
   if(!playing) return;
@@ -374,11 +542,29 @@ function move(){
   }
 }
 
-// Start / Stop
+/**
+ * Rôle : Démarre la boucle de jeu en programmant des appels répétés à la fonction de déplacement.
+ * Préconditions : 
+ *   - `gameInterval` défini (peut être `null` si aucune boucle n’est en cours).
+ *   - Les variables `move` (fonction) et `gameSpeed` (intervalle en millisecondes) sont initialisées.
+ * Postconditions : 
+ *   - Si aucune boucle n’était active (`gameInterval` falsy), `gameInterval` reçoit l’identifiant du nouvel intervalle.
+ *   - La fonction `move` sera appelée toutes les `gameSpeed` millisecondes.
+ */
+
 function startGame(){
   if(gameInterval) return;
   gameInterval = setInterval(move, gameSpeed);
 }
+
+/**
+ * Rôle : Arrête la boucle de jeu en annulant l’intervalle courant.
+ * Préconditions : 
+ *   - `gameInterval` contient l’identifiant d’un intervalle actif ou est `null`.
+ * Postconditions : 
+ *   - Si un intervalle existait, il est effacé (`clearInterval`) et `gameInterval` remis à `null`.
+ */
+
 function stopGame(){
   if(gameInterval){
     clearInterval(gameInterval);
@@ -386,7 +572,20 @@ function stopGame(){
   }
 }
 
-// Fin de partie
+
+/**
+ * Rôle : Termine la partie en stoppant le jeu, enregistrant le score et en affichant l’écran de fin.
+ * Préconditions : 
+ *   - `playing === true` ou en cours de partie.
+ *   - `startTime` a été initialisé au lancement du jeu.
+ *   - Les fonctions `stopGame()` et `saveScore()` sont disponibles.
+ *   - Un élément DOM avec l’ID `"gameOverOverlay"` existe pour l’affichage.
+ * Postconditions : 
+ *   - `playing` passe à `false` et la boucle de jeu est annulée.
+ *   - Le score et le temps écoulé sont envoyés au serveur via `saveScore()`.
+ *   - L’overlay Game Over est rendu visible (`classList.remove("hidden")`).
+ */
+
 function endGame(message) {
   // stoppe le jeu
   playing = false;
@@ -398,23 +597,34 @@ function endGame(message) {
     : 0;
   // mise à jour de l'appel de saveScore pour inclure le temps
   saveScore(score, tempsEcoule);
-
+  
   // affiche overlay Game Over
   const overlay = document.getElementById("gameOverOverlay");
   if (overlay) {
-    // facultatif : si tu veux afficher message différent, insère ici
-    // overlay.querySelector("h1").textContent = message;
     overlay.classList.remove("hidden");
   }
 }
 
 
-// Score & affichage niveau
+/**
+ * Rôle : Met à jour l’affichage du score et du niveau dans les éléments DOM dédiés.
+ * Préconditions : 
+ *   - Les variables `score` et `currentLevel` sont définies et à jour.
+ *   - L’élément avec l’ID `"scoreValue"` existe dans le DOM.
+ *   - L’élément avec l’ID `"levelValue"` peut exister dans le DOM.
+ * Postconditions : 
+ *   - Le texte de `"scoreValue"` reflète la valeur de `score`.
+ *   - Si présent, le texte de `"levelValue"` reflète la valeur de `currentLevel`.
+ */
+
+
 function updateScore(){
   document.getElementById("scoreValue").textContent = score;
   const lvlEl = document.getElementById("levelValue");
   if(lvlEl) lvlEl.textContent = currentLevel;
 }
+
+
 
 // Gestion des touches
 window.addEventListener("keydown", function(ev) {
@@ -445,8 +655,17 @@ window.addEventListener("keydown", function(ev) {
 
 
 /**
- * Met en pause ou relance le jeu
+ * Rôle : Met en pause ou relance le jeu en basculant le flag de jeu actif et gérant la boucle de jeu.
+ * Préconditions : 
+ *   - La variable `playing` est définie et de type booléen.
+ *   - Les fonctions `startGame()` et `stopGame()` sont disponibles.
+ * Postconditions : 
+ *   - `playing` inversé (true ⇄ false).
+ *   - Si `playing` devient true, la boucle de jeu est démarrée.
+ *   - Si `playing` devient false, la boucle de jeu est arrêtée.
  */
+
+
 function togglePause() {
   // on inverse le flag
   playing = !playing;
@@ -457,9 +676,22 @@ function togglePause() {
     stopGame();
   }
 }
+
 /**
- * Affiche un décompte de `duration` secondes, puis lance la partie.
+ * Rôle : Affiche un compte à rebours de `duration` secondes avant de lancer réellement la partie.
+ * Préconditions : 
+ *   - `duration` est un entier strictement positif.
+ *   - `countdownInProgress` est défini et à `false`.
+ *   - Les éléments DOM avec les IDs `"countdownOverlay"` et `"countdownNumber"` existent.
+ *   - Les variables `startTime`, `playing` et la fonction `startGame()` sont disponibles.
+ * Postconditions : 
+ *   - `countdownInProgress` passe à `true` pendant le décompte, puis revient à `false`.
+ *   - L’overlay de décompte est masqué une fois terminé.
+ *   - `startTime` est assigné à la date/heure de fin du décompte.
+ *   - `playing` passe à `true` et la boucle de jeu démarre (`startGame()` est appelé).
  */
+
+
 function showCountdown(duration = 5) {
   if (countdownInProgress) return;
   countdownInProgress = true;
@@ -487,6 +719,10 @@ function showCountdown(duration = 5) {
     }
   }, 1000);
 }
+
+
+
+
 
 // Boutons de l'overlay Game Over
 document.getElementById("replayBtn").addEventListener("click", () => {
