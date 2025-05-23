@@ -128,6 +128,7 @@ app.use(Session.initMiddleware());
 // -------------------------------------------------------------------
 app.use(async (ctx: Context, next) => {
   console.log("Request received : " + ctx.request.url.pathname);
+  console.log("Headers: " + Array.from(ctx.request.headers.entries()));
   if (ctx.request.url.pathname === "/ws/guerre") {
     if (!ctx.isUpgradable) {
       console.log("WebSocket upgrade required.");
