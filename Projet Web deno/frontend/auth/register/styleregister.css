@@ -72,15 +72,6 @@ input {
   box-sizing: border-box;
 }
 
-.password-toggle-icon {
-  position: absolute;
-  top: 50%;
-  right: 10px;
-  width: 24px;
-  height: 24px;
-  transform: translateY(-50%);
-  cursor: pointer;
-}
 
 .btn {
   margin-top: 10px;
