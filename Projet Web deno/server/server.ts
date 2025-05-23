@@ -128,7 +128,6 @@ app.use(Session.initMiddleware());
 // -------------------------------------------------------------------
 app.use(async (ctx: Context, next) => {
   console.log("Request received : " + ctx.request.url.pathname);
-  console.log("Headers: " + Array.from(ctx.request.headers.entries()));
   if (ctx.request.url.pathname === "/ws/guerre") {
     if (!ctx.isUpgradable) {
       console.log("WebSocket upgrade required.");
@@ -136,7 +135,7 @@ app.use(async (ctx: Context, next) => {
       ctx.response.body   = "WebSocket upgrade required.";
       return;
     }
-    console.log("WebSocket upgrade required.");
+    console.log("WebSocket executing upgrade required.");
     const ws = await ctx.upgrade();
     console.log("WebSocket upgrade successful.");
     handleGuerreWebSocket(ws);
