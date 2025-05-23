@@ -1,7 +1,7 @@
 // scores.js
 
 // 1) Base de l’API : pointer directement vers "http://localhost:3000/api/snake"
-const API_BASE = "/api/snake";
+const API_BASE = "https://api.rom-space-game.realdev.cloud/api/snake";
 
 // 2) Charger le top 10 depuis le serveur
 async function loadLeaderboard() {
