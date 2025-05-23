@@ -1,6 +1,6 @@
 // admin.js
 
-const API_BASE = '/api';
+const API_BASE = 'https://api.rom-space-game.realdev.cloud/api';
 
 async function fetchUsers() {
   const res = await fetch(`${API_BASE}/admin/users`, { credentials: 'include' });
