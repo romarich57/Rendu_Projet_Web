@@ -135,7 +135,7 @@ app.use(async (ctx: Context, next) => {
       ctx.response.body   = "WebSocket upgrade required.";
       return;
     }
-    console.log("Headers:", Array.from(ctx.request.headers.entries()));
+    console.log("Headers: " + Array.from(ctx.request.headers.entries()));
     console.log("WebSocket upgrade required.");
     const ws = await ctx.upgrade();
     console.log("WebSocket upgrade successful.");
