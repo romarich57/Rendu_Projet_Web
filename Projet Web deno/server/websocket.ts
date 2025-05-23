@@ -508,7 +508,7 @@ export function handleGuerreWebSocket(ws: WebSocket) {
         type: 'connected',
         id: connectionId
       });
-    }, 0);
+    }, 1000);
   }
 
   // Gestionnaire de messages
