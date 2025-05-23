@@ -137,7 +137,7 @@ app.use(async (ctx: Context, next) => {
       return;
     }
     console.log("WebSocket executing upgrade required.");
-    const ws = await ctx.upgrade();
+    const ws = ctx.upgrade();
     console.log("WebSocket upgrade successful.");
     handleGuerreWebSocket(ws);
   } else {
