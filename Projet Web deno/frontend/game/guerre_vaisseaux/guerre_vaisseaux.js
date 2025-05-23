@@ -176,6 +176,8 @@ function connectWebSocket() {
   try {
     socket = new WebSocket('wss://api.rom-space-game.realdev.cloud/ws/guerre');
 
+    console.log("Connexion WebSocket en cours...");
+
     socket.onopen = function() {
       console.log('Connexion WebSocket établie');
       reconnectAttempts = 0;
