@@ -114,7 +114,7 @@ form.addEventListener('submit', async e => {
 
   let res;
   try {
-    res = await fetch(`${API_URL}/user/profile`, {
+    res = await fetch(`${API_URL}/api/user/profile`, {
       method:      'PUT',
       credentials: 'include',
       headers: {
