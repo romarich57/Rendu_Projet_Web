@@ -61,7 +61,7 @@ loginBtn.addEventListener('click', async () => {
     if (data.token) {
       localStorage.setItem("token", data.token);
       localStorage.setItem("username", identifier);
-      localStorage.setItem("userId", data.userId);  // ✅ ajout ici
+      localStorage.setItem("userId", data.userId);  
       window.location.href = "/game/choose/choose_game.html";
     }
 

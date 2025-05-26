@@ -1,53 +1,62 @@
-ans votre jeu "Guerre des Vaisseaux", les WebSockets permettent une expérience multijoueur en temps réel où deux joueurs s'affrontent simultanément. Contrairement aux requêtes HTTP classiques qui créent une nouvelle connexion pour chaque échange, les WebSockets établissent une connexion permanente bidirectionnelle entre le navigateur de chaque joueur et le serveur.
+Système d'Authentification et de Connexion
 
-Fonctionnement détaillé
-Établissement de la connexion
-Lorsqu'un joueur accède au jeu, son navigateur ouvre une connexion WebSocket vers votre serveur. Votre système génère immédiatement un identifiant unique (UUID) pour cette connexion et crée un objet joueur qui conserve:
+Mon projet implémente un système d'authentification et différentes interfaces utilisateur. Le système est conçu selon une architecture client-serveur bien séparée.
 
-La référence à la connexion WebSocket
-La position du vaisseau
-Le nombre de vies restantes
-Un horodatage de dernière activité
-Le nom du joueur (initialement null)
-Le serveur confirme la connexion en envoyant un message connected avec l'identifiant attribué.
+Architecture Backend
+Composants principaux:
 
-Système de matchmaking
-Une particularité intéressante de votre implémentation est le système de matchmaking qui:
+- handlers.ts : Contient les fonctions qui gèrent l'authentification, l'inscription et la récupération de mots de passe
 
-Recherche une salle disponible avec moins de 2 joueurs
-Vérifie que les noms des joueurs sont uniques pour éviter la confusion
-Crée une nouvelle salle si nécessaire
-Associe les joueurs à une même salle pour permettre leur affrontement
-Vous proposez même deux modes de recherche de partie:
+- middlewares.ts : Implémente la validation des tokens JWT et la protection des routes
 
-join: Strict sur l'unicité des noms
-joinRelaxed: Privilégie l'unicité des noms mais accepte des doublons si nécessaire
-Communication en temps réel
-Une fois deux joueurs associés à une même salle, une boucle de jeu démarre et s'exécute environ 30 fois par seconde (intervalle de 33ms), où:
+- routes.ts : Définit les endpoints API pour l'authentification
+- mail.ts : Gère l'envoi d'emails pour la récupération de mots de passe
 
-Les positions des vaisseaux sont synchronisées
-Les projectiles sont déplacés
-Les collisions sont détectées
-Les scores et vies sont mis à jour
-L'état complet du jeu est diffusé aux deux joueurs
-Gestion des déconnexions
-Votre système inclut plusieurs mécanismes de robustesse:
+Mécanismes de sécurité:
 
-Un système de heartbeat qui détecte les connexions inactives après 30 secondes
-Une gestion propre des déconnexions qui notifie l'adversaire
-Le nettoyage des ressources (salles et états) lorsqu'un joueur quitte le jeu
-Justification de l'utilisation des WebSockets
-L'utilisation des WebSockets pour ce jeu est pleinement justifiée pour plusieurs raisons:
+- Stockage des mots de passe hachés avec bcrypt
+Génération et validation de tokens JWT
+Protection contre les attaques par force brute via rate limiting
+HTTPS 
 
-Synchronisation en temps réel: Le jeu nécessite une mise à jour continue et immédiate des positions entre les deux joueurs, ce qui serait impossible avec des requêtes HTTP traditionnelles.
 
-Réduction de la latence: Les mouvements et tirs doivent être transmis avec une latence minimale pour maintenir l'équité du jeu et la fluidité de l'expérience.
+Architecture Frontend :
 
-Efficacité réseau: Une boucle de jeu à 30 FPS avec des requêtes HTTP classiques générerait 30 requêtes par seconde avec leurs en-têtes complets, alors que les WebSockets maintiennent une connexion unique et des messages légers.
+- Interfaces utilisateur
 
-Communication bidirectionnelle: Le serveur doit pouvoir envoyer des mises à jour aux clients sans attendre une requête (par exemple pour les projectiles en mouvement ou la notification de déconnexion d'un adversaire).
+- Interface de connexion (/frontend/auth/login/) : Formulaire standard email/mot de passe
 
-Économie de ressources serveur: En évitant d'établir et de fermer constamment des connexions HTTP, les WebSockets réduisent la charge sur le serveur.
+- Interface d'inscription (/frontend/auth/register/) : Création de compte utilisateur
 
-Expérience utilisateur fluide: Les joueurs bénéficient d'une expérience sans rupture, essentielle pour un jeu d'action rapide.
+- Récupération de mot de passe (/frontend/auth/forgot/) : Permet de demander une réinitialisation
 
+- Réinitialisation de mot de passe (/frontend/auth/reset/) : Définition d'un nouveau mot de passe
+
+- Connexion administrateur (/frontend/admin/login/) : Interface séparée pour les administrateurs
+
+- Gestion de compte (/frontend/compteutilisateur/) : Permet aux utilisateurs de gérer leur profil et paramètres
+
+Flux d'authentification:
+
+- Inscription : L'utilisateur s'inscrit via le formulaire d'inscription
+- Connexion : L'utilisateur saisit ses identifiants et reçoit un token JWT
+- Stockage : Le token est stocké dans le localStorage du navigateur
+- Autorisation : Le token est envoyé avec chaque requête API dans l'en-tête Authorization
+- Validation : Le middleware serveur vérifie la validité du token
+- Accès : L'utilisateur accède aux ressources protégées selon son niveau d'autorisation
+- Déconnexion : Le token est supprimé du localStorage
+
+Fonctionnalités supplémentaires :
+
+- Accès administrateur : Interface d'administration protégée avec des droits spécifiques
+- Séparation des privilèges : Utilisateurs standards vs administrateurs
+- Réinitialisation de mot de passe : Système en deux étapes avec envoi d'email
+- Gestion de profil utilisateur : Possibilité de modifier ses informations et préférences
+
+Présentation du jeu avec les Websokcet
+
+Guerre des Vaisseaux est un jeu multijoueur en temps réel qui s’appuie entièrement sur un canal WebSocket persistent entre chaque client et le serveur pour offrir une expérience fluide et synchronisée. Dès qu’un joueur clique sur « Commencer le jeu », son navigateur ouvre une connexion WebSocket, reçoit un identifiant unique et attend qu’un adversaire rejoigne la même « salle ».
+
+Lorsqu’un second joueur se connecte, le serveur associe automatiquement les deux participants, initialise l’état de la partie (positions de vaisseaux, vies, projectiles…) et démarre une boucle de mise à jour à 30 images par seconde. À chaque itération, le serveur calcule les mouvements, gère les tirs et détecte les collisions, puis envoie l’état de jeu complet à chaque client. De leur côté, les joueurs émettent en continu des messages (« move », « shoot », « join ») pour faire bouger leur vaisseau ou tirer, qui sont traités immédiatement sur le serveur.
+
+Ce choix des WebSockets est justifié par la nécessité de faible latence (chaque milliseconde compte dans un duel spatial), de communication bidirectionnelle sans surcharge de headers HTTP, et de maintien d’une connexion unique qui simplifie la détection de déconnexion ou d’inactivité. Le résultat est un affrontement réactif, où chaque commande est immédiatement répercutée pour les deux joueurs, garantissant un gameplay compétitif et immersif.

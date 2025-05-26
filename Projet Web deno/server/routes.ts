@@ -268,7 +268,7 @@ function getRequestJson(ctx: Context): Promise<any> {
   if (typeof ctx.request.body === "function") {
     return ctx.request.body({ type: "json" }).value;
   }
-  // Sinon, assume que ctx.request.body est déjà un objet PromiseBody
+  
   return ctx.request.body.value;
 }
 
