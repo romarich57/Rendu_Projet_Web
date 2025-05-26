@@ -182,9 +182,9 @@ html, body {
 }
 #btn-pause {
     position: absolute;
-    top: 8px;       /* ajuste si besoin */
-    right: 8px;     /* ajuste si besoin */
-    width: 40px;    /* taille souhaitée */
+    top: 8px;       
+    right: 8px;     
+    width: 40px;    
     cursor: pointer;
     transition: transform .2s ease;
     z-index: 3;     /* au-dessus de la grille */
@@ -195,9 +195,9 @@ html, body {
 
   #btn-restart {
     display: block;
-    height: 180px; /* ajustez selon votre design */
-    width: 180px;      /* ajustez selon votre design */
-    margin-top: -30px; /* ajustez selon votre design */
+    height: 180px; 
+    width: 180px;      
+    margin-top: -30px; 
     cursor: pointer;
     transition: transform .2s ease;
     z-index: 3;     /* au-dessus de la grille */

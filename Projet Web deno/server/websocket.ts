@@ -44,8 +44,8 @@ const rooms = new Map<string, Set<string>>();
 const gameStates = new Map<string, GameState>();
 const MAX_PLAYERS_PER_ROOM = 2;
 
-// Variable to store the heartbeat timer interval
-let heartbeatTimerId: number | null = null;
+
+let heartbeatTimerId: ReturnType<typeof setInterval> | null = null;
 
 // Fonction pour générer un ID unique
 function generateId(): string {

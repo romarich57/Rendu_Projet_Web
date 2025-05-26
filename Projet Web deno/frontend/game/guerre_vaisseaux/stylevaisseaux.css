@@ -20,7 +20,7 @@ html, body {
 body {
   font-family: var(--font-secondary);
   color: var(--light);
-  background: none; /* on gère le fond via #background */
+  background: none; 
 }
 
 /* Titres en sci-fi */
@@ -182,7 +182,7 @@ h1, #player1-name, #player2-name {
   position: fixed;
   top: 0; left: 0;
   width: 100%; height: 100%;
-  z-index: -1000;           /* derrières tous les autres éléments */
+  z-index: -1000;          
   background-image:
     url("../../assets/images/fond2.jpg"),
     url("../../assets/images/fond3.jpg");
@@ -228,7 +228,7 @@ h1, #player1-name, #player2-name {
 .overlay-content .buttons {
   display: flex;
   gap: 20px;
-  justify-content: center; /* Ajouté pour centrer les boutons */
+  justify-content: center; 
 }
 
 .btn {

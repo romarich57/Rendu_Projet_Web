@@ -230,7 +230,7 @@ body {
   opacity: 1;
 }
 
-/* Ajustez les boutons existants */
+
 .logout-button-container, 
 .user-button-container {
   position: static;
@@ -239,7 +239,7 @@ body {
   right: auto;
 }
 
-/* Modifiez le padding de la grille */
+
 .game-grid {
-  padding: 100px 30px 80px; /* Ajusté pour l'espace header */
+  padding: 100px 30px 80px; 
 }

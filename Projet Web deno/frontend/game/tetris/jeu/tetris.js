@@ -35,7 +35,7 @@ let tileSize, gridGap;
 let prochainePiece = null;
 let pieceActive = null;
 let position = { x: 3, y: 0 };
-let pieceEl = null;     // DOM <div class="piece">
+let pieceEl = null;     
 // Ghost piece
 let ghostEl = null;
 
@@ -47,6 +47,19 @@ let nextQueue = [];
 // ——————————————————————————————
 // 🎮 Étape 1 : Initialisation de la grille
 // ——————————————————————————————
+
+/**
+ * Role : Initialise la grille de jeu en construisant la structure logique et son rendu visuel dans le DOM.
+ * Préconditions : 
+ *   - La constante ROWS et COLS sont définies.
+ *   - La variable globale `grille` existe (tableau vide ou non initialisé).
+ *   - L’élément DOM identifié par `gameBoard` est présent dans la page.
+ * Postconditions : 
+ *   - La variable globale `grille` est initialisée en tant que matrice ROWS×COLS remplie de 0.
+ *   - ROWS×COLS éléments `<div>` avec la classe `cell` sont ajoutés à `gameBoard`.
+ */
+
+
 function initGrille() {
   for (let row = 0; row < ROWS; row++) {
     grille[row] = [];
@@ -76,10 +89,19 @@ const tetrominos = [
 // ——————————————————————————————
 // 🎮 Génération d’une nouvelle pièce (clonage de shape)
 // ——————————————————————————————
+
 /**
- * Génère la pieceActive à partir de nextQueue,
- * alimente nextQueue avec une pièce random, et met à jour l’affichage.
+ * Role : Tire la prochaine pièce à jouer, enrichit la file d’attente et met à jour l’affichage.
+ * Préconditions : 
+ *   - La file `nextQueue` est initialisée et contient au moins une pièce.
+ *   - Les fonctions `cloneRandomTetromino()`, `afficherNextQueue()` et `createPieceDOM()` sont disponibles.
+ * Postconditions : 
+ *   - La variable globale `pieceActive` reçoit la première pièce de `nextQueue`.
+ *   - Une nouvelle pièce aléatoire est ajoutée en fin de `nextQueue`.
+ *   - La file d’attente visuelle (NEXT) est réaffichée dans le DOM.
+ *   - Le DOM de la pièce active est créé et affiché.
  */
+
 function generateTetromino() {
   // 1) Prend la tête de queue
   pieceActive = nextQueue.shift();
@@ -93,6 +115,20 @@ function generateTetromino() {
   // 4) Affiche la pieceActive
   createPieceDOM(pieceActive);
 }
+
+/**
+ * Role : Crée et retourne une copie indépendante d’un tétrimino choisi aléatoirement.
+ * Préconditions : 
+ *   - Le tableau global `tetrominos` est défini et non vide.
+ * Postconditions : 
+ *   - Aucun effet de bord sur `tetrominos`.
+ *   - La fonction retourne un objet contenant :
+ *       - `name` (chaîne) identique au modèle sélectionné,
+ *       - `bloc` (nombre) identique au modèle sélectionné,
+ *       - `shape` (matrice) copiée en profondeur pour ne pas modifier l’original.
+ */
+
+
 function cloneRandomTetromino() {
   const idx = Math.floor(Math.random() * tetrominos.length);
   const tmpl = tetrominos[idx];
@@ -103,6 +139,16 @@ function cloneRandomTetromino() {
   };
 }
 
+/**
+ * Role : Initialise la file des prochaines pièces en y insérant un nombre défini de tétriminos aléatoires, puis met à jour l’affichage.
+ * Préconditions : 
+ *   - La constante `NEXT_COUNT` (nombre d’éléments dans la file) est définie.
+ *   - La fonction `cloneRandomTetromino()` et la fonction `afficherNextQueue()` sont disponibles.
+ * Postconditions : 
+ *   - La variable globale `nextQueue` contient exactement `NEXT_COUNT` tétriminos copiés aléatoirement.
+ *   - La file visuelle des prochaines pièces (NEXT) est rafraîchie dans le DOM via `afficherNextQueue()`.
+ */
+
 function initNextQueue() {
   nextQueue = [];
   for (let i = 0; i < NEXT_COUNT; i++) {
@@ -110,6 +156,16 @@ function initNextQueue() {
   }
   afficherNextQueue();
 }
+
+/**
+ * Role : Affiche graphiquement dans le DOM la file des tétriminos à venir.
+ * Préconditions : 
+ *   - La variable globale `nextQueue` contient des objets tétriminos avec `shape` et `bloc`.
+ *   - Les variables `tileSize` et `gridGap` (dimensions de tuile et espacement) sont initialisées.
+ *   - L’élément DOM `next-container` existe.
+ * Postconditions : 
+ *   - Le conteneur `next-container` contient une `<div>` par tétrimino de `nextQueue`, chacune repositionnée et stylée selon sa forme.
+ */
 
 function afficherNextQueue() {
   const container = document.getElementById("next-container");
@@ -136,7 +192,15 @@ function afficherNextQueue() {
   });
 }
 
-
+/**
+ * Role : Affiche graphiquement un tétrimino donné dans la zone “Next”.
+ * Préconditions : 
+ *   - Le paramètre `tetromino` est un objet valide issu de `cloneRandomTetromino()`, avec `shape` et `bloc`.
+ *   - L’élément DOM `next-container` existe dans la page.
+ * Postconditions : 
+ *   - Le conteneur `next-container` contient exactement une `<div>` avec la classe `next-piece`.
+ *   - Cette `<div>` contient autant de `<div class="cell">` que de cases non nulles dans `tetromino.shape`, positionnées et stylées avec l’image correspondant à `tetromino.bloc`.
+ */
 
 function afficherNextPiece(tetromino) {
   const container = document.getElementById("next-container");
@@ -167,6 +231,17 @@ function afficherNextPiece(tetromino) {
 // 🎮 Étapes 3,4,5 : Affichage, gravité, collisions, mouvements
 // ——————————————————————————————
 
+/**
+ * Role : Met à jour la position et l’orientation visuelle de la pièce active dans le plateau de jeu.
+ * Préconditions : 
+ *   - La variable globale `pieceEl` référence l’élément DOM de la pièce active.
+ *   - L’objet `pos` possède des propriétés numériques `x` et `y` indiquant la position logique.
+ *   - La variable `tileSize` (taille d’une tuile en pixels) est initialisée.
+ * Postconditions : 
+ *   - L’élément DOM `pieceEl` est déplacé aux coordonnées (`pos.x * tileSize`, `pos.y * tileSize`) et pivoté de `rotationDeg` degrés autour de son centre.
+ */
+
+
 function updatePieceDOM(pos, rotationDeg = 0) {
   gsap.set(pieceEl, {
     x: pos.x * tileSize,
@@ -175,6 +250,21 @@ function updatePieceDOM(pos, rotationDeg = 0) {
     transformOrigin: 'center center'
   });
 }
+
+
+/**
+ * Role : Crée et insère dans le plateau de jeu l’élément DOM de la pièce active à partir de ses données logiques et initialise son affichage.
+ * Préconditions : 
+ *   - L’objet `piece` est un tétrimino valide issu de `cloneRandomTetromino()`, avec propriétés `shape`, `bloc`.
+ *   - Les variables globales `pieceEl`, `gameBoard`, `tileSize`, `gridGap` et `position` sont définies.
+ *   - La fonction `updateGhost()` est disponible.
+ * Postconditions : 
+ *   - L’ancien élément DOM de la pièce (`pieceEl`) est supprimé s’il existait.
+ *   - Un nouvel élément `<div class="piece">` est créé, positionné et peuplé de ses `<div class="block">` correspondant à `piece.shape`.
+ *   - `pieceEl` est positionné aux coordonnées (`position.x`, `position.y`) et orienté à 0°.
+ *   - La fonction `updateGhost()` est appelée pour mettre à jour l’aperçu de la chute fantôme.
+ */
+
 function createPieceDOM(piece) {
   if (pieceEl) pieceEl.remove();
   pieceEl = document.createElement('div');
@@ -206,8 +296,18 @@ function createPieceDOM(piece) {
   updateGhost();
 
 }
+/**
+ * Role : Crée et insère l’ombre (ghost) de la pièce active dans le plateau de jeu.
+ * Préconditions : 
+ *   - L’objet `piece` est un tétrimino valide avec propriétés `shape` et `bloc`.
+ *   - Les variables globales `ghostEl`, `gameBoard`, `tileSize` et `gridGap` sont définies.
+ * Postconditions : 
+ *   - L’ancien élément DOM `ghostEl` est supprimé s’il existait.
+ *   - Un nouvel élément `<div class="piece ghost">` est créé et ajouté à `gameBoard`.
+ *   - Cet élément contient autant de `<div class="block">` que de cellules non nulles dans `piece.shape`, positionnées avec l’image correspondant à `piece.bloc`.
+ */
 
-// Crée l’ombre de la pièce
+
 function createGhostDOM(piece) {
   if (ghostEl) ghostEl.remove();
   ghostEl = document.createElement('div');
@@ -228,7 +328,17 @@ function createGhostDOM(piece) {
   });
 }
 
-// Positionne l’ombre
+/**
+ * Role : Met à jour la position visuelle de l’ombre (ghost) de la pièce active dans le plateau de jeu.
+ * Préconditions : 
+ *   - La variable globale `ghostEl` référence l’élément DOM de l’ombre.
+ *   - L’objet `pos` possède des propriétés numériques `x` et `y`.
+ *   - Les variables `tileSize` (taille d’une tuile) et `gridGap` sont initialisées.
+ * Postconditions : 
+ *   - L’élément DOM `ghostEl` est déplacé aux coordonnées (`pos.x * step`, `pos.y * step`) avec une rotation de 0°.
+ */
+
+
 function updateGhostDOM(pos) {
   const step = tileSize + gridGap;
   gsap.set(ghostEl, {
@@ -238,7 +348,18 @@ function updateGhostDOM(pos) {
   });
 }
 
-// Calcule la position finale et met à jour l’ombre
+/**
+ * Role : Calcule la position de chute de l’ombre (ghost) pour la pièce active et met à jour son affichage.
+ * Préconditions : 
+ *   - La variable globale `pieceActive` contient la pièce en cours ou est nulle.
+ *   - Les variables globales `position` et la fonction `isDispo(piece, pos)` sont définies.
+ *   - Les fonctions `createGhostDOM()` et `updateGhostDOM()` sont disponibles.
+ * Postconditions : 
+ *   - Si `pieceActive` est défini, l’ombre est recréée au-dessus de la pièce active.
+ *   - La position de l’ombre (`gpos`) est ajustée vers le bas jusqu’au dernier emplacement valide.
+ *   - L’ombre est repositionnée dans le DOM à cette position finale.
+ */
+
 function updateGhost() {
   if (!pieceActive) return;
   createGhostDOM(pieceActive);
@@ -251,7 +372,15 @@ function updateGhost() {
 
 
 
-
+/**
+ * Role : Efface visuellement une pièce du plateau en retirant l’image de ses cellules aux positions spécifiées.
+ * Préconditions : 
+ *   - L’objet `piece` est un tétrimino valide avec une matrice `shape`.
+ *   - L’objet `pos` contient des propriétés numériques `x` et `y` pour la position de la pièce.
+ *   - L’élément DOM `#game-board` existe et contient des éléments `.cell` au nombre de ROWS×COLS.
+ * Postconditions : 
+ *   - Pour chaque case non nulle de `piece.shape` située dans la grille, la cellule correspondante dans le DOM voit son `backgroundImage` réinitialisé à une chaîne vide.
+ */
 
 function effacerPiece(piece, pos) {
   const cells = document.querySelectorAll("#game-board .cell");
@@ -269,6 +398,17 @@ function effacerPiece(piece, pos) {
   });
 }
 
+/**
+ * Role : Vérifie si une pièce peut être placée ou déplacée à une position donnée sans collision ni sortie de la grille.
+ * Préconditions : 
+ *   - L’objet `piece` est un tétrimino valide avec une matrice `shape`.
+ *   - L’objet `pos` contient des propriétés numériques `x` et `y` pour la position testée.
+ *   - La matrice globale `grille` ainsi que les constantes `ROWS` et `COLS` sont définies.
+ * Postconditions : 
+ *   - Retourne `false` si une case de `piece.shape` sortirait des limites gauche/droite ou bas, ou si elle chevauche une case non vide dans `grille`.
+ *   - Retourne `true` si toutes les cases non nulles de `piece.shape` peuvent être placées dans la grille sans chevauchement.
+ */
+
 function isDispo(piece, pos) {
   for (let y = 0; y < piece.shape.length; y++) {
     for (let x = 0; x < piece.shape[y].length; x++) {
@@ -282,6 +422,16 @@ function isDispo(piece, pos) {
   }
   return true;
 }
+
+/**
+ * Role : Enregistre la pièce active dans la grille logique en marquant ses cases avec son identifiant de bloc.
+ * Préconditions : 
+ *   - L’objet `piece` est un tétrimino valide avec une matrice `shape` et un identifiant `bloc`.
+ *   - L’objet `pos` contient des propriétés numériques `x` et `y` pour la position de la pièce.
+ *   - La matrice globale `grille` ainsi que les constantes `ROWS` et `COLS` sont définies.
+ * Postconditions : 
+ *   - Pour chaque case non nulle de `piece.shape` située dans les limites de la grille, la valeur correspondante dans `grille` est mise à `piece.bloc`.
+ */
 
 function fixerPiece(piece, pos) {
   for (let y = 0; y < piece.shape.length; y++) {
@@ -300,7 +450,18 @@ function fixerPiece(piece, pos) {
 // ——————————————————————————————
 // 🎮 Gravité animée + fixation + affichage grille fixe
 // ——————————————————————————————
-// — gravity() —
+/**
+ * Role : Applique la gravité à la pièce active : la fait tomber d’un cran si possible, sinon la fixe et gère la suite du jeu.
+ * Préconditions : 
+ *   - La variable globale `pieceActive` représente la pièce en cours.
+ *   - La variable `position` indique la position actuelle de la pièce.
+ *   - Les fonctions `isDispo()`, `fixerPiece()`, `reafficherGrille()`, `viderLignesCompletes()`, `generateTetromino()`, `createPieceDOM()`, `afficherGameOver()` et `updateGhost()` sont disponibles.
+ *   - Les variables `tileSize`, `gridGap`, `vitesses` et `niveau` sont initialisées.
+ * Postconditions : 
+ *   - Si la case sous la pièce est libre, `position.y` est incrémenté, l’animation GSAP est lancée et l’ombre mise à jour.
+ *   - Sinon, la pièce est intégrée à la grille logique, la grille visuelle est rafraîchie, les lignes complètes sont supprimées, une nouvelle pièce devient active, et si son placement initial est impossible, le Game Over est affiché.
+ */
+
 function gravity() {
   const nextPos = { x: position.x, y: position.y + 1 };
   const step = tileSize + gridGap;
@@ -333,6 +494,19 @@ function gravity() {
 // 🎮 Déplacement latéral + son
 // Remplace intégralement ta fonction deplacerPiece
 // ——————————————————————————————
+
+/**
+ * Role : Déplace horizontalement la pièce active d’une case à gauche ou à droite si l’emplacement est libre, en jouant un son de déplacement.
+ * Préconditions : 
+ *   - L’argument `dir` est un entier (-1 pour gauche, +1 pour droite).
+ *   - La variable globale `position` reflète la position actuelle de la pièce.
+ *   - Les fonctions `isDispo()` et `updateGhost()` sont disponibles.
+ *   - Les variables `tileSize`, `gridGap`, et l’élément sonore `sMove` (optionnel) sont définis.
+ * Postconditions : 
+ *   - Si le déplacement est possible, `position.x` est mis à jour, l’élément DOM `pieceEl` est animé vers la nouvelle position, l’ombre est actualisée, et la fonction retourne `true`.
+ *   - Dans le cas contraire, rien n’est modifié et la fonction retourne `false`.
+ */
+
 function deplacerPiece(dir) {
   const nextPos = { x: position.x + dir, y: position.y };
   const step = tileSize + gridGap;
@@ -364,6 +538,18 @@ function deplacerPiece(dir) {
 // 🎮 Rotation + son
 // Remplace intégralement ta fonction rotatePiece
 // ——————————————————————————————
+
+/**
+ * Role : Tourne la pièce active de 90° dans le sens horaire et met à jour son affichage si la rotation est valide.
+ * Préconditions : 
+ *   - La variable globale `pieceActive` contient la pièce en cours avec une matrice `shape`.
+ *   - La variable `position` indique la position courante.
+ *   - Les fonctions `isDispo()`, `createPieceDOM()`, `updateGhost()` et l’élément sonore `sRotate` (optionnel) sont disponibles.
+ * Postconditions : 
+ *   - Si la pièce tournée ne génère pas de collision, `pieceActive.shape` passe à la nouvelle matrice pivotée, le son `sRotate` est joué, et le DOM de la pièce et de son ombre sont mis à jour.
+ *   - Sinon, la rotation est annulée et `pieceActive.shape` retrouve son état antérieur.
+ */
+
 function rotatePiece() {
   // 1) clone de l'ancienne forme pour rollback
   const ancienne = pieceActive.shape.map(row => [...row]);
@@ -389,10 +575,27 @@ function rotatePiece() {
 
 
 
+
+
+
 // ——————————————————————————————
 // 🎮 Hard Drop (chute instantanée)
 // ——————————————————————————————
-// — hardDrop() —
+
+/**
+ * Role : Fait tomber instantanément la pièce active jusqu’à sa position de chute maximale, la fixe, et gère la suite du jeu.
+ * Préconditions : 
+ *   - La variable globale `pieceActive` représente la pièce en cours.
+ *   - La variable `position` indique la position actuelle de la pièce.
+ *   - Les fonctions `isDispo()`, `fixerPiece()`, `reafficherGrille()`, `viderLignesCompletes()`, `generateTetromino()`, `createPieceDOM()`, et `afficherGameOver()` sont disponibles.
+ *   - Les variables `tileSize`, `gridGap` et `prochainePiece` sont définies.
+ * Postconditions : 
+ *   - `position.y` est ajustée à la position la plus basse possible sans collision.
+ *   - La pièce est animée jusqu’à cette position, fixée dans la grille logique, la grille visuelle est rafraîchie et les lignes complètes sont supprimées.
+ *   - Une nouvelle pièce devient active ; si son placement initial est impossible, le Game Over est affiché, sinon elle est insérée dans le DOM.
+ */
+
+
 function hardDrop() {
   const step = tileSize + gridGap;
   while (isDispo(pieceActive, {x:position.x, y:position.y+1})) {
@@ -459,9 +662,24 @@ document.addEventListener("keydown", event => {
 // ——————————————————————————————
 // 🎮 Étape 6+7+8 : lignes, score, niveau, chrono
 // ——————————————————————————————
-// ——————————————————————————————
-// 🎮 Étape 6 : suppression de lignes avec flash animé
-// ——————————————————————————————
+
+/**
+ * Role : Détecte et supprime les lignes complètes de la grille, met à jour le score, le niveau et l’affichage avec une animation flash.
+ * Préconditions : 
+ *   - La matrice logique `grille` de dimensions `ROWS×COLS` est initialisée.
+ *   - Les variables globales `totalLignes`, `score`, `niveau`, `vitesses` et les fonctions `startGravity()`, `reafficherGrille()`, `formatTemps()`, 
+ *     ainsi que les éléments DOM `#line-value`, `#score-value`, `#level-value` existent.
+ *   - L’élément sonore `sLine` (optionnel) peut être utilisé pour le son de suppression de lignes.
+ * Postconditions : 
+ *   - Si aucune ligne n’est complète, le plateau reste inchangé.
+ *   - Sinon, chaque ligne complète :
+ *       1) est surlignée brièvement par l’ajout de la classe `flash` sur ses cellules (animation de 200 ms) ;
+ *       2) est retirée de la logique (`grille.splice`) et remplacée en haut par une ligne vide ;
+ *       3) incrémente `totalLignes`, calcule et ajoute les points correspondants à `score`, met à jour `niveau` ;
+ *       4) redémarre l’intervalle de gravité (`startGravity()`) et rafraîchit l’affichage du score, niveau et lignes ;
+ *       5) réaffiche visuellement la grille (`reafficherGrille()`).
+ */
+
 function viderLignesCompletes() {
   // 1) On détecte les lignes à supprimer
   const lignes = [];
@@ -511,6 +729,16 @@ function viderLignesCompletes() {
 }
 
 
+/**
+ * Role : Met à jour visuellement chaque cellule de la grille en appliquant l’image de bloc correspondant à la valeur dans `grille`.
+ * Préconditions : 
+ *   - La matrice logique `grille` est définie avec des valeurs 0 ou identifiants de blocs.
+ *   - L’élément DOM `#game-board` contient exactement `ROWS×COLS` éléments `.cell`, dans l’ordre ligne par ligne.
+ *   - Les images `../assets/blocks/bloc{n}.png` existent pour chaque identifiant de bloc n>0.
+ * Postconditions : 
+ *   - Chaque élément `.cell` voit sa propriété `backgroundImage` mise à `""` si `grille[y][x]===0`, ou à `url('../assets/blocks/bloc{b}.png')` si `grille[y][x]=b>0`.
+ */
+
 
 function reafficherGrille() {
   const cells = document.querySelectorAll("#game-board .cell");
@@ -525,17 +753,51 @@ function reafficherGrille() {
   }
 }
 
+/**
+ * Role : Démarre ou redémarre l’intervalle de gravité selon la vitesse du niveau courant.
+ * Préconditions : 
+ *   - La variable globale `niveau` est définie et représente le niveau actuel.
+ *   - Le tableau `vitesses` contient des durées en millisecondes pour chaque niveau.
+ *   - La fonction `gravity()` est disponible.
+ *   - La variable `intervalGravite` peut contenir un ID d’intervalle existant.
+ * Postconditions : 
+ *   - Si `intervalGravite` était défini, l’ancien intervalle est arrêté.
+ *   - Un nouvel intervalle est créé et stocké dans `intervalGravite`, appelant `gravity()` à la fréquence déterminée par `vitesses[niveau]`.
+ */
+
+
 function startGravity() {
   if (intervalGravite) clearInterval(intervalGravite);
   const vitesse = vitesses[Math.min(niveau, vitesses.length - 1)];
   intervalGravite = setInterval(gravity, vitesse);
 }
 
+/**
+ * Role : Formate un nombre de secondes en chaîne "MM:SS".
+ * Préconditions : 
+ *   - L’argument `sec` est un entier ≥ 0 représentant un nombre de secondes.
+ * Postconditions : 
+ *   - Retourne une chaîne de deux chiffres pour les minutes et deux chiffres pour les secondes, séparés par ":".
+ */
+
 function formatTemps(sec) {
   const m = Math.floor(sec / 60).toString().padStart(2, '0');
   const s = (sec % 60).toString().padStart(2, '0');
   return `${m}:${s}`;
 }
+
+/**
+ * Role : Lance le chronomètre du jeu en incrémentant le temps écoulé et en mettant à jour l’affichage chaque seconde.
+ * Préconditions : 
+ *   - La variable globale `secondesEcoulees` est initialisée à 0 ou un nombre entier.
+ *   - La fonction `formatTemps()` est disponible.
+ *   - L’élément DOM `#time-value` existe.
+ *   - La variable `intervalTemps` peut contenir un ID d’intervalle existant.
+ * Postconditions : 
+ *   - Un intervalle est créé et stocké dans `intervalTemps`, qui :
+ *       • incrémente `secondesEcoulees` de 1 chaque seconde ;
+ *       • met à jour le texte de `#time-value` avec le résultat de `formatTemps(secondesEcoulees)`.
+ */
 
 function startTimer() {
   intervalTemps = setInterval(() => {
@@ -544,6 +806,20 @@ function startTimer() {
       formatTemps(secondesEcoulees);
   }, 1000);
 }
+
+/**
+ * Role : Bascule l’état de pause du jeu, en stoppant ou en reprenant les intervalles de gravité et de temps, et en affichant ou masquant l’écran de pause.
+ * Préconditions : 
+ *   - La variable globale `isPaused` existe et est booléenne.
+ *   - Les variables `intervalGravite` et `intervalTemps` contiennent les IDs des intervalles en cours.
+ *   - Les fonctions `startGravity()` et `startTimer()` sont disponibles.
+ *   - L’élément DOM `#pause-overlay` existe pour indiquer visuellement la pause.
+ * Postconditions : 
+ *   - `isPaused` est inversé.
+ *   - Si le jeu passe en pause (`isPaused === true`), les intervalles de gravité et de temps sont stoppés et l’overlay de pause est affiché.
+ *   - Si le jeu reprend (`isPaused === false`), l’overlay est masqué et les intervalles sont relancés via `startGravity()` et `startTimer()`.
+ */
+
 function togglePause() {
   isPaused = !isPaused;
   const overlay = document.getElementById("pause-overlay");;
@@ -561,10 +837,24 @@ function togglePause() {
 // ——————————————————————————————
 // 🎮 Étape 9 : Game Over + Power button
 // ——————————————————————————————
-// ——————————————————————————————
-// 🎮 Game Over + son
-// Remplace ta fonction afficherGameOver
-// ——————————————————————————————
+
+/**
+ * Role : Gère la fin de partie en stoppant les intervalles, affichant l’écran de Game Over, jouant le son approprié, envoyant le score au serveur et configurant les actions des boutons.
+ * Préconditions : 
+ *   - Les variables globales `intervalGravite`, `intervalTemps` contiennent les IDs des intervalles en cours.
+ *   - L’élément DOM `#overlay` existe pour le modal Game Over.
+ *   - La variable `sGameOver` (élément audio optionnel) est définie pour le son de fin de partie.
+ *   - Les constantes `API_URL` et la variable `score` sont initialisées.
+ *   - Les fonctions `restartGame()` et la propriété `window.location.href` sont disponibles.
+ *   - `localStorage` peut contenir `userId` et `token`.
+ * Postconditions : 
+ *   - Les intervalles de gravité et de temps sont arrêtés.
+ *   - Le modal Game Over (`#overlay`) est affiché.
+ *   - Le son `sGameOver` est joué si disponible.
+ *   - Un appel asynchrone est déclenché pour envoyer `userId` et `score` au serveur via POST avec authentification.
+ *   - Les boutons “Rejouer” et “Quitter” reconfigurent respectivement la reprise de la partie (`restartGame()`) et la redirection vers le menu.
+ */
+
 function afficherGameOver() {
   clearInterval(intervalGravite);
   clearInterval(intervalTemps);
@@ -618,7 +908,16 @@ function afficherGameOver() {
 
 
 /**
- * Réinitialise totalement la partie sans reloader la page.
+ * Role : Réinitialise entièrement l’état du jeu pour recommencer une nouvelle partie sans recharger la page.
+ * Préconditions : 
+ *   - Les variables globales `intervalGravite`, `intervalTemps`, `grille`, `totalLignes`, `score`, `niveau`, `secondesEcoulees`, `position`, `gameBoard` sont définies.
+ *   - Les fonctions `initGrille()`, `initNextQueue()`, `cloneRandomTetromino()`, `afficherNextQueue()`, `createPieceDOM()`, `startGravity()`, et `startTimer()` sont disponibles.
+ * Postconditions : 
+ *   - Tous les intervalles de gravité et de temps sont arrêtés.
+ *   - L’état logique est remis à zéro : grille vide, score, niveau, lignes et temps réinitialisés.
+ *   - L’UI est remise à l’état initial (temps, score, niveau, lignes à zéro, overlays masqués).
+ *   - La grille et la file de prochaines pièces sont recréées.
+ *   - La première pièce est extraite de `nextQueue`, affichée en (3,0), et les intervalles de gravité et de timer sont relancés.
  */
 function restartGame() {
   // 1) Stoppe tous les timers

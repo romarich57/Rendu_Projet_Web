@@ -90,7 +90,7 @@ body {
   position: absolute;
   top: 12px;
   left: 12px;
-  width: 40px;          /* ajustez si besoin */
+  width: 40px;          
   height: auto;
   cursor: pointer;
   transition: transform .2s;

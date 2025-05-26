@@ -1,9 +1,17 @@
-// Vérifie la présence du token au chargement
+/**
+ * Role : Vérifie la présence d’un token d’authentification dans le stockage local et redirige vers la page d’enregistrement si aucun token n’est présent.
+ * Préconditions : 
+ *   - `localStorage` est accessible dans le navigateur.
+ *   - La propriété `window.location.href` peut être modifiée pour la redirection.
+ * Postconditions : 
+ *   - Si `localStorage.getItem("token")` renvoie `null` ou une chaîne vide, l’utilisateur est redirigé vers `register.html`.
+ *   - Sinon, aucune action n’est effectuée et l’utilisateur reste sur la page courante.
+ */
 function checkToken() {
   const token = localStorage.getItem("token");
   if (!token) {
     // Pas connecté, on force la page login
-    window.location.href = "register.html";
+    window.location.href = "/auth/login/login.html";
   }
 }
 

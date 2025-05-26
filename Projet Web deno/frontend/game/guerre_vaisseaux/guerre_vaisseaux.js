@@ -7,7 +7,7 @@ let userToken;
 let username;
 let shipLeft, shipRight;
 const backgroundEl = document.getElementById("background");
-// (aucune utilisation en JS, juste s’assurer qu’il existe)
+
 
 
 // Positions verticales : target vs current pour interpolation
@@ -52,20 +52,17 @@ const POSITION_SEND_INTERVAL = 1000 / 30;
 // Pour ping/pong WS
 let lastPongTime = Date.now();
 const PING_INTERVAL = 5000;
-const PONG_TIMEOUT  = 20000; // was 10000, increased to 20s to allow for lag
+const PONG_TIMEOUT  = 20000; 
 
 // Pour annuler proprement la boucle de jeu
 let gameLoopId;
 let spacePressed = false;
-
-// ← ICI : chemin relatif depuis
-//    frontend/game/guerre_vaisseaux/guerre_vaisseaux.js
-//    vers frontend/assets/images/
+// ── Chemin des images ──
 const IMG_PATH = "../../assets/images/";
 // ── Pour le chronomètre de recherche ──
 let searchTimerInterval;
 let searchStartTime;
-let relaxTimer;                             // ← add this line
+let relaxTimer;                             
 
 // ── Pour mesurer la latence WS ──
 let lastPingSentTime;
@@ -82,6 +79,22 @@ const IMPACT_DURATION = 400; // ms
 
 // Au chargement on démarre directement le jeu
 document.addEventListener("DOMContentLoaded", initGuerreVaisseaux);
+
+/**
+ * Role : Initialise l’état du client et l’interface utilisateur, récupère le token, configure les éléments DOM et lance le matchmaking via WebSocket.
+ * Préconditions :
+ *   - Le DOM est entièrement chargé (`DOMContentLoaded` déclenché).
+ *   - Les éléments DOM suivants existent : `#background`, `#shipLeft`, `#shipRight`, `#waiting-overlay`, `#player1-name`, `#player2-name`, `#net-status`, `#search-timer`, `#lives-left`, `#lives-right`, `#cooldown-indicator`, `#gameover-overlay`.
+ *   - `localStorage` contient éventuellement un token sous la clé `"token"` et un nom d’utilisateur `"username"`.
+ *   - Les variables globales `socket`, `livesLeft`, `livesRight`, `shipLeftTargetY`, `shipRightTargetY`, `shipLeftY`, `shipRightY`, `moveUp`, `moveDown`, `mySide`, `gameLoopId` sont déclarées.
+ *   - Les fonctions `startSearchTimer()`, `connectWebSocket()`, `onKeyDown()`, `onKeyUp()`, `gameLoop()` existent.
+ * Postconditions :
+ *   - Toute connexion WebSocket précédente est fermée.
+ *   - L’état de jeu client (vies, positions cibles, contrôles) est réinitialisé.
+ *   - `userToken` et `myUsername` sont définis depuis `localStorage`; absence de token redirige vers la page de login.
+ *   - Les éléments DOM de vaisseaux et overlay de matchmaking sont affichés ou masqués pour un nouvel appariement.
+ *   - Les écouteurs clavier et la boucle de rendu (`requestAnimationFrame(gameLoop)`) sont activés.
+ */
 
 
 function initGuerreVaisseaux() {
@@ -106,7 +119,7 @@ function initGuerreVaisseaux() {
     window.location.href = "/auth/login/login.html";
     return;
   }
-  // always pull fresh
+  
   myUsername = localStorage.getItem("username") || "Inconnu";
   username   = myUsername;
 
@@ -122,10 +135,9 @@ function initGuerreVaisseaux() {
   cooldownIndicator = document.getElementById("cooldown-indicator");
   const gameoverOverlay = document.getElementById("gameover-overlay");
 
-  // — 3) Câbler UNIQUEMENT le bouton Quitter —
-  // plus de bouton Quitter
 
-  // — 4) Cacher / afficher les bons overlays —
+
+  // — 3) Cacher / afficher les bons overlays —
   gameoverOverlay.classList.add("hidden");
   waitingOverlay.style.display = "flex";
 
@@ -133,11 +145,11 @@ function initGuerreVaisseaux() {
   shipLeft.style.display  = "none";
   shipRight.style.display = "none";
 
-  // — 5) Reset UI des vies —
+  // — 4) Reset UI des vies —
   prevLivesLeft = prevLivesRight = 3;
   renderLives();
 
-  // — 5.1) Réinitialiser les noms affichés (évite d'afficher le pseudo du joueur seul)
+  // — 5) Réinitialiser les noms affichés —
   player1Name.textContent = "Joueur 1";
   player2Name.textContent = "Joueur 2";
 
@@ -152,7 +164,20 @@ function initGuerreVaisseaux() {
 }
 
 
-// Modifié pour connecter correctement au WebSocket
+/**
+ * Role : Établit la connexion WebSocket au serveur de match, gère l’ouverture, la réception, la fermeture et les erreurs, et implémente la logique de reconnexion automatique.
+ * Préconditions :
+ *   - La variable globale `API_URL` est définie.
+ *   - Les variables globales `socket`, `reconnectAttempts`, `MAX_RECONNECT_DELAY`, `pingIntervalId`, `relaxTimer` sont déclarées.
+ *   - Les fonctions `updateConnectionStatus(status)`, `showErrorMessage(msg)`, `startSearchTimer()`, `stopSearchTimer()`, `updateEloRatings()`, `cleanup()`, et `showGameOver(winner)` existent.
+ * Postconditions :
+ *   - Une instance WebSocket est créée et assignée à `socket`.
+ *   - À l’ouverture : statut mis à jour, envoi d’un message `join`, puis `joinRelaxed` après 5 s.
+ *   - À chaque message : gestion du ping/pong, `matchFound`, `updateState` et `gameOver`.
+ *   - À la fermeture ou erreur : statut hors-ligne mis à jour, tentative de reconnexion selon `reconnectAttempts` et délai croissant, ou affichage d’une erreur définitive.
+ */
+
+
 function connectWebSocket() {
   // Éviter les tentatives de connexion multiples simultanées
   let isConnecting = false;
@@ -276,7 +301,18 @@ function connectWebSocket() {
   }
 }
 
-// Fonction pour afficher un message d'erreur
+
+
+/**
+ * Role : Affiche un message d’erreur de connexion dans un overlay et propose de rafraîchir la page.
+ * Préconditions : 
+ *   - L’élément DOM `#waiting-overlay` existe ou peut être créé.
+ *   - La méthode `window.location.reload()` est utilisable pour recharger la page.
+ * Postconditions : 
+ *   - Un overlay d’erreur est affiché avec le message fourni et un bouton “Rafraîchir”.
+ */
+
+
 function showErrorMessage(message) {
   const overlay = document.getElementById('waiting-overlay') || document.createElement('div');
   overlay.id = 'waiting-overlay';
@@ -288,7 +324,16 @@ function showErrorMessage(message) {
   document.body.appendChild(overlay);
 }
 
-// Fonction pour mettre à jour l'indicateur de connexion
+/**
+ * Role : Met à jour l’indicateur visuel de l’état de la connexion réseau (online/offline).
+ * Préconditions : 
+ *   - Un élément DOM avec la classe `.status-dot` existe.
+ *   - La classe CSS `online` et `offline` définissent les styles correspondants.
+ * Postconditions : 
+ *   - La classe de l’élément `.status-dot` est remplacée par `status-dot ${status}`.
+ */
+
+
 function updateConnectionStatus(status) {
   const statusDot = document.querySelector('.status-dot');
   if (statusDot) {
@@ -296,7 +341,17 @@ function updateConnectionStatus(status) {
   }
 }
 
-// Fonction d'aide pour envoyer des messages sécurisés
+
+/**
+ * Role : Envoie un message JSON sécurisé via WebSocket si la connexion est ouverte.
+ * Préconditions :
+ *   - La variable globale `socket` est une instance WebSocket.
+ *   - `socket.readyState === WebSocket.OPEN` indique que la connexion est active.
+ * Postconditions :
+ *   - Si la connexion est ouverte, le message est sérialisé en JSON et transmis, et la fonction retourne `true`.
+ *   - Sinon, aucun envoi n’est effectué et la fonction retourne `false`.
+ */
+
 function sendMessage(message) {
   if (socket && socket.readyState === WebSocket.OPEN) {
       socket.send(JSON.stringify(message));
@@ -314,6 +369,24 @@ window.addEventListener('beforeunload', () => {
   clearTimeout(reconnectTimeout);
 });
 
+
+
+
+
+/**
+ * Role : Nettoie les ressources et listeners lors de la fermeture ou du reset de la partie.
+ * Préconditions :
+ *   - Les écouteurs clavier (`keydown`, `keyup`) ont été enregistrés.
+ *   - Un intervalle ping (`pingIntervalId`) peut être actif.
+ *   - La boucle de rendu est lancée via `requestAnimationFrame`, avec identifiant `gameLoopId`.
+ *   - La connexion WebSocket `socket` peut être ouverte.
+ * Postconditions :
+ *   - Les écouteurs clavier sont retirés.
+ *   - L’intervalle de ping est arrêté.
+ *   - Si la WebSocket est ouverte, elle est fermée proprement.
+ *   - La boucle de rendu animée est annulée (`cancelAnimationFrame`).
+ */
+
 function cleanup() {
   document.removeEventListener("keydown", onKeyDown);
   document.removeEventListener("keyup",   onKeyUp);
@@ -321,6 +394,17 @@ function cleanup() {
   if (socket.readyState === WebSocket.OPEN) socket.close();
   cancelAnimationFrame(gameLoopId);
 }
+
+/**
+ * Role : Démarre un chronomètre de recherche de partie en affichant un compteur de secondes écoulées.
+ * Préconditions :
+ *   - Les variables globales `searchStartTime` et `searchTimerInterval` peuvent être définies.
+ *   - L’élément DOM `timerSpan` (affichage du temps) existe.
+ * Postconditions :
+ *   - `searchStartTime` est mis à l’horodatage courant.
+ *   - Un intervalle est stocké dans `searchTimerInterval`, qui met à jour `timerSpan.textContent` chaque seconde avec le nombre de secondes écoulées depuis `searchStartTime`.
+ */
+
 function startSearchTimer() {
   searchStartTime = Date.now();
   timerSpan.textContent = "0";
@@ -330,9 +414,29 @@ function startSearchTimer() {
   }, 1000);
 }
 
+
+/**
+ * Role : Arrête le chronomètre de recherche de partie en cours.
+ * Préconditions :
+ *   - Un intervalle a été créé et stocké dans `searchTimerInterval`.
+ * Postconditions :
+ *   - L’intervalle référencé par `searchTimerInterval` est annulé et ne met plus à jour l’affichage du temps.
+ */
 function stopSearchTimer() {
   clearInterval(searchTimerInterval);
 }
+
+
+/**
+ * Role : Met à jour visuellement le nombre de vies restantes pour chaque joueur en affichant une icône cœur par vie.
+ * Préconditions : 
+ *   - Les variables globales `livesLeft` et `livesRight` sont définies avec un entier ≥ 0.
+ *   - Les éléments DOM référencés par `livesLeftContainer` et `livesRightContainer` existent.
+ *   - L’image de vie (`"../../shared/vie.png"`) est accessible.
+ * Postconditions : 
+ *   - `livesLeftContainer` et `livesRightContainer` sont vidés puis remplis d’autant de `<img class="life-heart">` que de vies restantes pour chaque côté.
+ */
+
 function renderLives() {
   // gauche
   livesLeftContainer.innerHTML = "";
@@ -352,6 +456,18 @@ function renderLives() {
   }
 }
 
+
+
+/**
+ * Role : Déclenche un effet visuel de flash et de secousse sur le conteneur de jeu pour signaler la perte d’une vie.
+ * Préconditions : 
+ *   - L’élément DOM `#game-container` existe.
+ *   - La constante `IMPACT_DURATION` (durée en ms) est définie.
+ *   - Les classes CSS `flash` et `shake` sont définies pour l’animation.
+ * Postconditions : 
+ *   - Les classes `flash` et `shake` sont ajoutées à `#game-container` puis automatiquement retirées après `IMPACT_DURATION` millisecondes.
+ */
+
 function triggerImpact() {
   const container = document.getElementById("game-container");
   container.classList.add("flash", "shake");
@@ -362,7 +478,16 @@ function triggerImpact() {
 
 
 
-
+/**
+ * Role : Gère les événements de touche enfoncée pour contrôler le vaisseau et déclencher le tir.
+ * Préconditions :
+ *   - Les écouteurs clavier ont été ajoutés pour écouter `keydown`.
+ *   - Les variables globales `moveUp`, `moveDown` et `spacePressed` sont définies.
+ *   - La fonction `shoot()` et la constante `SHOOT_CLIENT_COOLDOWN` sont disponibles.
+ * Postconditions :
+ *   - Pour `ArrowUp` et `ArrowDown`, les drapeaux `moveUp` ou `moveDown` passent à `true`.
+ *   - Pour `Space`, si aucune balle n’a encore été tirée pendant l’appui (`spacePressed === false`), appelle `shoot()` et met `spacePressed = true` pour empêcher les tirs répétés tant que la touche est maintenue.
+ */
 
 function onKeyDown(e) {
   switch (e.code) {
@@ -373,7 +498,6 @@ function onKeyDown(e) {
       moveDown = true;
       break;
     case "Space":
-      // si on n’a pas encore tiré pendant cet appui
       if (!spacePressed) {
         shoot();
         spacePressed = true;
@@ -381,6 +505,16 @@ function onKeyDown(e) {
       break;
   }
 }
+
+/**
+ * Role : Gère les événements de touche relâchée pour arrêter le mouvement ou réarmer le tir.
+ * Préconditions :
+ *   - Les écouteurs clavier ont été ajoutés pour écouter `keyup`.
+ *   - Les variables globales `moveUp`, `moveDown` et `spacePressed` sont définies.
+ * Postconditions :
+ *   - Pour `ArrowUp` et `ArrowDown`, les drapeaux `moveUp` ou `moveDown` passent à `false`.
+ *   - Pour `Space`, `spacePressed` passe à `false` pour permettre un nouveau tir au prochain appui.
+ */
 
 function onKeyUp(e) {
   switch (e.code) {
@@ -397,6 +531,17 @@ function onKeyUp(e) {
   }
 }
 
+/**
+ * Role : Envoie un ordre de tir au serveur via WebSocket, applique un délai de cooldown côté client et affiche l’animation de recul du vaisseau.
+ * Préconditions : 
+ *   - `socket` est une instance WebSocket ouverte (`readyState === WebSocket.OPEN`).
+ *   - La variable globale `mySide` (‘left’ ou ‘right’) est définie.
+ *   - Les constantes `SHOOT_CLIENT_COOLDOWN` (ms) et `SHIP_HEIGHT` (px) sont définies.
+ *   - Les variables globales `lastClientShoot`, `shipLeft`, `shipRight`, `shipLeftTargetY`, `shipRightTargetY` existent.
+ * Postconditions : 
+ *   - Si le cooldown n’est pas écoulé, aucun tir n’est envoyé.
+ *   - Sinon, `lastClientShoot` est mis à l’horodatage courant, un message `{ type: "shoot", side, y }` est transmis au serveur, et le vaisseau concerné reçoit la classe `ship-fired` brièvement pour l’effet visuel.
+ */
 
 function shoot() {
   const now = Date.now();
@@ -420,6 +565,19 @@ function shoot() {
   shipEl.classList.add("ship-fired");
   setTimeout(() => shipEl.classList.remove("ship-fired"), 100);
 }
+
+/**
+ * Role : Boucle de rendu principale : met à jour les indicateurs de cooldown, intercepte les mouvements du joueur, interpole les positions des vaisseaux et envoie leurs coordonnées au serveur.
+ * Préconditions : 
+ *   - Les variables globales `lastClientShoot`, `SHOOT_CLIENT_COOLDOWN`, `moveUp`, `moveDown`, `mySide`, `shipLeftTargetY`, `shipRightTargetY`, `shipLeftY`, `shipRightY`, `MOVE_SPEED`, `INTERPOLATION_FACTOR`, `SHIP_HEIGHT`, `cooldownIndicator` existent.
+ *   - La fonction `sendPosition()` est définie et `requestAnimationFrame` est disponible.
+ * Postconditions : 
+ *   - L’angle et la couleur du cercle de cooldown sont mis à jour via CSS variables.
+ *   - Si le joueur déplace son vaisseau, `ship*TargetY` est ajusté et `sendPosition()` est appelé.
+ *   - Les positions visuelles `ship*Y` sont interpolées vers `ship*TargetY`.
+ *   - Les styles `bottom` des éléments `shipLeft` et `shipRight` sont mis à jour.
+ *   - La fonction se réenregistre pour la frame suivante via `requestAnimationFrame`.
+ */
 
 
 function gameLoop() {
@@ -456,6 +614,19 @@ function gameLoop() {
   gameLoopId = requestAnimationFrame(gameLoop);
 }
 
+
+/**
+ * Role : Envoie périodiquement la position verticale du vaisseau au serveur via WebSocket, en appliquant un mécanisme de déduplication et de throttling.
+ * Préconditions : 
+ *   - La variable globale `mySide` (‘left’ ou ‘right’) est définie.
+ *   - `socket` est une instance WebSocket ouverte (readyState === WebSocket.OPEN).
+ *   - Les constantes `SHIP_HEIGHT` et `POSITION_SEND_INTERVAL` (intervalle minimum entre envois) sont définies.
+ *   - Les variables globales `shipLeftTargetY`, `shipRightTargetY`, `lastSentPos`, `lastSentTime` existent.
+ * Postconditions : 
+ *   - Si la position calculée (`posTop`) est identique à la dernière envoyée ou si l’intervalle minimum n’est pas écoulé, aucun envoi n’a lieu.
+ *   - Sinon, un message JSON `{ type: "move", position: posTop }` est transmis au serveur, et `lastSentPos` et `lastSentTime` sont mis à jour.
+ */
+
 function sendPosition() {
   if (!mySide || socket.readyState !== WebSocket.OPEN) return;
 
@@ -473,6 +644,17 @@ function sendPosition() {
 }
 
 
+/**
+ * Role : Met à jour l’état du jeu côté client à partir des données reçues du serveur (positions, vies, projectiles).
+ * Préconditions : 
+ *   - L’argument `state` est un objet provenant du serveur contenant au moins les propriétés `{ leftY, rightY, livesLeft, livesRight, names, bullets }`.
+ *   - Les fonctions `getTile(col, row)`, `triggerImpact()`, `renderLives()` et les variables globales `shipLeftTargetY`, `shipRightTargetY`, `livesLeft`, `livesRight`, `prevLivesLeft`, `prevLivesRight`, `player1Name`, `player2Name` existent.
+ * Postconditions : 
+ *   - Les coordonnées cibles des vaisseaux sont recalculées pour l’interpolation visuelle.
+ *   - La détection de perte de vie déclenche `triggerImpact()` et met à jour les compteurs précédents.
+ *   - L’affichage des vies est rafraîchi.
+ *   - Tous les anciens éléments `.bullet` sont supprimés, puis de nouveaux éléments `<img class="bullet">` sont créés et positionnés pour chaque projectile de `state.bullets`.
+ */
 
 function updateFromServer(state) {
   // —– Vaisseaux (inchangé) —–
@@ -524,6 +706,20 @@ function updateFromServer(state) {
 
 
 
+/**
+ * Role : Affiche l’écran de fin de partie avec le nom du gagnant, gère le compte à rebours de redirection et déclenche la mise à jour des classements ELO.
+ * Préconditions : 
+ *   - La variable globale `waitingOverlay` référence l’overlay de matchmaking et peut être masquée.
+ *   - L’élément DOM `#gameover-overlay` et `#gameover-message` existent pour afficher le modal et le message.
+ *   - Les variables globales `mySide`, `myUsername`, `opponentName` et `userToken` sont définies.
+ *   - La fonction `updateEloRatings(winner, loser)` est disponible.
+ * Postconditions : 
+ *   - L’overlay de matchmaking est masqué et l’overlay de Game Over est affiché.
+ *   - Le message “<winner> a gagné !” est injecté dans `#gameover-message`.
+ *   - Les noms du gagnant et du perdant sont déterminés selon `mySide` et passés à `updateEloRatings()`.
+ *   - Un compte à rebours de 5 s est lancé, montrant “Redirection vers le menu dans X…” et redirige vers `/game/guerre_menu/guerre_menu.html` une fois écoulé. :contentReference[oaicite:0]{index=0}
+ */
+
 
 function showGameOver(winner) {
   // masquer l'overlay de matchmaking
@@ -566,7 +762,21 @@ function showGameOver(winner) {
   }, 1000);
 }
 
-// Fonction pour mettre à jour l'ELO
+
+
+
+
+/**
+ * Role : Envoie au serveur une requête POST pour mettre à jour les cotes ELO du gagnant et du perdant.
+ * Préconditions : 
+ *   - Les arguments `winner` et `loser` sont des chaînes de caractères valides (noms d’utilisateurs).
+ *   - La constante `API_URL` et la variable `userToken` (JWT) sont définies.
+ *   - L’API accepte les POST vers `${API_URL}/api/update-elo` avec en-tête `Authorization: Bearer <token>`.
+ * Postconditions : 
+ *   - Si la requête réussit (`resp.ok`), le résultat JSON est loggué en console.
+ *   - En cas d’erreur (réseau ou réponse non OK), un message d’erreur est loggué en console. :contentReference[oaicite:1]{index=1}
+ */
+
 async function updateEloRatings(winner, loser) {
   console.log(`Updating ELO: winner=${winner}, loser=${loser}`);
   try {

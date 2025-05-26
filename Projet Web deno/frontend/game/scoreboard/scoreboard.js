@@ -1,5 +1,8 @@
 const API_URL = "https://api.rom-space-game.realdev.cloud"
 
+/**
+ * Role : Vérifie la présence d’un token d’authentification dans le stockage local et redirige vers la page de login si aucun token n’est présent.
+ */
 function checkToken() {
   const token = localStorage.getItem("token");
   if (!token) {
@@ -7,12 +10,15 @@ function checkToken() {
   }
 }
 
+/**
+ * Role : Bascule visuellement l’état “actif” entre deux éléments en ajoutant la classe `active` au premier et en la retirant du second.
+ */
 function switchActive(selected, other) {
   selected.classList.add("active");
   other.classList.remove("active");
 }
 
-// Chargement des en-têtes et des lignes
+// Role : Remplit le tableau des meilleurs scores (Rank, Player, Score, XP, Level, Wave) à partir d’un tableau de données.
 function renderScoresTable(data) {
   const headers = document.getElementById("table-headers");
   headers.innerHTML =
@@ -37,7 +43,7 @@ function renderScoresTable(data) {
     body.appendChild(tr);
   });
 }
-
+//Remplit le tableau des meilleurs gains d’XP (Rank, Player, XP) à partir d’un tableau de données.
 function renderXpTable(data) {
   const headers = document.getElementById("table-headers");
   headers.innerHTML =
@@ -57,6 +63,9 @@ function renderXpTable(data) {
   });
 }
 
+/**
+ * Role : Charge depuis l’API les meilleurs scores et les affiche via renderScoresTable().
+ */
 async function loadTopScores() {
   const token = localStorage.getItem("token");
 
@@ -68,6 +77,10 @@ async function loadTopScores() {
   renderScoresTable(data);
 }
 
+/**
+ * Role : Charge depuis l’API le classement des meilleurs gains d’XP et les affiche via renderXpTable().
+ */
+
 async function loadTopXp() {
   const token = localStorage.getItem("token");
   const res = await fetch(`${API_URL}/api/scores/top-xp`, {
@@ -78,6 +91,10 @@ async function loadTopXp() {
   const data = await res.json();
   renderXpTable(data);
 }
+
+/**
+ * Role : Initialise la page au chargement du DOM : vérification du token, configuration des onglets Scores/XP et affichage initial des scores.
+ */
 
 document.addEventListener("DOMContentLoaded", () => {
   checkToken();

@@ -1,6 +1,6 @@
 // home.js
 
-// URL de l’API Snake (ajuste le port si nécessaire pour pointer vers ton backend)
+// URL de l’API Snake 
 const API_BASE = "https://api.rom-space-game.realdev.cloud/api/snake";
 
 // 1) Boutons de navigation
@@ -20,7 +20,20 @@ document.getElementById("backBtn").addEventListener("click", () => {
   document.getElementById("buttons").classList.remove("hidden");
 });
 
-// 2) Construire dynamiquement 20 niveaux et activer seulement ceux qui sont débloqués
+/**
+ * Role : Récupère le niveau maximal débloqué de l’utilisateur via une requête API puis génère dynamiquement 20 boutons de niveaux, en activant les niveaux débloqués et en verrouillant les autres.
+ * Préconditions : 
+ *   - La constante `API_BASE` est définie et accessible.
+ *   - `localStorage` contient éventuellement un token JWT sous la clé `"token"`.
+ *   - L’élément DOM d’ID `"levels"` existe sur la page.
+ *   - L’API CORS permet les requêtes vers `${API_BASE}/getMaxNiveau`.
+ * Postconditions : 
+ *   - L’élément `#levels` contient exactement 20 `<button>` avec la classe `"level-btn"`.
+ *   - Pour chaque niveau `i` de 1 à `maxNiveau` récupéré, le bouton est activé, étiqueté `Niveau i` et redirige vers le jeu Snake au clic.
+ *   - Les niveaux supérieurs à `maxNiveau` sont étiquetés `Niveau i 🔒`, reçoivent la classe `"locked"` et sont désactivés (`disabled = true`).
+ */
+
+
 async function populateLevels() {
   const container = document.getElementById("levels");
   container.innerHTML = "";
