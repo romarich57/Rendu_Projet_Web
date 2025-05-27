@@ -14,12 +14,10 @@ import {
   resetAttempts,
 } from "./middlewares.ts";
 import {
-  getAllUsers,
   activateUserById,
   deleteUserById,
   getUserScores as getUserScoresFromDb
 } from './db.ts';
-
 
 // Regex email RFC5322
 const emailRegex =
@@ -28,7 +26,16 @@ const emailRegex =
 const JWT_SECRET = Deno.env.get("JWT_SECRET")!;
 const APP_URL = Deno.env.get("SERVER_URL") ?? "http://localhost:8080";
 
-
+/**
+ * Role: Enregistre un nouvel utilisateur dans la base de données avec validation des données
+ * Préconditions: 
+ *   - body contient tous les champs obligatoires (nom, prenom, username, email, password, city, country, languages, birthdate)
+ *   - email respecte le format RFC5322
+ *   - JWT_SECRET est défini dans les variables d'environnement
+ * Postconditions:
+ *   - Si succès: utilisateur créé avec is_active=false, email d'activation envoyé, tentatives échouées réinitialisées
+ *   - Si échec: tentative échouée enregistrée, erreur retournée avec statut approprié
+ */
 // --- REGISTER ---
 export async function registerUser(body: any, ip: string): Promise<Response> {
   const {
@@ -106,6 +113,15 @@ export async function registerUser(body: any, ip: string): Promise<Response> {
   }
 }
 
+/**
+ * Role: Génère et envoie un lien de réinitialisation de mot de passe par email
+ * Préconditions:
+ *   - body contient un email valide
+ *   - JWT_SECRET est défini
+ * Postconditions:
+ *   - Si l'email existe: token JWT généré et lien envoyé par email
+ *   - Toujours retourne un message de succès (sécurité par obscurité)
+ */
 // --- FORGOT PASSWORD ---
 export async function forgotPassword(body: any): Promise<Response> {
   const { email } = body;
@@ -139,6 +155,16 @@ export async function forgotPassword(body: any): Promise<Response> {
   }
 }
 
+/**
+ * Role: Réinitialise le mot de passe d'un utilisateur avec un token valide
+ * Préconditions:
+ *   - token JWT valide avec for="resetPwd"
+ *   - newPassword fourni
+ *   - Token non expiré
+ * Postconditions:
+ *   - Si succès: mot de passe hashé et mis à jour en base
+ *   - Si échec: erreur retournée (token invalide/expiré ou erreur SQL)
+ */
 // --- RESET PASSWORD ---
 export async function resetPassword(body: any): Promise<Response> {
   const { token, newPassword } = body;
@@ -172,6 +198,16 @@ export async function resetPassword(body: any): Promise<Response> {
   }
 }
 
+/**
+ * Role: Authentifie un utilisateur et crée une session
+ * Préconditions:
+ *   - identifier (email ou username) et password fournis
+ *   - Utilisateur existe et est actif
+ *   - Protection contre le brute force activée
+ * Postconditions:
+ *   - Si succès: session créée, JWT généré, cookie sessionId défini, tentatives réinitialisées
+ *   - Si échec: tentative échouée enregistrée, erreur retournée
+ */
 // --- LOGIN ---
 export async function loginUser(body: any, ip: string): Promise<Response> {
   const { identifier, password } = body;
@@ -229,7 +265,7 @@ export async function loginUser(body: any, ip: string): Promise<Response> {
       client2.release();
     }
 
-    // 3) Réponse avec cookie HTTP-only + JWT si besoin
+    // 3) Réponse avec cookie HTTP-only et JWT si besoin ( on utilise le jwt et on stocke dans le localstorage)
     const token = jwt.sign(
       { userId: userRecord.id, username: userRecord.username },
       JWT_SECRET,
@@ -238,9 +274,9 @@ export async function loginUser(body: any, ip: string): Promise<Response> {
     return new Response(JSON.stringify({ success: true, token, userId: userRecord.id }), {
     status: 200,
       headers: {
-        // Allow cross-site cookie for frontend on different port
-        // Send cookie without Secure flag for HTTP local dev
-        "Set-Cookie": `sessionId=${sessionId}; HttpOnly; Path=/; SameSite=None`,
+        // Allow cross-site cookie 
+        // Send cookie without Secure flag for HTTP 
+        "Set-Cookie": `sessionId=${sessionId}; HttpOnly; Path=/; SameSite=secure`,
         "Content-Type": "application/json",
       },
     });
@@ -250,6 +286,17 @@ export async function loginUser(body: any, ip: string): Promise<Response> {
     return json({ success: false, message: err.message }, 500);
   }
 }
+
+/**
+ * Role: Active un compte utilisateur via un token d'activation
+ * Préconditions:
+ *   - token JWT valide avec for="activation"
+ *   - Token non expiré
+ *   - Utilisateur existe en base
+ * Postconditions:
+ *   - Si succès: is_active=true pour l'utilisateur
+ *   - Si échec: message d'erreur retourné
+ */
 // --- ACTIVATION ---
 export async function activateAccount(token: string): Promise<Response> {
   let decoded: any;
@@ -280,6 +327,16 @@ export async function activateAccount(token: string): Promise<Response> {
   }
 }
 
+/**
+ * Role: Met à jour les ratings ELO des joueurs après une partie
+ * Préconditions:
+ *   - winner et loser sont des usernames valides existant en base
+ *   - Utilisateurs ont un rating ELO initial
+ * Postconditions:
+ *   - Gagnant: ELO +30
+ *   - Perdant: ELO -30 (minimum 0)
+ *   - Logs des changements générés
+ */
 // --- UPDATE ELO ---
 export async function updateElo(winner: string, loser: string): Promise<Response> {
   console.log(`[ELO] Updating ratings: Winner=${winner}, Loser=${loser}`);
@@ -324,9 +381,14 @@ export async function updateElo(winner: string, loser: string): Promise<Response
   }
 }
 
+/**
+ * Role: Récupère le classement des 10 meilleurs joueurs par ELO
+ * Préconditions:
+ *   - Table users existe avec colonnes id, username, elo
+ * Postconditions:
+ *   - Retourne un tableau JSON trié par ELO décroissant (max 10 entrées)
+ */
 // --- GET LEADERBOARD TOP 10 ---
-// Renvoie un tableau d’objets { id, username, elo } triés par elo décroissant,
-// le joueur au plus haut elo apparaissant en premier.
 export async function getLeaderboard(): Promise<Response> {
   try {
     const client = await pool.connect();
@@ -351,9 +413,15 @@ export async function getLeaderboard(): Promise<Response> {
   }
 }
 
-
 /**
- * Insère un score Tetris dans la table tetris_scores
+ * Role: Enregistre un score Tetris pour un utilisateur
+ * Préconditions:
+ *   - userId valide (utilisateur existant)
+ *   - score est un nombre
+ *   - Table tetris_scores existe
+ * Postconditions:
+ *   - Score inséré dans tetris_scores avec timestamp
+ *   - Réponse JSON de succès ou d'erreur
  */
 export async function saveTetrisScore(
   userId: number,
@@ -387,7 +455,14 @@ export async function saveTetrisScore(
   }
 }
 
-
+/**
+ * Role: Récupère le classement Tetris des 10 meilleurs scores
+ * Préconditions:
+ *   - Tables users et tetris_scores existent
+ *   - Relations correctes entre les tables
+ * Postconditions:
+ *   - Retourne les 10 meilleurs scores Tetris groupés par utilisateur
+ */
 export async function getTetrisLeaderboard(): Promise<Response> {
   try {
     const client = await pool.connect();
@@ -425,6 +500,16 @@ export async function getTetrisLeaderboard(): Promise<Response> {
   }
 }
 
+/**
+ * Role: Enregistre un score SpacePiouPiou pour l'utilisateur authentifié
+ * Préconditions:
+ *   - Utilisateur authentifié (userId dans ctx.state)
+ *   - Payload valide avec score, level, xp, wave, duration (tous numbers)
+ *   - Table space_scores existe
+ * Postconditions:
+ *   - Score inséré avec timestamp et user_id
+ *   - Réponse 201 si succès, 400/401/500 si erreur
+ */
 // --- Enregistrement du score SpacePiouPiou ---
 export async function saveSpaceScore(ctx: Context): Promise<Response> {
   // 1) Récupérer userId injecté par authMiddleware
@@ -462,6 +547,16 @@ export async function saveSpaceScore(ctx: Context): Promise<Response> {
   return json({ success: true }, 201);
 }
 
+/**
+ * Role: Enregistre des données de télémétrie SpacePiouPiou
+ * Préconditions:
+ *   - Utilisateur authentifié (userId dans ctx.state)
+ *   - Payload valide avec event, wave, score, combo, lives
+ *   - Table space_telemetry existe
+ * Postconditions:
+ *   - Données de télémétrie insérées avec timestamp
+ *   - Réponse 201 si succès, 400/401/500 si erreur
+ */
 // --- Enregistrement de la télémétrie SpacePiouPiou ---
 export async function saveSpaceTelemetry(ctx: Context): Promise<Response> {
   const userId = ctx.state.userId as number;
@@ -497,32 +592,54 @@ export async function saveSpaceTelemetry(ctx: Context): Promise<Response> {
   return json({ success: true }, 201);
 }
 
+/**
+ * Role: Récupère le classement SpacePiouPiou (100 meilleurs scores)
+ * Préconditions:
+ *   - Tables space_scores et users existent
+ *   - Relations correctes entre les tables
+ * Postconditions:
+ *   - Retourne les 100 meilleurs scores triés par score DESC, wave DESC, date ASC
+ */
 // --- Leaderboard SpacePiouPiou ---
 export async function getSpaceLeaderboard(ctx: Context): Promise<Response> {
-  const client = await pool.connect();
   try {
-    const result = await client.queryObject<{
-      username: string;
-      score: number;
-      level: number;
-      xp: number;
-      wave: number;
-      created_at: string;
-    }>(`
-      SELECT u.username, s.score, s.level, s.xp, s.wave, s.created_at
+    const client = await pool.connect();
+    try {
+      const res = await client.queryObject<{
+        username: string;
+        score: number;
+        level: number;
+        xp: number;
+        wave: number;
+        created_at: string;
+      }>(`
+        SELECT u.username, s.score, s.level, s.xp, s.wave, s.created_at
         FROM space_scores s
         JOIN users u ON u.id = s.user_id
        ORDER BY s.score DESC, s.wave DESC, s.created_at ASC
        LIMIT 100
-    `);
-    return json(result.rows);
-  } catch (err) {
-    console.error("getSpaceLeaderboard error:", err);
-    return json({ success: false, error: "Database error" }, 500);
-  } finally {
-    client.release();
+      `);
+      return json(res.rows);
+    } catch (err) {
+      console.error("getSpaceLeaderboard error:", err);
+      return json({ success: false, error: "Database error" }, 500);
+    } finally {
+      client.release();
+    }
+  } catch (err: any) {
+    return json({ success: false, error: err.message }, 500);
   }
 }
+
+/**
+ * Role: Récupère le top 10 des scores SpacePiouPiou
+ * Préconditions:
+ *   - Tables space_scores et users existent
+ *   - Relations correctes entre les tables
+ * Postconditions:
+ *   - Retourne le top 10 avec player, score, xp, level, wave
+ *   - Réponse 200 avec données ou 500 si erreur
+ */
 // ────────────────────────────────────────────────────────────────────
 //  TOP 10 – par score
 // ────────────────────────────────────────────────────────────────────
@@ -558,6 +675,15 @@ export const getTopScores = async (ctx: Context) => {
   }
 };
 
+/**
+ * Role: Récupère le top 10 des joueurs par XP cumulé SpacePiouPiou
+ * Préconditions:
+ *   - Tables space_scores et users existent
+ *   - Relations correctes entre les tables
+ * Postconditions:
+ *   - Retourne le top 10 avec player et XP total (somme)
+ *   - Réponse 200 avec données ou 500 si erreur
+ */
 // ────────────────────────────────────────────────────────────────────
 //  TOP 10 – par XP cumulé
 // ────────────────────────────────────────────────────────────────────
@@ -584,7 +710,19 @@ export const getTopXp = async (ctx: Context) => {
     ctx.throw(500, "Erreur interne");
   }
 };
-// --- Enregistrement d’une partie de Snake ---
+
+/**
+ * Role: Enregistre un score Snake avec gestion des niveaux
+ * Préconditions:
+ *   - Utilisateur authentifié (userId dans ctx.state)
+ *   - Payload valide avec niveau, score, temps (numbers)
+ *   - Table score_snake existe avec contrainte unique (user_id, niveau)
+ * Postconditions:
+ *   - Score inséré ou mis à jour si meilleur score pour ce niveau
+ *   - Username récupéré automatiquement si non fourni
+ *   - Réponse 201 si succès, 400/401/500 si erreur
+ */
+// --- Enregistrement d'une partie de Snake ---
 export async function saveSnakeScore(ctx: Context): Promise<Response> {
   // 1) Récupérer l’ID utilisateur injecté par authMiddleware
   const userId = ctx.state.userId as number;
@@ -642,8 +780,15 @@ export async function saveSnakeScore(ctx: Context): Promise<Response> {
   return json({ success: true }, 201);
 }
 
-// --- Enregistrement d’une partie de Snake ---
-
+/**
+ * Role: Récupère le niveau maximum débloqué par l'utilisateur authentifié
+ * Préconditions:
+ *   - Utilisateur authentifié (userId dans ctx.state)
+ *   - Table score_snake existe
+ * Postconditions:
+ *   - Retourne le niveau max ou 1 par défaut si aucun score
+ *   - Réponse 200 avec maxNiveau ou 401/500 si erreur
+ */
 // ─── Récupération du niveau max débloqué pour Snake ─────────────────────────
 export async function getMaxNiveau(ctx: Context): Promise<Response> {
   // On récupère l’ID authentifié depuis authMiddleware
@@ -668,6 +813,16 @@ export async function getMaxNiveau(ctx: Context): Promise<Response> {
   }
 }
 
+/**
+ * Role: Récupère le classement Snake (top 10 par niveau max puis score)
+ * Préconditions:
+ *   - Tables score_snake et users existent
+ *   - Relations correctes entre les tables
+ * Postconditions:
+ *   - Retourne le top 10 avec username, max_niveau, score
+ *   - Tri par niveau max DESC puis score DESC
+ *   - Réponse 200 avec données ou 500 si erreur
+ */
 // ─── Leaderboard Snake – Top 10 par niveau max puis score ─────────────────
 export async function getSnakeLeaderboard(ctx: Context): Promise<Response> {
   // 1) Connexion
@@ -710,17 +865,14 @@ export async function getSnakeLeaderboard(ctx: Context): Promise<Response> {
   }
 }
 
-
-/** helper pour renvoyer du JSON */
-function json(data: unknown, status = 200) {
-  return new Response(JSON.stringify(data), {
-    status,
-    headers: { "Content-Type": "application/json" },
-  });
-}
-
 /**
- * GET /api/user/profile
+ * Role: Récupère le profil utilisateur (informations personnelles)
+ * Préconditions:
+ *   - Utilisateur authentifié (userId dans ctx.state)
+ *   - Utilisateur existe en base
+ * Postconditions:
+ *   - Retourne username, email, country, city, languages, birthdate, avatar
+ *   - Réponse 200 avec données, 401 si non auth, 404 si utilisateur introuvable
  */
 export async function getUserProfile(ctx: Context): Promise<Response> {
   const userId = ctx.state.userId as number;
@@ -751,7 +903,15 @@ export async function getUserProfile(ctx: Context): Promise<Response> {
 }
 
 /**
- * PUT /api/user/profile
+ * Role: Met à jour le profil utilisateur avec validation
+ * Préconditions:
+ *   - Utilisateur authentifié (userId dans ctx.state)
+ *   - Données optionnelles dans body (username, email, country, city, languages, birthdate, avatar)
+ *   - Email valide si fourni
+ * Postconditions:
+ *   - Profil mis à jour avec les données fournies
+ *   - Si changement d'email: compte désactivé et email de confirmation envoyé
+ *   - Réponse 200 avec message de succès ou 400/401 si erreur
  */
 export async function updateUserProfile(
   ctx: Context,
@@ -826,18 +986,14 @@ export async function updateUserProfile(
   }
 }
 
-
-// Helper pour renvoyer du JSON
-function jsonResponse(data: unknown, status = 200) {
-  return new Response(JSON.stringify(data), {
-    status,
-    headers: { "Content-Type": "application/json" },
-  });
-}
-
 /**
- * GET /api/user/scores?game=…
- * Retourne [{ date, score }, …]
+ * Role: Récupère l'historique des scores d'un utilisateur pour un jeu donné
+ * Préconditions:
+ *   - Utilisateur authentifié (userId dans ctx.state)
+ *   - Paramètre game valide (snake, tetris, space, war)
+ * Postconditions:
+ *   - Retourne tableau de {date, score} trié par date DESC
+ *   - Réponse 200 avec données ou 400/401 si erreur
  */
 export async function getUserScores(ctx: Context): Promise<Response> {
   const userId = ctx.state.userId as number;
@@ -897,8 +1053,14 @@ export async function getUserScores(ctx: Context): Promise<Response> {
 }
 
 /**
- * GET /api/user/best-scores?game=…
- * Retourne { date, score }
+ * Role: Récupère le meilleur score d'un utilisateur pour un jeu donné
+ * Préconditions:
+ *   - Utilisateur authentifié (userId dans ctx.state)
+ *   - Paramètre game valide (snake, tetris, space, war)
+ * Postconditions:
+ *   - Retourne {date, score} du meilleur score
+ *   - Si aucun score: {score: 0, date: null}
+ *   - Réponse 200 avec données ou 400/401 si erreur
  */
 export async function getUserBestScores(
   ctx: Context,
@@ -960,6 +1122,16 @@ export async function getUserBestScores(
     client.release();
   }
 }
+
+/**
+ * Role: Authentifie un administrateur
+ * Préconditions:
+ *   - ADMIN_USER et ADMIN_PASS définis dans les variables d'environnement
+ *   - Payload contient username et password
+ * Postconditions:
+ *   - Si succès: tentatives réinitialisées, réponse 200
+ *   - Si échec: tentative échouée enregistrée, réponse 401
+ */
 export async function loginAdmin(ctx: Context) {
   const { username, password } = await ctx.request.body({ type: "json" }).value;
   const ip = ctx.request.ip;
@@ -979,6 +1151,16 @@ export async function loginAdmin(ctx: Context) {
   ctx.response.body   = { message: "Connecté en tant qu'admin" };
 }
 
+/**
+ * Role: Récupère la liste de tous les utilisateurs (admin)
+ * Préconditions:
+ *   - Accès administrateur vérifié
+ *   - Table users existe
+ * Postconditions:
+ *   - Retourne tous les utilisateurs avec id, username, email, verified
+ *   - Triés par id
+ *   - Réponse 200 avec données ou 500 si erreur
+ */
 /** GET /api/admin/users */
 export async function getAllUsersHandler(ctx: Context) {
   // Utiliser la fonction importée depuis db.ts au lieu d'appeler getAllUsers directement
@@ -999,6 +1181,16 @@ export async function getAllUsersHandler(ctx: Context) {
   }
 }
 
+/**
+ * Role: Active un utilisateur spécifique (admin)
+ * Préconditions:
+ *   - Accès administrateur vérifié
+ *   - ID utilisateur valide dans params
+ *   - Fonction activateUserById disponible
+ * Postconditions:
+ *   - Utilisateur activé en base
+ *   - Réponse 204 (no content)
+ */
 /** PUT /api/admin/users/:id/activate */
 export async function activateUserHandler(ctx: Context) {
   const id = Number(ctx.params.id);
@@ -1006,6 +1198,16 @@ export async function activateUserHandler(ctx: Context) {
   ctx.response.status = 204;
 }
 
+/**
+ * Role: Supprime un utilisateur spécifique (admin)
+ * Préconditions:
+ *   - Accès administrateur vérifié
+ *   - ID utilisateur valide dans params
+ *   - Fonction deleteUserById disponible
+ * Postconditions:
+ *   - Utilisateur supprimé de la base
+ *   - Réponse 204 (no content)
+ */
 /** DELETE /api/admin/users/:id */
 export async function deleteUserHandler(ctx: Context) {
   const id = Number(ctx.params.id);
@@ -1013,9 +1215,35 @@ export async function deleteUserHandler(ctx: Context) {
   ctx.response.status = 204;
 }
 
+/**
+ * Role: Récupère les scores d'un utilisateur spécifique (admin)
+ * Préconditions:
+ *   - Accès administrateur vérifié
+ *   - ID utilisateur valide dans params
+ *   - Fonction getUserScoresFromDb disponible
+ * Postconditions:
+ *   - Retourne tous les scores de l'utilisateur
+ *   - Réponse avec données des scores
+ */
 /** GET /api/admin/users/:id/scores */
 export async function getUserScoresHandler(ctx: Context) {
   const id = Number(ctx.params.id);
   const scores = await getUserScoresFromDb(id);
   ctx.response.body = scores;
+}
+
+/** helper pour renvoyer du JSON */
+function json(data: unknown, status = 200) {
+  return new Response(JSON.stringify(data), {
+    status,
+    headers: { "Content-Type": "application/json" },
+  });
+}
+
+// Helper pour renvoyer du JSON
+function jsonResponse(data: unknown, status = 200) {
+  return new Response(JSON.stringify(data), {
+    status,
+    headers: { "Content-Type": "application/json" },
+  });
 }

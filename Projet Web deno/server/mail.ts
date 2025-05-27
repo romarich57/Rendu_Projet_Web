@@ -1,7 +1,7 @@
 import nodemailer from "npm:nodemailer";
 
 
-// Crée et retourne un transporteur reusable
+// Crée et retourne un transporteur reutilisable
 function createTransporter() {
   return nodemailer.createTransport({
     host: Deno.env.get("SMTP_HOST"),

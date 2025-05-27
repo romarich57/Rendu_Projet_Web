@@ -25,7 +25,6 @@ import {
   getUserScores,
   getUserBestScores,
   loginAdmin,
-  getAllUsers,
   getUserScoresHandler,
   getAllUsersHandler,
   activateUserHandler,
@@ -39,7 +38,7 @@ import { authAdmin } from "./middlewares.ts";
 
 const router = new Router();
 
-// ─── 1) RÉPONSE AUX PRÉ-VOLS CORS (OPTIONS) ───────────────────────
+// ─── 1) RÉPONSE AUX PRÉ-VOLS CORS  ───────────────────────
 // routes.ts
 router.options("/(.*)", (ctx) => {
 console.log("Request origin : " +  ctx.request.headers.get("origin"))
@@ -194,7 +193,7 @@ router.get(
 // ─── SNAKE – Leaderboard Top 10 (par niveau max puis score) ───────────
 router.get(
   "/api/snake/leaderboard",
-  async (ctx: Context) => {  // authMiddleware retiré
+  async (ctx: Context) => {  
     const resp = await getSnakeLeaderboard(ctx);
     await applyResponse(ctx, resp);
     try {
@@ -228,7 +227,7 @@ router
     async (ctx) => {
       const body = await ctx.request.body({ type: "json" }).value;
       const resp = await updateUserProfile(ctx, body);
-      await applyResponse(ctx, resp); // <-- Utilise applyResponse pour copier les headers
+      await applyResponse(ctx, resp); 
       ctx.response.body = await resp.json();
     },
   );
@@ -263,14 +262,6 @@ async function applyResponse(ctx: Context, resp: globalThis.Response) {
 }
 
 
-function getRequestJson(ctx: Context): Promise<any> {
-
-  if (typeof ctx.request.body === "function") {
-    return ctx.request.body({ type: "json" }).value;
-  }
-  
-  return ctx.request.body.value;
-}
 
 router.post("/api/admin/login", loginAdmin);
 

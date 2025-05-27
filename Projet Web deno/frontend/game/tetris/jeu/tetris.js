@@ -492,7 +492,7 @@ function gravity() {
 }
 // ——————————————————————————————
 // 🎮 Déplacement latéral + son
-// Remplace intégralement ta fonction deplacerPiece
+//  fonction deplacerPiece
 // ——————————————————————————————
 
 /**
@@ -536,7 +536,7 @@ function deplacerPiece(dir) {
 
 // ——————————————————————————————
 // 🎮 Rotation + son
-// Remplace intégralement ta fonction rotatePiece
+// fonction rotatePiece
 // ——————————————————————————————
 
 /**

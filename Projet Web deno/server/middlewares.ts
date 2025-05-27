@@ -4,7 +4,7 @@ import { Context, Middleware } from "https://deno.land/x/oak@v12.5.0/mod.ts";
 import jwt from "npm:jsonwebtoken";
 import pool from "./db.ts";
 
-// 🌐 CORS
+// CORS
 const ORIGIN = Deno.env.get("CORS_URL");
 const CORS_HEADERS: Record<string,string> = {
   "Access-Control-Allow-Origin":      ORIGIN,
@@ -23,7 +23,7 @@ export const corsMiddleware: Middleware = async (ctx, next) => {
   await next();
 };
 
-// 🔒 Content-Security-Policy
+// Content-Security-Policy
 const CSP_HEADER =
   "default-src 'self'; " +
   "style-src 'self' https://www.gstatic.com; " +
@@ -33,7 +33,7 @@ export const cspMiddleware: Middleware = async (ctx, next) => {
   await next();
 };
 
-// 🧠 Helper pour parser un JSON body (si nécessaire)
+//  Helper pour parser un JSON body 
 export async function parseJsonBody(request: Request): Promise<any> {
   if (
     request.method !== "GET" &&
@@ -48,12 +48,12 @@ export async function parseJsonBody(request: Request): Promise<any> {
   return {};
 }
 
-// 🌍 Récupère l’IP client
+// Récupère l’IP client
 export function getClientIp(request: Request): string {
   return request.headers.get("x-forwarded-for") ?? "unknown";
 }
 
-// 🛡 Brute-force protection helpers
+//  Brute-force protection helpers
 interface AttemptData { count: number; blockedUntil: number; }
 const loginAttempts: Record<string, AttemptData> = {};
 
@@ -98,7 +98,7 @@ export function verifyJWT(request: Request): any {
   }
 }
 
-// 🛡 Rate‐limiter pour /api/admin/login (3 essais / 5 min)
+//  Rate‐limiter pour /api/admin/login (3 essais / 5 min)
 const attempts = new Map<string, { count: number; first: number }>();
 
 export const adminRateLimiter: Middleware = async (ctx, next) => {
@@ -121,13 +121,8 @@ export const adminRateLimiter: Middleware = async (ctx, next) => {
   await next();
 };
 
-// 🛡 Protection des routes admin (actuellement ouverte)
-export const authAdmin: Middleware = async (ctx: Context, next) => {
-  // TODO: ajouter vérification d'admin ici
-  await next();
-};
 
-// 🛡 Middleware d’authentification Oak
+//  Middleware d’authentification Oak
 export const authMiddleware: Middleware = async (ctx: Context, next) => {
   try {
     // Try JWT from Authorization header

@@ -16,12 +16,6 @@ export interface User {
     registration_ip: string;
   }
   
-  // --- Messages WebSocket ---
-  export type WSMessage =
-    | { type: "join"; token: string; username?: string }
-    | { type: "move"; position: number }
-    | { type: "shoot" };
-  
   // --- Bullet & GameState ---
   export interface Bullet {
     x: number;

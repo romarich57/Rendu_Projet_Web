@@ -1,4 +1,4 @@
-/* === Variables et reset (repris d’account.css) === */
+/* === Variables et reset  === */
 :root {
   --stardust:      #0a192f;
   --quantum-blue:  #00f7ff;
@@ -107,7 +107,7 @@ tr:hover td {
 }
 
 
-/* === Panels cachés/actifs (repris d’account.css) === */
+/* === Panels cachés/actifs  === */
 .interface-panel {
   display: none;
   animation: quantumEntrance 0.5s var(--warp-speed);

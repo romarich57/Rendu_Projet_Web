@@ -1,15 +1,12 @@
-Space Game 
-Table des matières
-Présentation
+Space Game :
+
+Présentation :
 Les Jeux
-Guerre des Vaisseaux
-Space Pioupiou
-Tetris
-Snake
-Installation
-Technologies utilisées
-Présentation
-Cette application web propose une collection de jeux rétro entièrement développée avec des technologies web modernes. La plateforme comprend une authentification complète, un système de scores et classements, ainsi qu'un mode multijoueur pour certains jeux.
+- Guerre des Vaisseaux
+- Space Pioupiou
+- Tetris
+- Snake
+
 
 Les Jeux
 Guerre des Vaisseaux

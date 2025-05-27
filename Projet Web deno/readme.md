@@ -1,24 +1,26 @@
-Système d'Authentification et de Connexion
+Système d'Authentification et de Connexion (connexion admin : login:romaric et mdp:35)
 
-Mon projet implémente un système d'authentification et différentes interfaces utilisateur. Le système est conçu selon une architecture client-serveur bien séparée.
+Mon projet implémente un système d'authentification et différentes interfaces utilisateur. 
 
 Architecture Backend
 Composants principaux:
 
-- handlers.ts : Contient les fonctions qui gèrent l'authentification, l'inscription et la récupération de mots de passe
+- handlers.ts : Contient les fonctions qui gèrent l'authentification, l'inscription  la récupération de mots de passe ainsi que pour toutes les récupérations de scores.
 
 - middlewares.ts : Implémente la validation des tokens JWT et la protection des routes
 
 - routes.ts : Définit les endpoints API pour l'authentification
-- mail.ts : Gère l'envoi d'emails pour la récupération de mots de passe
+- mail.ts : Gère l'envoi d'emails pour la récupération de mots de passe,l'activation de compte utilisateurs.
 
-Mécanismes de sécurité:
+Sécurité:
 
 - Stockage des mots de passe hachés avec bcrypt
-Génération et validation de tokens JWT
-Protection contre les attaques par force brute via rate limiting
-HTTPS 
-
+- Génération et validation de tokens JWT
+- Protection contre les attaques par force brute via rate limiting (Connexion admin , pour celle dans le login mis en commentaire lors du déploiement du site )
+- HTTPS 
+- Pour se connecter aux portailles administrateurs aller dans compteutilisateur(en haut à droite) , cliquez sur administrateur.La connexion est unique ( mdp et identifant).Ces données sont stockées dans le .env.Pour se connecter : login : romaric , mdr:35.
+-Vérification des adresses-mails (envoie de mail de vérification) , possibilité de reset son password.
+- CSP
 
 Architecture Frontend :
 
@@ -34,12 +36,12 @@ Architecture Frontend :
 
 - Connexion administrateur (/frontend/admin/login/) : Interface séparée pour les administrateurs
 
-- Gestion de compte (/frontend/compteutilisateur/) : Permet aux utilisateurs de gérer leur profil et paramètres
+- Gestion de compte (/frontend/compteutilisateur/) : Permet aux utilisateurs de gérer leur profil(modifier des donnés comme le pseudo) .
 
 Flux d'authentification:
 
 - Inscription : L'utilisateur s'inscrit via le formulaire d'inscription
-- Connexion : L'utilisateur saisit ses identifiants et reçoit un token JWT
+- Connexion : L'utilisateur saisit ses identifiants et reçoit un token JWT (cookie-http-only)
 - Stockage : Le token est stocké dans le localStorage du navigateur
 - Autorisation : Le token est envoyé avec chaque requête API dans l'en-tête Authorization
 - Validation : Le middleware serveur vérifie la validité du token
@@ -49,7 +51,6 @@ Flux d'authentification:
 Fonctionnalités supplémentaires :
 
 - Accès administrateur : Interface d'administration protégée avec des droits spécifiques
-- Séparation des privilèges : Utilisateurs standards vs administrateurs
 - Réinitialisation de mot de passe : Système en deux étapes avec envoi d'email
 - Gestion de profil utilisateur : Possibilité de modifier ses informations et préférences
 

@@ -2,9 +2,7 @@
 
 // 1) Charger les variables d’environnement
 import { config } from "https://deno.land/x/dotenv@v3.2.0/mod.ts";
-config(); // lit automatiquement votre .env
-
-// 2) Importer et configurer le pool PostgreSQL
+config(); 
 import { Pool } from "https://deno.land/x/postgres@v0.17.0/mod.ts";
 
 const pool = new Pool({

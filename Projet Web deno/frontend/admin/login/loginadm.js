@@ -30,8 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
 
-      // En cas d'erreur 4xx/5xx, on essaie de parser le JSON,
-      // sinon on récupère le texte brut.
+      
       let errMsg = 'Identifiants invalides';
       try {
         const data = await res.json();

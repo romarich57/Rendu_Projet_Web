@@ -47,12 +47,23 @@ const MAX_PLAYERS_PER_ROOM = 2;
 
 let heartbeatTimerId: ReturnType<typeof setInterval> | null = null;
 
-// Fonction pour générer un ID unique
+
+
+/* 
+Rôle : Génère un identifiant unique servant à distinguer chaque connexion ou balle.
+Préconditions : L’API crypto.randomUUID() doit être disponible.
+Postconditions : Renvoie une nouvelle chaîne UUID unique.
+*/
+
 function generateId(): string {
   return crypto.randomUUID();
 }
 
-// Safe send wrapper to avoid readyState issues
+/* 
+Rôle : Envoie un message via WebSocket si la connexion est ouverte, en encapsulant l’objet en JSON si nécessaire.
+Préconditions : Le paramètre ws est un objet WebSocket valide, et ws.readyState === WebSocket.OPEN.
+Postconditions : Le message est transmis au client ou logué en cas d’erreur.
+*/
 function safeSend(ws: WebSocket, data: any) {
   if (ws.readyState === WebSocket.OPEN) {
     try {
@@ -63,11 +74,15 @@ function safeSend(ws: WebSocket, data: any) {
   }
 }
 
-// Fonction qui cherche ou crée une room avec de la place
+
+/* 
+Rôle : Parcourt les rooms existantes pour en trouver une ayant moins de deux joueurs et n’ayant pas déjà un joueur du même nom.
+Préconditions : La map rooms est initialisée et connections contient les Player correspondants.
+Postconditions : Retourne l’ID d’une room disponible ou null si aucune ne convient.
+*/
 function findRoomWithSpaceFor(name: string): string | null {
   for (const [roomId, players] of rooms.entries()) {
     if (players.size < MAX_PLAYERS_PER_ROOM) {
-      // skip any room where this name already exists
       const names = Array.from(players)
         .map(id => connections.get(id)?.name)
         .filter(n => !!n) as string[];
@@ -79,14 +94,27 @@ function findRoomWithSpaceFor(name: string): string | null {
   return null;
 }
 
-// Crée une nouvelle room
+
+
+/* 
+Rôle : Génère une nouvelle room vide et l’ajoute à la map rooms.
+Préconditions : La map rooms est prête à être modifiée.
+Postconditions : Une nouvelle entrée { roomId → Set() } est ajoutée dans rooms et son roomId est retourné.
+*/
+
 function createRoom(): string {
   const roomId = generateId();
   rooms.set(roomId, new Set());
   return roomId;
 }
 
-// Ajoute un joueur à une room
+
+
+/* 
+Rôle : Ajoute l’ID de connexion d’un joueur à l’ensemble de joueurs d’une room.
+Préconditions : rooms.get(roomId) existe et renvoie un Set modifiable.
+Postconditions : L’connectionId est inclus dans le Set de la room.
+*/
 function addPlayerToRoom(connectionId: string, roomId: string) {
   const roomPlayers = rooms.get(roomId);
   if (roomPlayers) {
@@ -94,7 +122,13 @@ function addPlayerToRoom(connectionId: string, roomId: string) {
   }
 }
 
-// Retire un joueur d'une room
+
+/* 
+Rôle : Retire un joueur d’une room et supprime la room si elle devient vide.
+Préconditions : rooms.get(roomId) existe.
+Postconditions : L’connectionId est supprimé, et la room (et son état de jeu) est supprimée si aucun joueur ne reste.
+*/
+
 function removePlayerFromRoom(connectionId: string, roomId: string) {
   const roomPlayers = rooms.get(roomId);
   if (roomPlayers) {
@@ -108,7 +142,13 @@ function removePlayerFromRoom(connectionId: string, roomId: string) {
   }
 }
 
-// Trouve la room d'un joueur
+
+
+/* 
+Rôle : Recherche la room dans laquelle un connectionId est présent.
+Préconditions : La map rooms contient toutes les rooms actives.
+Postconditions : Retourne l’ID de la room trouvée ou null.
+*/
 function findPlayerRoom(connectionId: string): string | null {
   for (const [roomId, players] of rooms.entries()) {
     if (players.has(connectionId)) {
@@ -118,7 +158,13 @@ function findPlayerRoom(connectionId: string): string | null {
   return null;
 }
 
-// Envoie un message à tous les joueurs d'une room
+
+/* 
+Rôle : Envoie un message JSON à tous les WebSockets ouverts d’une room.
+Préconditions : rooms.get(roomId) renvoie un Set de connectionIds valides.
+Postconditions : Tous les joueurs de la room reçoivent message.
+*/
+
 function broadcastToRoom(roomId: string, message: any) {
   const roomPlayers = rooms.get(roomId);
   if (!roomPlayers) return;
@@ -137,31 +183,14 @@ function broadcastToRoom(roomId: string, message: any) {
   });
 }
 
-// Notifie tous les joueurs de l'état actuel de la room
-function notifyRoomState(roomId: string) {
-  const roomPlayers = rooms.get(roomId);
-  if (!roomPlayers) return;
 
-  const playerDetails = Array.from(roomPlayers).map(id => {
-    const player = connections.get(id);
-    return {
-      id,
-      name: player?.name || "Anonyme",
-      position: player?.position || 0,
-      lives: player?.lives || 3
-    };
-  });
-
-  broadcastToRoom(roomId, {
-    type: 'roomUpdate',
-    players: playerDetails,
-    ready: roomPlayers.size === MAX_PLAYERS_PER_ROOM
-  });
-}
-
-// Start the heartbeat timer
+/* 
+Rôle : Lance un intervalle pour détecter et déconnecter automatiquement les joueurs inactifs depuis plus de 30 s.
+Préconditions : Aucun minuteur de heartbeat n’est en cours (heartbeatTimerId === null).
+Postconditions : Un setInterval est enregistré et heartbeatTimerId mis à jour.
+*/
 function startHeartbeatTimer() {
-  // Only start if not already started
+
   if (heartbeatTimerId === null) {
     heartbeatTimerId = setInterval(() => {
       const now = Date.now();
@@ -182,15 +211,17 @@ function startHeartbeatTimer() {
   }
 }
 
-// Fonction pour gérer l'arrivée d'un joueur
+/* 
+Rôle : Attribue un nom à un joueur, trouve ou crée une room, l’y ajoute et peut lancer la partie.
+Préconditions : connections.get(connectionId) retourne un Player existant.
+Postconditions : Le joueur intègre une room et, si celle-ci est pleine, checkRoomAndStartGame est appelé.
+*/
 function handleJoin(connectionId: string, name: string) {
   const player = connections.get(connectionId);
   if (!player) return;
 
   player.name = name;
   console.log(`[WebSocket] Joueur ${name} (${connectionId}) a rejoint`);
-
-  // find a room where no one has this name
   let roomId = findRoomWithSpaceFor(name);
   if (!roomId) {
     roomId = createRoom();
@@ -200,7 +231,12 @@ function handleJoin(connectionId: string, name: string) {
   checkRoomAndStartGame(roomId);
 }
 
-// Réserve une room quel que soit le nom
+/* 
+Rôle : Recherche une room ayant moins de deux joueurs, sans considération de nom.
+Préconditions : La map rooms est disponible.
+Postconditions : Retourne l’ID d’une room partiellement remplie ou null.
+*/
+
 function findRoomWithSpace(): string | null {
   for (const [roomId, players] of rooms.entries()) {
     if (players.size < MAX_PLAYERS_PER_ROOM) {
@@ -210,22 +246,23 @@ function findRoomWithSpace(): string | null {
   return null;
 }
 
-// Relaxed join: try maintaining name uniqueness first, only ignore if necessary
+
+/* 
+Rôle : Variante de handleJoin : tente d’abord l’unicité de nom, puis tolère la collision, avant de créer une room.
+Préconditions : Le Player existe pour connectionId.
+Postconditions : Le joueur rejoint une room et la partie démarre si elle est complète.
+*/
 function handleJoinRelaxed(connectionId: string, name: string) {
   const player = connections.get(connectionId);
   if (!player) return;
   player.name = name;
 
-  // First try with name uniqueness (better experience)
+ 
   let roomId = findRoomWithSpaceFor(name);
-
-  // If we couldn't find a room respecting name uniqueness,
-  // only then fall back to any available room
   if (!roomId) {
     roomId = findRoomWithSpace();
   }
 
-  // If still no room, create a new one
   if (!roomId) {
     roomId = createRoom();
   }
@@ -234,7 +271,11 @@ function handleJoinRelaxed(connectionId: string, name: string) {
   checkRoomAndStartGame(roomId);
 }
 
-// Fonction pour vérifier si une room est pleine et démarrer le jeu
+/* 
+Rôle : Vérifie si une room compte deux joueurs distincts et, si oui, initialise l’état de partie et le game loop.
+Préconditions : rooms.get(roomId) contient exactement deux connectionId.
+Postconditions : Un GameState est créé, stocké, et startGameLoop est lancé.
+*/
 function checkRoomAndStartGame(roomId: string) {
   const roomPlayers = rooms.get(roomId);
   if (!roomPlayers || roomPlayers.size < MAX_PLAYERS_PER_ROOM) return;
@@ -301,7 +342,11 @@ function checkRoomAndStartGame(roomId: string) {
   startGameLoop(roomId);
 }
 
-// Boucle de jeu pour mettre à jour et envoyer régulièrement l'état du jeu
+/* 
+Rôle : Démarre la boucle de jeu (~30 FPS) pour mettre à jour et diffuser l’état du jeu.
+Préconditions : gameStates.get(roomId) retourne un GameState initialisé.
+Postconditions : Un setInterval est créé, mettant régulièrement à jour et broadcastant l’état, puis s’arrête à la fin du jeu.
+*/
 function startGameLoop(roomId: string) {
   const gameState = gameStates.get(roomId);
   if (!gameState) return;
@@ -346,7 +391,11 @@ function startGameLoop(roomId: string) {
   }, 33); // ~30 FPS
 }
 
-// Fonction pour mettre à jour l'état du jeu
+/* 
+Rôle : Déplace les balles, gère collisions et retire les balles hors-écran ou après impact.
+Préconditions : Un GameState existe pour la room.
+Postconditions : Les positions et vies des joueurs sont ajustées dans gameState.
+*/
 function updateGameState(roomId: string) {
   const gameState = gameStates.get(roomId);
   if (!gameState) return;
@@ -385,7 +434,11 @@ function updateGameState(roomId: string) {
   }
 }
 
-// Fonction pour envoyer l'état du jeu aux joueurs
+/* 
+Rôle : Envoie à chaque joueur l’état complet (type: 'updateState') après chaque tick.
+Préconditions : La room et son GameState existent.
+Postconditions : Tous les WebSockets reçoivent l’état sérialisé.
+*/
 function broadcastGameState(roomId: string) {
   const roomPlayers = rooms.get(roomId);
   const gameState = gameStates.get(roomId);
@@ -402,7 +455,12 @@ function broadcastGameState(roomId: string) {
   });
 }
 
-// Fonction pour gérer le mouvement d'un joueur
+
+/* 
+Rôle : Met à jour la position verticale d’un joueur et l’injecte dans l’état de la room.
+Préconditions : connections.get(connectionId) et gameStates.get(roomId) sont valides.
+Postconditions : La coordonnée leftY ou rightY du GameState est ajustée.
+*/
 function handleMove(connectionId: string, position: number) {
   const player = connections.get(connectionId);
   if (!player) return;
@@ -427,7 +485,11 @@ function handleMove(connectionId: string, position: number) {
   }
 }
 
-// Fonction pour gérer un tir
+/* 
+Rôle : Crée une nouvelle balle au niveau du vaisseau du joueur et l’ajoute à gameState.bullets.
+Préconditions : Player connecté et GameState existant.
+Postconditions : Un objet { x, y, side, id } est poussé dans gameState.bullets.
+*/
 function handleShoot(connectionId: string) {
   const player = connections.get(connectionId);
   if (!player) return;
@@ -456,7 +518,12 @@ function handleShoot(connectionId: string) {
   });
 }
 
-// Fonction pour gérer la déconnexion d'un joueur
+
+/* 
+Rôle : Gère la déconnexion d’un joueur : nettoyage de room, notification de l’adversaire, suppression de l’état.
+Préconditions : connectionId est présent dans connections.
+Postconditions : Le joueur est retiré de sa room, l’autre joueur est prévenu, et les maps sont nettoyées.
+*/
 function handlePlayerDisconnect(connectionId: string) {
   const roomId = findPlayerRoom(connectionId);
   if (roomId) {
@@ -483,7 +550,11 @@ function handlePlayerDisconnect(connectionId: string) {
   console.log(`[WebSocket] Connexion supprimée: ${connectionId}`);
 }
 
-// Gestionnaire principal des WebSockets pour le jeu de guerre spatiale
+/* 
+Rôle : Point d’entrée : attribue un connectionId, stocke le Player, installe les handlers (message, close, error) et démarre le heartbeat.
+Préconditions : La connexion WebSocket ws est ouverte.
+Postconditions : Le joueur reçoit son ID, tous les événements sont pris en charge, et startHeartbeatTimer est lancé.
+*/
 export function handleGuerreWebSocket(ws: WebSocket) {
   const connectionId = generateId();
 
