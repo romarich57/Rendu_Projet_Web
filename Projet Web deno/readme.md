@@ -75,9 +75,9 @@ cp docker.env.example docker.env
 Éditez `docker.env` afin d’y mettre :
 - les identifiants SMTP pour l’envoi des e-mails ;
 - les identifiants d’amorçage admin (`ADMIN_USER`, `ADMIN_PASS`) ;
-- les secrets (`JWT_SECRET`, `COOKIE_SECURE`, etc.) ;
+- les secrets et paramètres de sécurité (`JWT_SECRET`, `COOKIE_SECURE`, `FORCE_HTTPS`, `ENABLE_HSTS`, `HSTS_MAX_AGE`, `HSTS_INCLUDE_SUBDOMAINS`, `HSTS_PRELOAD`) ;
 - les identifiants Postgres (`POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`);
-- les URLs publiques pointant vers votre VPS (`SERVER_URL`, `FRONTEND_URL`, `WS_URL`, `CORS_URLS`).
+- les URLs publiques pointant vers votre VPS (`SERVER_URL`, `FRONTEND_URL`, `WS_URL` en `wss://`, `CORS_URLS`).
 
 ### 2. Construire et lancer la stack
 
@@ -102,4 +102,5 @@ La base stocke ses données dans le volume `db-data` (persiste entre les redéma
 
 - Exposez uniquement le frontend (port 8000) et l’API (port 6000) via un pare-feu ou un reverse-proxy (Caddy, Nginx, Traefik). Postgres doit rester privé, le port 5000 ne devrait être ouvert que si nécessaire.
 - Pointez vos DNS (ex : `app.example.com`, `api.example.com`) vers votre VPS et mettez à jour `SERVER_URL`, `FRONTEND_URL`, `CORS_URLS` et `WS_URL` en conséquence dans `docker.env`.
+- Activez `FORCE_HTTPS=true` (ce qui déclenche la redirection automatique vers HTTPS, le cookie `Secure` et HSTS) et définissez `WS_URL=wss://…` pour vos WebSockets.
 - Pour des certificats HTTPS, placez un reverse-proxy (Traefik, Caddy, Nginx) devant les deux services ou utilisez une stack type `docker compose -f docker-compose.yml -f docker-compose.prod.yml` intégrant le proxy.

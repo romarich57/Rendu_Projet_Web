@@ -18,6 +18,8 @@ import {
   adminRateLimiter,
   applyCorsHeaders,
   corsMiddleware,
+  createForceHttpsMiddleware,
+  createHstsMiddleware,
 } from "./middlewares.ts";
 import { Session }               from "https://deno.land/x/oak_sessions@v4.0.0/mod.ts";
 // -------------------------------------------------------------------
@@ -52,10 +54,27 @@ if (ADMIN_USER && ADMIN_PASS) {
 // -------------------------------------------------------------------
 const app = new Application();
 const PORT = parseInt(Deno.env.get("PORT") ?? "3000", 10);
+const FORCE_HTTPS = (Deno.env.get("FORCE_HTTPS") ?? "").toLowerCase() === "true";
+const ENABLE_HSTS = (
+  Deno.env.get("ENABLE_HSTS") ??
+  (FORCE_HTTPS ? "true" : "false")
+).toLowerCase() === "true";
+const HSTS_MAX_AGE = parseInt(Deno.env.get("HSTS_MAX_AGE") ?? "63072000", 10);
+const HSTS_INCLUDE_SUBDOMAINS =
+  (Deno.env.get("HSTS_INCLUDE_SUBDOMAINS") ?? "true").toLowerCase() === "true";
+const HSTS_PRELOAD = (Deno.env.get("HSTS_PRELOAD") ?? "false").toLowerCase() === "true";
+
+const forceHttpsMiddleware = createForceHttpsMiddleware(FORCE_HTTPS);
+const hstsMiddleware = createHstsMiddleware(ENABLE_HSTS, {
+  maxAge: HSTS_MAX_AGE,
+  includeSubDomains: HSTS_INCLUDE_SUBDOMAINS,
+  preload: HSTS_PRELOAD,
+});
 
 // -------------------------------------------------------------------
 // 4) CORS (premier middleware)
 // -------------------------------------------------------------------
+app.use(forceHttpsMiddleware);
 app.use(corsMiddleware);
 
 // -------------------------------------------------------------------
@@ -77,7 +96,12 @@ app.use(async (ctx: Context, next) => {
 });
 
 // -------------------------------------------------------------------
-// 6) Content-Security-Policy
+// 6) Strict-Transport-Security (après gestion des erreurs)
+// -------------------------------------------------------------------
+app.use(hstsMiddleware);
+
+// -------------------------------------------------------------------
+// 7) Content-Security-Policy
 // -------------------------------------------------------------------
 app.use((ctx: Context, next) => {
   ctx.response.headers.set(
@@ -94,7 +118,7 @@ app.use((ctx: Context, next) => {
 });
 
 // -------------------------------------------------------------------
-// 7) Service des fichiers statiques
+// 8) Service des fichiers statiques
 // -------------------------------------------------------------------
 app.use(async (ctx: Context, next) => {
   const path = ctx.request.url.pathname;
@@ -119,12 +143,12 @@ app.use(async (ctx: Context, next) => {
 });
 
 // -------------------------------------------------------------------
-// 8) Sessions (oak_sessions)
+// 9) Sessions (oak_sessions)
 // -------------------------------------------------------------------
 app.use(Session.initMiddleware() as unknown as Middleware);
 
 // -------------------------------------------------------------------
-// 9) WebSocket upgrade (/ws/guerre)
+// 10) WebSocket upgrade (/ws/guerre)
 // -------------------------------------------------------------------
 app.use(async (ctx: Context, next) => {
   console.log("Request received : " + ctx.request.url.pathname);
@@ -146,18 +170,19 @@ app.use(async (ctx: Context, next) => {
 });
 
 // -------------------------------------------------------------------
-// 10) Rate-limiter admin/login
+// 11) Rate-limiter admin/login
 // -------------------------------------------------------------------
 app.use(adminRateLimiter);
 
 // -------------------------------------------------------------------
-// 11) Routes API
+// 12) Routes API
 // -------------------------------------------------------------------
 app.use(router.routes());
 app.use(router.allowedMethods());
 
 // -------------------------------------------------------------------
-// 12) Démarrage du serveur
+// 13) Démarrage du serveur
 // -------------------------------------------------------------------
-console.log(`🚀 Serveur démarré sur http://localhost:${PORT}`);
+const protocolHint = FORCE_HTTPS ? "https" : "http";
+console.log(`🚀 Serveur démarré sur ${protocolHint}://localhost:${PORT}`);
 await app.listen({ port: PORT });

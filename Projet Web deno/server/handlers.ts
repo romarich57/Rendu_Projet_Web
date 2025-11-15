@@ -27,7 +27,11 @@ const emailRegex =
 const JWT_SECRET = Deno.env.get("JWT_SECRET") ?? "dev-insecure-secret";
 const FRONTEND_BASE_URL = (Deno.env.get("FRONTEND_URL") ?? Deno.env.get("SERVER_URL") ?? "http://localhost:3000").replace(/\/$/, "");
 const RESET_BASE_URL = (Deno.env.get("RESET_URL") ?? `${FRONTEND_BASE_URL}/auth/reset/reset_password.html`).replace(/\/$/, "");
-const COOKIE_SECURE = (Deno.env.get("COOKIE_SECURE") ?? "").toLowerCase() === "true";
+const FORCE_HTTPS = (Deno.env.get("FORCE_HTTPS") ?? "").toLowerCase() === "true";
+const COOKIE_SECURE = (
+  Deno.env.get("COOKIE_SECURE") ??
+  (FORCE_HTTPS ? "true" : "false")
+).toLowerCase() === "true";
 
 /**
  * Role: Enregistre un nouvel utilisateur dans la base de données avec validation des données

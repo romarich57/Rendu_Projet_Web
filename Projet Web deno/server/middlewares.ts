@@ -7,6 +7,12 @@ import pool from "./db.ts";
 const JWT_SECRET = Deno.env.get("JWT_SECRET") ?? "dev-insecure-secret";
 const ALLOW_HEADERS = "Content-Type, Authorization";
 const ALLOW_METHODS = "GET, POST, PUT, DELETE, OPTIONS";
+const HTTPS_PROTO_HEADER_KEYS = [
+  "x-forwarded-proto",
+  "x-forwarded-protocol",
+  "x-forwarded-scheme",
+];
+const HTTPS_FLAG_HEADERS = ["front-end-https"];
 
 function normalizeOrigin(origin: string): string {
   try {
@@ -132,6 +138,92 @@ export async function parseJsonBody(request: Request): Promise<any> {
 // Récupère l’IP client
 export function getClientIp(request: Request): string {
   return request.headers.get("x-forwarded-for") ?? "unknown";
+}
+
+function isForwardedHttps(headers: Headers): boolean {
+  for (const key of HTTPS_PROTO_HEADER_KEYS) {
+    const value = headers.get(key);
+    if (value && value.split(",")[0].trim().toLowerCase() === "https") {
+      return true;
+    }
+  }
+  for (const key of HTTPS_FLAG_HEADERS) {
+    if ((headers.get(key) ?? "").toLowerCase() === "on") {
+      return true;
+    }
+  }
+  return false;
+}
+
+function isSecureRequest(ctx: Context): boolean {
+  const requestAny = ctx.request as Request & { secure?: boolean };
+  if (requestAny.secure === true) {
+    return true;
+  }
+  if (ctx.request.url.protocol === "https:") {
+    return true;
+  }
+  return isForwardedHttps(ctx.request.headers);
+}
+
+export function createForceHttpsMiddleware(
+  enabled: boolean,
+  status = 308,
+): Middleware {
+  if (!enabled) {
+    return async (_ctx, next) => {
+      await next();
+    };
+  }
+  return async (ctx, next) => {
+    if (isSecureRequest(ctx)) {
+      await next();
+      return;
+    }
+    const redirectUrl = new URL(ctx.request.url);
+    redirectUrl.protocol = "https:";
+    const forwardedHost = ctx.request.headers.get("x-forwarded-host");
+    if (forwardedHost) {
+      redirectUrl.host = forwardedHost.split(",")[0].trim();
+    }
+    ctx.response.status = status;
+    ctx.response.headers.set("Location", redirectUrl.toString());
+  };
+}
+
+interface HstsOptions {
+  maxAge?: number;
+  includeSubDomains?: boolean;
+  preload?: boolean;
+}
+
+export function createHstsMiddleware(
+  enabled: boolean,
+  options: HstsOptions = {},
+): Middleware {
+  if (!enabled) {
+    return async (_ctx, next) => {
+      await next();
+    };
+  }
+  const {
+    maxAge = 63_072_000, // 2 ans
+    includeSubDomains = true,
+    preload = false,
+  } = options;
+  const directives = [`max-age=${Math.max(0, maxAge)}`];
+  if (includeSubDomains) directives.push("includeSubDomains");
+  if (preload) directives.push("preload");
+  const headerValue = directives.join("; ");
+  return async (ctx, next) => {
+    try {
+      await next();
+    } finally {
+      if (isSecureRequest(ctx)) {
+        ctx.response.headers.set("Strict-Transport-Security", headerValue);
+      }
+    }
+  };
 }
 
 //  Brute-force protection helpers
