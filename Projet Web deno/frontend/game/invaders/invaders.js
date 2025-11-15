@@ -31,28 +31,31 @@ const comboCountSpan = document.getElementById('comboCount');
 const pauseBtn       = document.getElementById('pauseBtn');
 const livesContainer = document.getElementById('lives_container');
 //API_URL = "http://localhost:3000"; // URL de l'API
-const API_DEFAULT = "https://api.rom-space-game.realdev.cloud";
+const API_DEFAULT = "/api";
 const API_URL = (() => {
-  if (typeof window === 'undefined') {
+  if (typeof window === "undefined") {
     return API_DEFAULT;
   }
   const custom = window.__API_BASE__;
-  if (typeof custom === 'string' && custom.trim()) {
-    return custom.trim().replace(/\/$/, '');
+  if (typeof custom === "string" && custom.trim()) {
+    const normalized = custom.trim();
+    return normalized.endsWith("/")
+      ? normalized.slice(0, -1)
+      : normalized;
   }
   const { protocol, hostname, port } = window.location;
-  const safeProtocol = protocol.startsWith('http') ? protocol : 'http:';
-  if (hostname === 'localhost' || hostname === '127.0.0.1') {
+  const safeProtocol = protocol.startsWith("http") ? protocol : "https:";
+  if (hostname === "localhost" || hostname === "127.0.0.1") {
     const portMap = {
-      '8000': '6000',
-      '5173': '6000',
-      '4173': '6000',
-      '3000': '3000',
-      '3001': '3001',
-      '': '6000',
+      "8000": "6000",
+      "5173": "6000",
+      "4173": "6000",
+      "3000": "3000",
+      "3001": "3001",
+      "": "6000",
     };
-    const targetPort = portMap[port] ?? '6000';
-    return `${safeProtocol}//${hostname}:${targetPort}`;
+    const targetPort = portMap[port] ?? "6000";
+    return `${safeProtocol}//${hostname}:${targetPort}/api`;
   }
   return API_DEFAULT;
 })();
@@ -1143,7 +1146,7 @@ function gameOver() {
  *   - `token` JWT est présent dans `localStorage`.
  *   - Les variables globales `API_URL`, `score`, `level`, `xp`, `wave`, `startTime` sont définies.
  * Postconditions :
- *   - Une requête POST est faite vers `${API_URL}/api/score/space` avec le payload JSON.
+ *   - Une requête POST est faite vers `${API_URL}/score/space` avec le payload JSON.
  *   - En cas d’erreur réseau ou réponse non OK, un message est logué.
  */
 
@@ -1153,7 +1156,7 @@ async function sendSpaceScore() {
   try {
     const duration = Math.floor((Date.now() - startTime) / 1000); // secondes
     const payload = { score, level, xp, wave, duration };
-    const resp = await fetch(`${API_URL}/api/score/space`, {
+    const resp = await fetch(`${API_URL}/score/space`, {
       credentials: "include",
       method: "POST",
       headers: {
@@ -1177,7 +1180,7 @@ async function sendSpaceScore() {
  *   - `token` JWT est présent dans `localStorage`.
  *   - `API_URL` et la fonction `fetch` sont disponibles.
  * Postconditions :
- *   - Une requête POST est faite vers `${API_URL}/api/telemetry/space` avec les données fournies.
+ *   - Une requête POST est faite vers `${API_URL}/telemetry/space` avec les données fournies.
  *   - En cas d’erreur, un message est logué.
  */
 
@@ -1185,7 +1188,7 @@ async function sendSpaceTelemetry(data) {
   const token = localStorage.getItem("token");
   if (!token) return;
   try {
-    const resp = await fetch(`${API_URL}/api/telemetry/space`, {
+    const resp = await fetch(`${API_URL}/telemetry/space`, {
       credentials: "include",
       method: "POST",
       headers: {

@@ -1,30 +1,55 @@
 // =====================
 // guerre_vaisseaux.js
 // =====================
-const API_DEFAULT = "https://api.rom-space-game.realdev.cloud";
-const API_ORIGIN = (() => {
-  if (typeof window !== 'undefined') {
-    const custom = window.__API_BASE__;
-    if (typeof custom === 'string' && custom.trim()) {
-      return custom.trim().replace(/\/$/, '');
-    }
-    const { protocol, hostname } = window.location;
-    if (hostname === 'localhost' || hostname === '127.0.0.1') {
-      const safeProtocol = protocol.startsWith('http') ? protocol : 'http:';
-      return `${safeProtocol}//${hostname}:3000`;
-    }
+const API_DEFAULT = "/api";
+const API_BASE = (() => {
+  if (typeof window === "undefined") {
+    return API_DEFAULT;
+  }
+  const custom = window.__API_BASE__;
+  if (typeof custom === "string" && custom.trim()) {
+    const normalized = custom.trim();
+    return normalized.endsWith("/")
+      ? normalized.slice(0, -1)
+      : normalized;
+  }
+  const { protocol, hostname, port } = window.location;
+  const safeProtocol = protocol.startsWith("http") ? protocol : "https:";
+  if (hostname === "localhost" || hostname === "127.0.0.1") {
+    const portMap = {
+      "8000": "6000",
+      "5173": "6000",
+      "4173": "6000",
+      "3000": "3000",
+      "3001": "3001",
+      "": "6000",
+    };
+    const targetPort = portMap[port] ?? "6000";
+    return `${safeProtocol}//${hostname}:${targetPort}/api`;
   }
   return API_DEFAULT;
 })();
-const API_URL = API_ORIGIN;
+const API_URL = API_BASE;
+const HTTP_ORIGIN = (() => {
+  if (API_BASE.startsWith("http://") || API_BASE.startsWith("https://")) {
+    try {
+      const url = new URL(API_BASE);
+      return url.origin;
+    } catch {
+      return API_BASE;
+    }
+  }
+  if (typeof window !== "undefined") {
+    return window.location.origin;
+  }
+  return "";
+})();
 const WS_URL = (() => {
-  if (API_ORIGIN.startsWith('https://')) {
-    return `wss://${API_ORIGIN.slice(8)}/ws/guerre`;
-  }
-  if (API_ORIGIN.startsWith('http://')) {
-    return `ws://${API_ORIGIN.slice(7)}/ws/guerre`;
-  }
-  return API_ORIGIN.replace(/^http/, 'ws') + '/ws/guerre';
+  const base = HTTP_ORIGIN || "https://localhost";
+  const url = new URL(base);
+  url.protocol = url.protocol === "https:" ? "wss:" : "ws:";
+  url.pathname = "/ws/guerre";
+  return url.toString();
 })();
 let socket = null;
 let userToken;
@@ -795,7 +820,7 @@ function showGameOver(winner) {
  * Préconditions : 
  *   - Les arguments `winner` et `loser` sont des chaînes de caractères valides (noms d’utilisateurs).
  *   - La constante `API_URL` et la variable `userToken` (JWT) sont définies.
- *   - L’API accepte les POST vers `${API_URL}/api/update-elo` avec en-tête `Authorization: Bearer <token>`.
+ *   - L’API accepte les POST vers `${API_URL}/update-elo` avec en-tête `Authorization: Bearer <token>`.
  * Postconditions : 
  *   - Si la requête réussit (`resp.ok`), le résultat JSON est loggué en console.
  *   - En cas d’erreur (réseau ou réponse non OK), un message d’erreur est loggué en console. :contentReference[oaicite:1]{index=1}
@@ -804,7 +829,7 @@ function showGameOver(winner) {
 async function updateEloRatings(winner, loser) {
   console.log(`Updating ELO: winner=${winner}, loser=${loser}`);
   try {
-    const resp = await fetch(`${API_URL}/api/update-elo`, {
+    const resp = await fetch(`${API_URL}/update-elo`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
