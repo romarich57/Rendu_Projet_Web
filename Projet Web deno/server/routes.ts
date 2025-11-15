@@ -82,13 +82,15 @@ router.post("/api/login", async (ctx: Context) => {
   ctx.response.body = await resp.json();
 });
 
-// GET /activation?token=...
-router.get("/activation", async (ctx: Context) => {
+async function activationHandler(ctx: Context) {
   const token = ctx.request.url.searchParams.get("token")!;
   const resp  = await activateAccount(token);
   await applyResponse(ctx, resp);
   ctx.response.body = await resp.text();
-});
+}
+
+router.get("/activation", activationHandler);
+router.get("/api/activation", activationHandler);
 
 // ─── 3) ELO & général leaderboard ─────────────────────────────────
 // POST /api/update-elo

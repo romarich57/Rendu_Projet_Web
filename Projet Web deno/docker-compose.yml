@@ -36,6 +36,7 @@ services:
       SERVER_URL: ${SERVER_URL:-http://localhost:8000}
       FRONTEND_URL: ${FRONTEND_URL:-http://localhost:8000}
       RESET_URL: ${RESET_URL:-http://localhost:8000/auth/reset/reset_password.html}
+      ACTIVATION_URL: ${ACTIVATION_URL:-http://localhost:8000/activation}
       WS_URL: ${WS_URL:-ws://localhost:6000}
       CORS_URLS: ${CORS_URLS:-http://localhost:8000}
       SMTP_HOST: ${SMTP_HOST:-smtp.example.com}

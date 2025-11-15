@@ -77,7 +77,7 @@ cp docker.env.example docker.env
 - les identifiants d’amorçage admin (`ADMIN_USER`, `ADMIN_PASS`) ;
 - les secrets et paramètres de sécurité (`JWT_SECRET`, `COOKIE_SECURE`, `FORCE_HTTPS`, `ENABLE_HSTS`, `HSTS_MAX_AGE`, `HSTS_INCLUDE_SUBDOMAINS`, `HSTS_PRELOAD`) ;
 - les identifiants Postgres (`POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`);
-- les URLs publiques pointant vers votre VPS (`SERVER_URL`, `FRONTEND_URL`, `WS_URL` en `wss://`, `CORS_URLS`).
+- les URLs publiques pointant vers votre VPS (`SERVER_URL`, `FRONTEND_URL`, `RESET_URL`, `ACTIVATION_URL`, `WS_URL` en `wss://`, `CORS_URLS`).
 
 ### 2. Construire et lancer la stack
 

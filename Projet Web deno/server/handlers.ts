@@ -27,6 +27,7 @@ const emailRegex =
 const JWT_SECRET = Deno.env.get("JWT_SECRET") ?? "dev-insecure-secret";
 const FRONTEND_BASE_URL = (Deno.env.get("FRONTEND_URL") ?? Deno.env.get("SERVER_URL") ?? "http://localhost:3000").replace(/\/$/, "");
 const RESET_BASE_URL = (Deno.env.get("RESET_URL") ?? `${FRONTEND_BASE_URL}/auth/reset/reset_password.html`).replace(/\/$/, "");
+const ACTIVATION_BASE_URL = (Deno.env.get("ACTIVATION_URL") ?? `${FRONTEND_BASE_URL}/activation`).replace(/\/$/, "");
 const FORCE_HTTPS = (Deno.env.get("FORCE_HTTPS") ?? "").toLowerCase() === "true";
 const COOKIE_SECURE = (
   Deno.env.get("COOKIE_SECURE") ??
@@ -97,7 +98,8 @@ export async function registerUser(body: any, ip: string): Promise<Response> {
       const token = jwt.sign({ userId, for: "activation" }, JWT_SECRET, {
         expiresIn: "24h",
       });
-      const link = `${FRONTEND_BASE_URL}/activation?token=${token}`;
+      const activationSeparator = ACTIVATION_BASE_URL.includes("?") ? "&" : "?";
+      const link = `${ACTIVATION_BASE_URL}${activationSeparator}token=${token}`;
       await envoyerEmailActivation(email, link);
       resetAttempts(ip, idKey);
       return json({
@@ -969,7 +971,8 @@ export async function updateUserProfile(
         JWT_SECRET,
         { expiresIn:"24h" },
       );
-      const link = `${FRONTEND_BASE_URL}/activation?token=${token}`;
+      const activationSeparator = ACTIVATION_BASE_URL.includes("?") ? "&" : "?";
+      const link = `${ACTIVATION_BASE_URL}${activationSeparator}token=${token}`;
       await envoyerEmailChangeEmail(email, link);
     }
     // Mise à jour
