@@ -1,0 +1,19 @@
+FROM denoland/deno:1.45.5
+
+WORKDIR /app
+
+# Copier les métadonnées Deno en priorité pour utiliser le cache Docker
+COPY deno.json import_map.json ./
+
+# Copier le code applicatif minimum
+COPY server ./server
+COPY frontend ./frontend
+COPY table.sql ./table.sql
+
+# Pré-charger les dépendances (npm + URL)
+RUN deno cache server/server.ts
+
+ENV PORT=6000
+EXPOSE 6000
+
+CMD ["run", "--allow-env", "--allow-net", "--allow-read", "--allow-write", "--allow-sys", "server/server.ts"]

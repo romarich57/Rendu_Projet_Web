@@ -7,7 +7,7 @@ import { Pool } from "https://deno.land/x/postgres@v0.17.0/mod.ts";
 
 const pool = new Pool({
   user:     Deno.env.get("DB_USER")     || "romarich",
-  host:     Deno.env.get("DB_HOST")     || "localhost",
+  hostname: Deno.env.get("DB_HOST")     || "localhost",
   database: Deno.env.get("DB_NAME")     || "space_invaders",
   password: Deno.env.get("DB_PASSWORD") || "Romaric1000",
   port:     parseInt(Deno.env.get("DB_PORT") || "5432", 10),
@@ -165,7 +165,7 @@ export async function getAdminUser(username: string) {
       `SELECT username, password_hash
          FROM admin_users
         WHERE username = $1`,
-      username
+      [username]
     );
     return result.rows[0] || null;
   } finally {

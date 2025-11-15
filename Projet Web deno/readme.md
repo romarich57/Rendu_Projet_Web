@@ -61,3 +61,45 @@ Guerre des Vaisseaux est un jeu multijoueur en temps réel qui s’appuie entiè
 Lorsqu’un second joueur se connecte, le serveur associe automatiquement les deux participants, initialise l’état de la partie (positions de vaisseaux, vies, projectiles…) et démarre une boucle de mise à jour à 30 images par seconde. À chaque itération, le serveur calcule les mouvements, gère les tirs et détecte les collisions, puis envoie l’état de jeu complet à chaque client. De leur côté, les joueurs émettent en continu des messages (« move », « shoot », « join ») pour faire bouger leur vaisseau ou tirer, qui sont traités immédiatement sur le serveur.
 
 Ce choix des WebSockets est justifié par la nécessité de faible latence (chaque milliseconde compte dans un duel spatial), de communication bidirectionnelle sans surcharge de headers HTTP, et de maintien d’une connexion unique qui simplifie la détection de déconnexion ou d’inactivité. Le résultat est un affrontement réactif, où chaque commande est immédiatement répercutée pour les deux joueurs, garantissant un gameplay compétitif et immersif.
+
+## Déploiement Docker / VPS
+
+L’application est maintenant découpée en trois conteneurs : frontend (port 8000), backend Deno (port 6000) et PostgreSQL (port 5000 exposé depuis le port 5432 interne). La composition se trouve dans `docker-compose.yml` et s’appuie sur les Dockerfiles `Dockerfile.frontend` et `Dockerfile.backend`.
+
+### 1. Préparer les variables d’environnement
+
+```
+cp docker.env.example docker.env
+```
+
+Éditez `docker.env` afin d’y mettre :
+- les identifiants SMTP pour l’envoi des e-mails ;
+- les identifiants d’amorçage admin (`ADMIN_USER`, `ADMIN_PASS`) ;
+- les secrets (`JWT_SECRET`, `COOKIE_SECURE`, etc.) ;
+- les identifiants Postgres (`POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`);
+- les URLs publiques pointant vers votre VPS (`SERVER_URL`, `FRONTEND_URL`, `WS_URL`, `CORS_URLS`).
+
+### 2. Construire et lancer la stack
+
+```
+docker compose --env-file docker.env up -d --build
+```
+
+- Frontend statique : http://localhost:8000
+- API / WebSocket backend : http://localhost:6000
+- PostgreSQL : port 5000 (redirigé vers 5432 dans le conteneur) pour un accès éventuel depuis votre poste via `psql`.
+
+La base stocke ses données dans le volume `db-data` (persiste entre les redémarrages).
+
+### 3. Opérations courantes
+
+- Voir les logs : `docker compose logs -f backend` (ou `frontend` / `db`).
+- Arrêter les services : `docker compose down`.
+- Rebuild après modifications : `docker compose --env-file docker.env up -d --build`.
+- Sauvegarder la base : `docker compose exec db pg_dump -U $POSTGRES_USER $POSTGRES_DB > backup.sql`.
+
+### 4. Mise en production sur VPS
+
+- Exposez uniquement le frontend (port 8000) et l’API (port 6000) via un pare-feu ou un reverse-proxy (Caddy, Nginx, Traefik). Postgres doit rester privé, le port 5000 ne devrait être ouvert que si nécessaire.
+- Pointez vos DNS (ex : `app.example.com`, `api.example.com`) vers votre VPS et mettez à jour `SERVER_URL`, `FRONTEND_URL`, `CORS_URLS` et `WS_URL` en conséquence dans `docker.env`.
+- Pour des certificats HTTPS, placez un reverse-proxy (Traefik, Caddy, Nginx) devant les deux services ou utilisez une stack type `docker compose -f docker-compose.yml -f docker-compose.prod.yml` intégrant le proxy.

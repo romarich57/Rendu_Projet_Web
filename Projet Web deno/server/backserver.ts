@@ -17,7 +17,7 @@ export async function handler(request: Request): Promise<Response> {
 
   // 1. Préflight CORS
   if (request.method === "OPTIONS") {
-    return withCORS(new Response(null, { status: 204 }));
+    return withCORS(new Response(null, { status: 204 }), request.headers.get("Origin"));
   }
 
   // 2. WebSocket /ws/guerre
@@ -34,7 +34,7 @@ export async function handler(request: Request): Promise<Response> {
   ) {
     const body = await parseJsonBody(request);
     const resp = await handleApi(request, body, ip);
-    return withCORS(resp);
+    return withCORS(resp, request.headers.get("Origin"));
   }
 
   // 4. Toutes les autres routes → 404
@@ -42,5 +42,6 @@ export async function handler(request: Request): Promise<Response> {
     new Response("Not Found", {
       status: 404,
     }),
+    request.headers.get("Origin"),
   );
 }

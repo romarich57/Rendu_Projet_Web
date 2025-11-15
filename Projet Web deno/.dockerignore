@@ -1,0 +1,12 @@
+.git
+.gitignore
+.pids
+*.log
+front_logs.txt
+server_logs.txt
+node_modules
+frontend/node_modules
+server/node_modules
+**/.DS_Store
+certs/*.key
+certs/*.crt

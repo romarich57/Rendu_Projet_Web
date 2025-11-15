@@ -4,23 +4,104 @@ import { Context, Middleware } from "https://deno.land/x/oak@v12.5.0/mod.ts";
 import jwt from "npm:jsonwebtoken";
 import pool from "./db.ts";
 
-// CORS
-const ORIGIN = Deno.env.get("CORS_URL");
-const CORS_HEADERS: Record<string,string> = {
-  "Access-Control-Allow-Origin":      ORIGIN,
-  "Access-Control-Allow-Credentials": "true",
-  "Access-Control-Allow-Headers":     "Content-Type, Authorization",
-  "Access-Control-Allow-Methods":     "GET, POST, PUT, DELETE, OPTIONS",
-};
-export const corsMiddleware: Middleware = async (ctx, next) => {
-  for (const [key, value] of Object.entries(CORS_HEADERS)) {
-    ctx.response.headers.set(key, value);
+const JWT_SECRET = Deno.env.get("JWT_SECRET") ?? "dev-insecure-secret";
+const ALLOW_HEADERS = "Content-Type, Authorization";
+const ALLOW_METHODS = "GET, POST, PUT, DELETE, OPTIONS";
+
+function normalizeOrigin(origin: string): string {
+  try {
+    const url = new URL(origin);
+    return `${url.protocol}//${url.host}`;
+  } catch {
+    return origin.replace(/\/$/, "");
   }
+}
+
+const envOrigins = (Deno.env.get("CORS_URLS") ?? Deno.env.get("CORS_URL") ?? "")
+  .split(",")
+  .map((value) => value.trim())
+  .filter(Boolean)
+  .map(normalizeOrigin);
+
+const DEFAULT_ALLOWED_ORIGINS = [
+  "https://rom-space-game.realdev.cloud",
+  "https://api.rom-space-game.realdev.cloud",
+  "http://localhost:3000",
+  "http://127.0.0.1:3000",
+  "http://localhost:5173",
+  "http://127.0.0.1:5173",
+  "http://localhost:4173",
+  "http://127.0.0.1:4173",
+  "http://localhost:8080",
+  "http://127.0.0.1:8080",
+].map(normalizeOrigin);
+
+const LOCAL_HOSTNAMES = new Set(["localhost", "127.0.0.1"]);
+const ALLOWED_ORIGINS = Array.from(new Set([...envOrigins, ...DEFAULT_ALLOWED_ORIGINS]));
+const FALLBACK_ORIGIN = ALLOWED_ORIGINS[0] ?? "http://localhost:3000";
+
+function resolveAllowedOrigin(requestOrigin: string | null): string | null {
+  if (!requestOrigin) {
+    return FALLBACK_ORIGIN;
+  }
+  const normalized = normalizeOrigin(requestOrigin);
+  if (ALLOWED_ORIGINS.includes(normalized)) {
+    return normalized;
+  }
+  try {
+    const url = new URL(requestOrigin);
+    if (LOCAL_HOSTNAMES.has(url.hostname)) {
+      return `${url.protocol}//${url.host}`;
+    }
+  } catch {
+    // ignore invalid origin values
+  }
+  return null;
+}
+
+function ensureVaryOrigin(headers: Headers) {
+  const current = headers.get("Vary");
+  if (!current) {
+    headers.set("Vary", "Origin");
+    return;
+  }
+  const parts = current.split(/,\s*/);
+  if (!parts.includes("Origin")) {
+    headers.set("Vary", `${current}, Origin`);
+  }
+}
+
+export function applyCorsHeaders(headers: Headers, requestOrigin: string | null) {
+  const allowedOrigin = resolveAllowedOrigin(requestOrigin);
+  if (allowedOrigin) {
+    headers.set("Access-Control-Allow-Origin", allowedOrigin);
+  }
+  headers.set("Access-Control-Allow-Credentials", "true");
+  headers.set("Access-Control-Allow-Headers", ALLOW_HEADERS);
+  headers.set("Access-Control-Allow-Methods", ALLOW_METHODS);
+  ensureVaryOrigin(headers);
+}
+
+export function withCORS(response: Response, requestOrigin?: string | null): Response {
+  applyCorsHeaders(response.headers, requestOrigin ?? null);
+  return response;
+}
+
+export const corsMiddleware: Middleware = async (ctx, next) => {
+  const origin = ctx.request.headers.get("Origin");
   if (ctx.request.method === "OPTIONS") {
+    const allowed = resolveAllowedOrigin(origin);
+    if (!allowed) {
+      ctx.response.status = 403;
+      ctx.response.body = { error: "Origin not allowed" };
+      return;
+    }
+    applyCorsHeaders(ctx.response.headers, origin);
     ctx.response.status = 204;
     return;
   }
   await next();
+  applyCorsHeaders(ctx.response.headers, origin);
 };
 
 // Content-Security-Policy
@@ -42,7 +123,7 @@ export async function parseJsonBody(request: Request): Promise<any> {
     try {
       return await request.json();
     } catch {
-      // corps JSON invalide → on retournera un objet vide
+      // Corps JSON invalide → on retournera un objet vide
     }
   }
   return {};
@@ -80,10 +161,9 @@ export function resetAttempts(ip: string, identifier: string) {
 }
 
 // 🔑 Vérification JWT + extraction payload
-const JWT_SECRET = Deno.env.get("JWT_SECRET")!;
 export function verifyJWT(request: Request): any {
   const header = request.headers.get("Authorization") ?? "";
-  const token  = header.replace(/^Bearer\s+/, "");
+  const token = header.replace(/^Bearer\s+/, "");
   if (!token) {
     const err = new Error("Missing Authorization");
     (err as any).status = 401;
@@ -114,7 +194,7 @@ export const adminRateLimiter: Middleware = async (ctx, next) => {
     attempts.set(ip, entry);
     if (entry.count > 3) {
       ctx.response.status = 429;
-      ctx.response.body   = { error: "Trop de tentatives, réessayez dans 5 minutes." };
+      ctx.response.body = { error: "Trop de tentatives, réessayez dans 5 minutes." };
       return;
     }
   }
@@ -156,8 +236,49 @@ export const authMiddleware: Middleware = async (ctx: Context, next) => {
       }
     }
     await next();
-  } catch (err) {
-    ctx.response.status = (err as any).status || 401;
-    ctx.response.body = { error: err.message };
+  } catch (err: unknown) {
+    const status = typeof err === "object" && err && "status" in err
+      ? Number((err as Record<string, unknown>).status) || 401
+      : 401;
+    const message = err instanceof Error ? err.message : "Unauthorized";
+    ctx.response.status = status;
+    ctx.response.body = { error: message };
   }
+};
+
+const ADMIN_SESSION_COOKIE = "adminSessionId";
+const ADMIN_SESSION_TTL_MS = 2 * 60 * 60_000;
+const adminSessions = new Map<string, { username: string; expiresAt: number }>();
+
+export async function establishAdminSession(ctx: Context, username: string) {
+  const token = crypto.randomUUID();
+  adminSessions.set(token, { username, expiresAt: Date.now() + ADMIN_SESSION_TTL_MS });
+  const secure = ctx.request.secure ?? ctx.request.url.protocol === "https:";
+  const expires = new Date(Date.now() + ADMIN_SESSION_TTL_MS);
+  await ctx.cookies.set(ADMIN_SESSION_COOKIE, token, {
+    httpOnly: true,
+    sameSite: "lax",
+    secure,
+    path: "/",
+    expires,
+  });
+}
+
+export const authAdmin: Middleware = async (ctx, next) => {
+  const token = await ctx.cookies.get(ADMIN_SESSION_COOKIE);
+  if (!token) {
+    ctx.response.status = 401;
+    ctx.response.body = { error: "Admin session missing" };
+    return;
+  }
+  const session = adminSessions.get(token);
+  if (!session || session.expiresAt <= Date.now()) {
+    adminSessions.delete(token);
+    ctx.response.status = 401;
+    ctx.response.body = { error: "Admin session expired" };
+    return;
+  }
+  session.expiresAt = Date.now() + ADMIN_SESSION_TTL_MS;
+  ctx.state.adminUser = session.username;
+  await next();
 };

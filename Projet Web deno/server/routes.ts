@@ -33,20 +33,14 @@ import {
 
 
 // Middleware
-import { authMiddleware } from "./middlewares.ts";
-import { authAdmin } from "./middlewares.ts";
+import { applyCorsHeaders, authAdmin, authMiddleware } from "./middlewares.ts";
 
 const router = new Router();
 
 // ─── 1) RÉPONSE AUX PRÉ-VOLS CORS  ───────────────────────
 // routes.ts
 router.options("/(.*)", (ctx) => {
-console.log("Request origin : " +  ctx.request.headers.get("origin"))
-console.log("Authorized origin : " +  Deno.env.get("CORS_URL"))
-  ctx.response.headers.set("Access-Control-Allow-Origin", Deno.env.get("CORS_URL") ?? "*");
-  ctx.response.headers.set("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
-  ctx.response.headers.set("Access-Control-Allow-Headers","Content-Type, Authorization");
-  ctx.response.headers.set("Access-Control-Allow-Credentials","true");
+  applyCorsHeaders(ctx.response.headers, ctx.request.headers.get("Origin"));
   ctx.response.status = 204;
 });
 

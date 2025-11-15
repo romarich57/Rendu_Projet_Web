@@ -589,13 +589,13 @@ export function handleGuerreWebSocket(ws: WebSocket) {
 
         player.name = msg.name || "Joueur " + connectionId.substring(0, 4);
         console.log(`[WebSocket] Joueur rejoint avec le nom: ${player.name}`);
-        handleJoin(connectionId, player.name);
+        handleJoin(connectionId, player.name ?? connectionId);
         break;
       case 'joinRelaxed':
         // Same fix for relaxed join
         player.name = msg.name || "Joueur " + connectionId.substring(0, 4);
         console.log(`[WebSocket] Joueur (relaxed) rejoint avec le nom: ${player.name}`);
-        handleJoinRelaxed(connectionId, player.name);
+        handleJoinRelaxed(connectionId, player.name ?? connectionId);
         break;
       case 'move':
         handleMove(connectionId, msg.position);
@@ -638,5 +638,4 @@ export function handleGuerreWebSocket(ws: WebSocket) {
   // Mettre en place un heartbeat pour détecter les connexions zombies
   startHeartbeatTimer();
 }
-
 

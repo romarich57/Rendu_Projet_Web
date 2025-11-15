@@ -1,0 +1,8 @@
+.DS_Store
+node_modules
+server/node_modules
+frontend/node_modules
+front_logs.txt
+server_logs.txt
+.pids
+docker.env

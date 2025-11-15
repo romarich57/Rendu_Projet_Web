@@ -8,14 +8,17 @@ import "https://deno.land/x/dotenv@v3.2.0/load.ts";
 // -------------------------------------------------------------------
 // 1) Imports
 // -------------------------------------------------------------------
-import { Application, Context } from "https://deno.land/x/oak@v12.5.0/mod.ts";
-import { oakCors }              from "https://deno.land/x/cors@v1.2.0/mod.ts";
+import { Application, Context, Middleware } from "https://deno.land/x/oak@v12.5.0/mod.ts";
 import { send }                 from "https://deno.land/x/oak@v12.5.0/send.ts";
 import router                   from "./routes.ts";
 import pool, { initDatabase }   from "./db.ts";
 import { handleGuerreWebSocket } from "./websocket.ts";
 import { hash }                  from "https://deno.land/x/bcrypt@v0.4.0/mod.ts";
-import { adminRateLimiter }      from "./middlewares.ts";
+import {
+  adminRateLimiter,
+  applyCorsHeaders,
+  corsMiddleware,
+} from "./middlewares.ts";
 import { Session }               from "https://deno.land/x/oak_sessions@v4.0.0/mod.ts";
 // -------------------------------------------------------------------
 // 2) Initialisation BDD + seed admin
@@ -50,17 +53,10 @@ if (ADMIN_USER && ADMIN_PASS) {
 const app = new Application();
 const PORT = parseInt(Deno.env.get("PORT") ?? "3000", 10);
 
-const CORS_URL = Deno.env.get("CORS_URL") ?? "https://rom-space-game.realdev.cloud";
-console.log("Cors URL : " + CORS_URL);
 // -------------------------------------------------------------------
 // 4) CORS (premier middleware)
 // -------------------------------------------------------------------
-app.use(oakCors({
-  origin:        Deno.env.get("CORS_URL"),
-  credentials:   true,
-  allowedHeaders:["Content-Type","Authorization"],
-  methods:       ["GET","POST","PUT","DELETE","OPTIONS"]
-}));
+app.use(corsMiddleware);
 
 // -------------------------------------------------------------------
 // 5) Gestion globale des erreurs
@@ -68,11 +64,15 @@ app.use(oakCors({
 app.use(async (ctx: Context, next) => {
   try {
     await next();
-  } catch (err) {
+  } catch (err: unknown) {
     console.error("Unhandled error:", err);
-    ctx.response.status = err.status || 500;
-    ctx.response.body   = { error: err.message };
-    ctx.response.headers.set("Access-Control-Allow-Origin", Deno.env.get("CORS_URL"));
+    const status = typeof err === "object" && err && "status" in err
+      ? Number((err as Record<string, unknown>).status) || 500
+      : 500;
+    const message = err instanceof Error ? err.message : "Erreur serveur";
+    ctx.response.status = status;
+    ctx.response.body = { error: message };
+    applyCorsHeaders(ctx.response.headers, ctx.request.headers.get("Origin"));
   }
 });
 
@@ -121,7 +121,7 @@ app.use(async (ctx: Context, next) => {
 // -------------------------------------------------------------------
 // 8) Sessions (oak_sessions)
 // -------------------------------------------------------------------
-app.use(Session.initMiddleware());
+app.use(Session.initMiddleware() as unknown as Middleware);
 
 // -------------------------------------------------------------------
 // 9) WebSocket upgrade (/ws/guerre)

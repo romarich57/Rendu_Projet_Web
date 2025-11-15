@@ -1,5 +1,29 @@
 // register.js
-const API_URL = "https://api.rom-space-game.realdev.cloud"
+const API_DEFAULT = "https://api.rom-space-game.realdev.cloud";
+const API_URL = (() => {
+  if (typeof window === 'undefined') {
+    return API_DEFAULT;
+  }
+  const custom = window.__API_BASE__;
+  if (typeof custom === 'string' && custom.trim()) {
+    return custom.trim().replace(/\/$/, '');
+  }
+  const { protocol, hostname, port } = window.location;
+  const safeProtocol = protocol.startsWith('http') ? protocol : 'http:';
+  if (hostname === 'localhost' || hostname === '127.0.0.1') {
+    const portMap = {
+      '8000': '6000',
+      '5173': '6000',
+      '4173': '6000',
+      '3000': '3000',
+      '3001': '3001',
+      '': '6000',
+    };
+    const targetPort = portMap[port] ?? '6000';
+    return `${safeProtocol}//${hostname}:${targetPort}`;
+  }
+  return API_DEFAULT;
+})();
 const errorDiv = document.getElementById('error-message');
 const registerForm = document.getElementById('register-form');
 const showLogin = document.getElementById('show-login');

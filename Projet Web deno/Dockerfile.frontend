@@ -1,0 +1,12 @@
+FROM denoland/deno:1.45.5
+
+WORKDIR /app
+
+COPY frontend ./frontend
+
+# Télécharge la version du file_server utilisée par les scripts locaux
+RUN deno cache https://deno.land/std@0.223.0/http/file_server.ts
+
+EXPOSE 8000
+
+CMD ["run", "--allow-net", "--allow-read", "https://deno.land/std@0.223.0/http/file_server.ts", "frontend", "--port", "8000", "--host", "0.0.0.0"]

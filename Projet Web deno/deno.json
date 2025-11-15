@@ -2,6 +2,6 @@
   "tasks": {
     "dev": "deno run --compat --unstable --allow-net --allow-read --allow-env server/server.ts"
   },
-  "nodeModulesDir": "auto",
+  "nodeModulesDir": true,
   "importMap": "import_map.json"
 }

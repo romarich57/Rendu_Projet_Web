@@ -1,7 +1,31 @@
 // =====================
 // guerre_vaisseaux.js
 // =====================
-const API_URL = "https://api.rom-space-game.realdev.cloud"
+const API_DEFAULT = "https://api.rom-space-game.realdev.cloud";
+const API_ORIGIN = (() => {
+  if (typeof window !== 'undefined') {
+    const custom = window.__API_BASE__;
+    if (typeof custom === 'string' && custom.trim()) {
+      return custom.trim().replace(/\/$/, '');
+    }
+    const { protocol, hostname } = window.location;
+    if (hostname === 'localhost' || hostname === '127.0.0.1') {
+      const safeProtocol = protocol.startsWith('http') ? protocol : 'http:';
+      return `${safeProtocol}//${hostname}:3000`;
+    }
+  }
+  return API_DEFAULT;
+})();
+const API_URL = API_ORIGIN;
+const WS_URL = (() => {
+  if (API_ORIGIN.startsWith('https://')) {
+    return `wss://${API_ORIGIN.slice(8)}/ws/guerre`;
+  }
+  if (API_ORIGIN.startsWith('http://')) {
+    return `ws://${API_ORIGIN.slice(7)}/ws/guerre`;
+  }
+  return API_ORIGIN.replace(/^http/, 'ws') + '/ws/guerre';
+})();
 let socket = null;
 let userToken;
 let username;
@@ -199,7 +223,7 @@ function connectWebSocket() {
   isConnecting = true;
 
   try {
-    socket = new WebSocket('wss://api.rom-space-game.realdev.cloud/ws/guerre');
+    socket = new WebSocket(WS_URL);
 
     console.log("Connexion WebSocket en cours...");
 
@@ -802,4 +826,3 @@ async function updateEloRatings(winner, loser) {
     console.error('Erreur lors de la mise à jour de l\'ELO:', error);
   }
 }
-

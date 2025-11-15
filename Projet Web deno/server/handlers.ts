@@ -1,7 +1,7 @@
 // handlers.ts
 import { hash, compare } from "https://deno.land/x/bcrypt@v0.2.2/mod.ts";
 import jwt from "npm:jsonwebtoken";
-import { Context, json } from "https://deno.land/x/oak@v12.5.0/mod.ts";
+import { Context } from "https://deno.land/x/oak@v12.5.0/mod.ts";
 import pool from "./db.ts";
 import {
   envoyerEmailActivation,
@@ -10,6 +10,7 @@ import {
 } from "./mail.ts";
 import {
   checkBruteForce,
+  establishAdminSession,
   registerFailedAttempt,
   resetAttempts,
 } from "./middlewares.ts";
@@ -23,8 +24,10 @@ import {
 const emailRegex =
   /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}$/;
 
-const JWT_SECRET = Deno.env.get("JWT_SECRET")!;
-const APP_URL = Deno.env.get("SERVER_URL") ?? "http://localhost:8080";
+const JWT_SECRET = Deno.env.get("JWT_SECRET") ?? "dev-insecure-secret";
+const FRONTEND_BASE_URL = (Deno.env.get("FRONTEND_URL") ?? Deno.env.get("SERVER_URL") ?? "http://localhost:3000").replace(/\/$/, "");
+const RESET_BASE_URL = (Deno.env.get("RESET_URL") ?? `${FRONTEND_BASE_URL}/auth/reset/reset_password.html`).replace(/\/$/, "");
+const COOKIE_SECURE = (Deno.env.get("COOKIE_SECURE") ?? "").toLowerCase() === "true";
 
 /**
  * Role: Enregistre un nouvel utilisateur dans la base de données avec validation des données
@@ -90,7 +93,7 @@ export async function registerUser(body: any, ip: string): Promise<Response> {
       const token = jwt.sign({ userId, for: "activation" }, JWT_SECRET, {
         expiresIn: "24h",
       });
-      const link = `${APP_URL}/activation?token=${token}`;
+      const link = `${FRONTEND_BASE_URL}/activation?token=${token}`;
       await envoyerEmailActivation(email, link);
       resetAttempts(ip, idKey);
       return json({
@@ -141,8 +144,8 @@ export async function forgotPassword(body: any): Promise<Response> {
       const token = jwt.sign({ userId, for: "resetPwd" }, JWT_SECRET, {
         expiresIn: "1h",
       });
-      const link = `https://rom-space-game.realdev.cloud/auth/reset/reset_password.html?token=${token}`;
-
+      const separator = RESET_BASE_URL.includes("?") ? "&" : "?";
+      const link = `${RESET_BASE_URL}${separator}token=${token}`;
       await envoyerEmailResetPassword(email, link);
     }
     return json({
@@ -271,12 +274,20 @@ export async function loginUser(body: any, ip: string): Promise<Response> {
       JWT_SECRET,
       { expiresIn: "2h" }
     );
+    const cookieParts = [
+      `sessionId=${sessionId}`,
+      "HttpOnly",
+      "Path=/",
+      "SameSite=Lax",
+      "Max-Age=7200",
+    ];
+    if (COOKIE_SECURE) {
+      cookieParts.push("Secure");
+    }
     return new Response(JSON.stringify({ success: true, token, userId: userRecord.id }), {
-    status: 200,
+      status: 200,
       headers: {
-        // Allow cross-site cookie 
-        // Send cookie without Secure flag for HTTP 
-        "Set-Cookie": `sessionId=${sessionId}; HttpOnly; Path=/; SameSite=secure`,
+        "Set-Cookie": cookieParts.join("; "),
         "Content-Type": "application/json",
       },
     });
@@ -954,7 +965,7 @@ export async function updateUserProfile(
         JWT_SECRET,
         { expiresIn:"24h" },
       );
-      const link = `${APP_URL}/activation?token=${token}`;
+      const link = `${FRONTEND_BASE_URL}/activation?token=${token}`;
       await envoyerEmailChangeEmail(email, link);
     }
     // Mise à jour
@@ -1147,6 +1158,7 @@ export async function loginAdmin(ctx: Context) {
   }
   // succès
   resetAttempts(ip, username);
+  await establishAdminSession(ctx, username);
   ctx.response.status = 200;
   ctx.response.body   = { message: "Connecté en tant qu'admin" };
 }
@@ -1193,7 +1205,13 @@ export async function getAllUsersHandler(ctx: Context) {
  */
 /** PUT /api/admin/users/:id/activate */
 export async function activateUserHandler(ctx: Context) {
-  const id = Number(ctx.params.id);
+  const params = (ctx as any).params as Record<string, string> | undefined;
+  const id = Number(params?.id);
+  if (!Number.isFinite(id)) {
+    ctx.response.status = 400;
+    ctx.response.body = { error: "Identifiant invalide" };
+    return;
+  }
   await activateUserById(id);
   ctx.response.status = 204;
 }
@@ -1210,7 +1228,13 @@ export async function activateUserHandler(ctx: Context) {
  */
 /** DELETE /api/admin/users/:id */
 export async function deleteUserHandler(ctx: Context) {
-  const id = Number(ctx.params.id);
+  const params = (ctx as any).params as Record<string, string> | undefined;
+  const id = Number(params?.id);
+  if (!Number.isFinite(id)) {
+    ctx.response.status = 400;
+    ctx.response.body = { error: "Identifiant invalide" };
+    return;
+  }
   await deleteUserById(id);
   ctx.response.status = 204;
 }
@@ -1227,7 +1251,13 @@ export async function deleteUserHandler(ctx: Context) {
  */
 /** GET /api/admin/users/:id/scores */
 export async function getUserScoresHandler(ctx: Context) {
-  const id = Number(ctx.params.id);
+  const params = (ctx as any).params as Record<string, string> | undefined;
+  const id = Number(params?.id);
+  if (!Number.isFinite(id)) {
+    ctx.response.status = 400;
+    ctx.response.body = { error: "Identifiant invalide" };
+    return;
+  }
   const scores = await getUserScoresFromDb(id);
   ctx.response.body = scores;
 }
