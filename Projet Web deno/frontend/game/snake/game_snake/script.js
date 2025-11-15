@@ -775,6 +775,14 @@ document.getElementById("quitLevelBtn").addEventListener("click", () => {
   window.location.href = "../home_page/home.html";
 });
 
+document.getElementById("btn-deconnexion").addEventListener("click", () => {
+  window.location.href = "../home_page/home.html";
+});
+
+document.getElementById("btn-pause").addEventListener("click", () => {
+  togglePause();
+});
+
 
 
 (async () => {

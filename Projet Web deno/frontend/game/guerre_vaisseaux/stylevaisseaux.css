@@ -220,6 +220,11 @@ h1, #player1-name, #player2-name {
   color: #fff;
 }
 
+.redirect-countdown {
+  margin-top: 1rem;
+  color: #fff;
+}
+
 .overlay-content h1 {
   font-family: var(--font-primary);
   margin-bottom: 20px;
