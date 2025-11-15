@@ -101,7 +101,23 @@ app.use(async (ctx: Context, next) => {
 app.use(hstsMiddleware);
 
 // -------------------------------------------------------------------
-// 7) Content-Security-Policy
+// 7) Redirection racine vers login
+// -------------------------------------------------------------------
+app.use(async (ctx: Context, next) => {
+  if (ctx.request.method === "GET") {
+    const path = ctx.request.url.pathname;
+    if (path === "/" || path === "/index.html") {
+      await send(ctx, "/auth/login/login.html", {
+        root: `${Deno.cwd()}/frontend`,
+      });
+      return;
+    }
+  }
+  await next();
+});
+
+// -------------------------------------------------------------------
+// 8) Content-Security-Policy
 // -------------------------------------------------------------------
 app.use((ctx: Context, next) => {
   ctx.response.headers.set(
@@ -118,7 +134,7 @@ app.use((ctx: Context, next) => {
 });
 
 // -------------------------------------------------------------------
-// 8) Service des fichiers statiques
+// 9) Service des fichiers statiques
 // -------------------------------------------------------------------
 app.use(async (ctx: Context, next) => {
   const path = ctx.request.url.pathname;
@@ -143,12 +159,12 @@ app.use(async (ctx: Context, next) => {
 });
 
 // -------------------------------------------------------------------
-// 9) Sessions (oak_sessions)
+// 10) Sessions (oak_sessions)
 // -------------------------------------------------------------------
 app.use(Session.initMiddleware() as unknown as Middleware);
 
 // -------------------------------------------------------------------
-// 10) WebSocket upgrade (/ws/guerre)
+// 11) WebSocket upgrade (/ws/guerre)
 // -------------------------------------------------------------------
 app.use(async (ctx: Context, next) => {
   console.log("Request received : " + ctx.request.url.pathname);
@@ -170,18 +186,18 @@ app.use(async (ctx: Context, next) => {
 });
 
 // -------------------------------------------------------------------
-// 11) Rate-limiter admin/login
+// 12) Rate-limiter admin/login
 // -------------------------------------------------------------------
 app.use(adminRateLimiter);
 
 // -------------------------------------------------------------------
-// 12) Routes API
+// 13) Routes API
 // -------------------------------------------------------------------
 app.use(router.routes());
 app.use(router.allowedMethods());
 
 // -------------------------------------------------------------------
-// 13) Démarrage du serveur
+// 14) Démarrage du serveur
 // -------------------------------------------------------------------
 const protocolHint = FORCE_HTTPS ? "https" : "http";
 console.log(`🚀 Serveur démarré sur ${protocolHint}://localhost:${PORT}`);
