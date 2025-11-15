@@ -83,8 +83,13 @@ router.post("/api/login", async (ctx: Context) => {
 });
 
 async function activationHandler(ctx: Context) {
-  const token = ctx.request.url.searchParams.get("token")!;
-  const resp  = await activateAccount(token);
+  const rawToken = ctx.request.url.searchParams.get("token");
+  if (!rawToken || rawToken.trim() === "") {
+    ctx.response.status = 400;
+    ctx.response.body = "Token manquant ou invalide.";
+    return;
+  }
+  const resp  = await activateAccount(rawToken.trim());
   await applyResponse(ctx, resp);
   ctx.response.body = await resp.text();
 }
