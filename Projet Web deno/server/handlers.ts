@@ -99,7 +99,7 @@ export async function registerUser(body: any, ip: string): Promise<Response> {
         expiresIn: "24h",
       });
       const activationSeparator = ACTIVATION_BASE_URL.includes("?") ? "&" : "?";
-      const link = `${ACTIVATION_BASE_URL}${activationSeparator}token=${token}`;
+      const link = `${ACTIVATION_BASE_URL}${activationSeparator}token=${encodeURIComponent(token)}`;
       await envoyerEmailActivation(email, link);
       resetAttempts(ip, idKey);
       return json({
@@ -151,7 +151,7 @@ export async function forgotPassword(body: any): Promise<Response> {
         expiresIn: "1h",
       });
       const separator = RESET_BASE_URL.includes("?") ? "&" : "?";
-      const link = `${RESET_BASE_URL}${separator}token=${token}`;
+      const link = `${RESET_BASE_URL}${separator}token=${encodeURIComponent(token)}`;
       await envoyerEmailResetPassword(email, link);
     }
     return json({
@@ -972,7 +972,7 @@ export async function updateUserProfile(
         { expiresIn:"24h" },
       );
       const activationSeparator = ACTIVATION_BASE_URL.includes("?") ? "&" : "?";
-      const link = `${ACTIVATION_BASE_URL}${activationSeparator}token=${token}`;
+      const link = `${ACTIVATION_BASE_URL}${activationSeparator}token=${encodeURIComponent(token)}`;
       await envoyerEmailChangeEmail(email, link);
     }
     // Mise à jour
