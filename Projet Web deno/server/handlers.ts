@@ -318,14 +318,19 @@ export async function loginUser(body: any, ip: string): Promise<Response> {
 export async function activateAccount(token: string): Promise<Response> {
   let decoded: any;
   try {
+    console.log("[activation] Vérification du token…");
     decoded = jwt.verify(token, JWT_SECRET);
-  } catch {
+    console.log("[activation] Token décodé:", decoded);
+  } catch (err) {
+    console.warn("[activation] jwt.verify a échoué:", err);
     return new Response("Lien d'activation invalide ou expiré.", { status: 400 });
   }
   if (decoded.for !== "activation") {
+    console.warn("[activation] Payload inattendu:", decoded);
     return new Response("Token invalide.", { status: 400 });
   }
   try {
+    console.log("[activation] Activation utilisateur id:", decoded.userId);
     const client = await pool.connect();
     try {
       await client.queryObject(
@@ -339,7 +344,8 @@ export async function activateAccount(token: string): Promise<Response> {
       "Compte activé ! Vous pouvez vous connecter.",
       { status: 200 },
     );
-  } catch {
+  } catch (err) {
+    console.error("[activation] Erreur SQL:", err);
     return new Response("Erreur serveur.", { status: 500 });
   }
 }
