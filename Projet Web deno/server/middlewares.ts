@@ -113,7 +113,7 @@ export const corsMiddleware: Middleware = async (ctx, next) => {
 // Content-Security-Policy
 const CSP_HEADER =
   "default-src 'self'; " +
-  "style-src 'self' https://www.gstatic.com; " +
+  "style-src 'self' 'unsafe-inline' https://www.gstatic.com; " +
   "script-src 'self';";
 export const cspMiddleware: Middleware = async (ctx, next) => {
   ctx.response.headers.set("Content-Security-Policy", CSP_HEADER);

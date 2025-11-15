@@ -1,0 +1,89 @@
+:root {
+  --bg-color: #050914;
+  --card-bg: rgba(8, 18, 46, 0.9);
+  --accent: #4cafef;
+  --text: #f5f9ff;
+  --error: #f06292;
+  --success: #9ccc65;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: radial-gradient(circle at top, #0b1c3c, #020409);
+  font-family: 'Roboto', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  color: var(--text);
+}
+
+.activation-card {
+  width: min(90vw, 420px);
+  padding: 2.5rem 2rem;
+  background: var(--card-bg);
+  border-radius: 18px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.45);
+  text-align: center;
+  backdrop-filter: blur(6px);
+}
+
+.activation-card h1 {
+  margin-bottom: 1rem;
+  font-size: 1.6rem;
+  letter-spacing: 0.05em;
+}
+
+.message {
+  min-height: 3.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.08);
+  font-size: 0.95rem;
+}
+
+.message.success {
+  color: var(--success);
+}
+
+.message.error {
+  color: var(--error);
+}
+
+.loader {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  margin: 1.5rem auto;
+  border: 4px solid rgba(255, 255, 255, 0.2);
+  border-top-color: var(--accent);
+  animation: spin 1s linear infinite;
+}
+
+.loader.hidden {
+  display: none;
+}
+
+.login-link {
+  display: inline-block;
+  margin-top: 1rem;
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.login-link:hover {
+  text-decoration: underline;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}

@@ -125,7 +125,7 @@ app.use((ctx: Context, next) => {
     [
       "default-src 'self'",
       "script-src  'self'",
-      "style-src   'self'",
+      "style-src   'self' 'unsafe-inline'",
       "img-src     'self' data:",
       "connect-src 'self' " + Deno.env.get("WS_URL"),
     ].join("; ")
@@ -146,10 +146,14 @@ app.use(async (ctx: Context, next) => {
       path.startsWith("/shared/") ||
       path.startsWith("/assets/")  ||
       path.startsWith("/admin/")   ||
+      path.startsWith("/activation") ||
       path === "/favicon.ico"
     )
   ) {
-    await send(ctx, path, {
+    const normalizedPath = path === "/activation"
+      ? "/activation/index.html"
+      : path;
+    await send(ctx, normalizedPath, {
       root:  `${Deno.cwd()}/frontend`,
       index: "index.html",
     });
