@@ -1,9 +1,9 @@
 // websocket.ts
 import jwt from "npm:jsonwebtoken";
 import pool from "./db.ts";
+import { JWT_SECRET } from "./config.ts";
 
 // Constants
-const JWT_SECRET = Deno.env.get("JWT_SECRET")!;
 const windowWidth = 1500;
 const SHIP_HEIGHT = 50;
 const BULLET_HEIGHT = 50;
@@ -638,4 +638,3 @@ export function handleGuerreWebSocket(ws: WebSocket) {
   // Mettre en place un heartbeat pour détecter les connexions zombies
   startHeartbeatTimer();
 }
-

@@ -3,8 +3,8 @@
 import { Context, Middleware } from "https://deno.land/x/oak@v12.5.0/mod.ts";
 import jwt from "npm:jsonwebtoken";
 import pool from "./db.ts";
+import { JWT_SECRET } from "./config.ts";
 
-const JWT_SECRET = Deno.env.get("JWT_SECRET") ?? "dev-insecure-secret";
 const ALLOW_HEADERS = "Content-Type, Authorization";
 const ALLOW_METHODS = "GET, POST, PUT, DELETE, OPTIONS";
 const HTTPS_PROTO_HEADER_KEYS = [

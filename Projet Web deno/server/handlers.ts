@@ -19,12 +19,12 @@ import {
   deleteUserById,
   getUserScores as getUserScoresFromDb
 } from './db.ts';
+import { JWT_SECRET } from "./config.ts";
 
 // Regex email RFC5322
 const emailRegex =
   /^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}$/;
 
-const JWT_SECRET = Deno.env.get("JWT_SECRET") ?? "dev-insecure-secret";
 const FRONTEND_BASE_URL = (Deno.env.get("FRONTEND_URL") ?? Deno.env.get("SERVER_URL") ?? "http://localhost:3000").replace(/\/$/, "");
 const RESET_BASE_URL = (Deno.env.get("RESET_URL") ?? `${FRONTEND_BASE_URL}/auth/reset/reset_password.html`).replace(/\/$/, "");
 const ACTIVATION_BASE_URL = (Deno.env.get("ACTIVATION_URL") ?? `${FRONTEND_BASE_URL}/activation`).replace(/\/$/, "");
