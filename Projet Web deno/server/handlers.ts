@@ -322,7 +322,12 @@ export async function activateAccount(token: string): Promise<Response> {
     decoded = jwt.verify(token, JWT_SECRET);
     console.log("[activation] Token décodé:", decoded);
   } catch (err) {
-    console.warn("[activation] jwt.verify a échoué:", err);
+    console.error(
+      "[activation] Erreur JWT:",
+      (err as Error)?.name,
+      "-",
+      (err as Error)?.message,
+    );
     return new Response("Lien d'activation invalide ou expiré.", { status: 400 });
   }
   if (decoded.for !== "activation") {
