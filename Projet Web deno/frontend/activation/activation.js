@@ -5,13 +5,17 @@ async function activateAccount() {
   const params = new URLSearchParams(window.location.search);
   const token = params.get("token");
   if (!token) {
+    console.warn("[activation-page] Aucun token trouvé dans l'URL.");
     showMessage("Lien invalide : aucun jeton fourni.", "error");
     return;
   }
+  console.log("[activation-page] Token extrait:", token);
   try {
     const url = `/api/activation?token=${encodeURIComponent(token)}`;
+    console.log("[activation-page] Requête envoyée vers:", url);
     const response = await fetch(url, { method: "GET" });
     const text = await response.text();
+    console.log("[activation-page] Réponse reçue:", response.status, text);
     if (response.ok) {
       showMessage(text || "Compte activé !", "success");
     } else {
